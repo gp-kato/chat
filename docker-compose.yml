@@ -1,7 +1,7 @@
 version: '3' # おまじない（Composeファイル形式の宣言）
 services: # サービス
   db: # (任意の文字列) サービスの名称：db
-    image: mysql:5.7.36 # 用いるdockerイメージの指定
+    image: mysql:latest # 用いるdockerイメージの指定
     container_name: "mysql" # (任意の文字列) コンテナの名称
     environment: # コンテナに渡す環境変数の指定
         MYSQL_ROOT_PASSWORD: root # ルートパスワード名
@@ -56,13 +56,15 @@ services: # サービス
       - ./phpmyadmin/sessions:/sessions
 
   node: # (任意の文字列) サービスの名称：node
-    image: node:14.18-alpine # 用いるdockerイメージの指定
-    container_name: "node14.18-alpine" # (任意の文字列) コンテナの名称
+    image: node:latest # 最新のNode.jsバージョンを使用
+    container_name: "node-alpine" # (任意の文字列) コンテナの名称
     tty: true # コンテナ内の標準出力とホストの出力を設定：trueを指定
     volumes: # (任意の文字列) ボリュームの名称とマウント先
       - ./src:/var/www
     # コンテナ起動後のカレントディレクトリを設定
     working_dir: /var/www # /var/wwwを指定
+    ports:
+      - 5173:5173
 
 
   mail: # (任意の文字列) サービスの名称：mail
