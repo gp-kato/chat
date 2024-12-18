@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Furniture Design')
+@section('title', 'GroupChat')
 
 @section('content')
     
