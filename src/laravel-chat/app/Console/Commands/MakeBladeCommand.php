@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Support\File;
+use Illuminate\Support\Facades\File;
 use Illuminate\Console\Command;
 
 class MakeBladeCommand extends Command {
