@@ -46,7 +46,7 @@ class User extends Authenticatable
         ];
     }
 
-    public function message() {
-        return $this->belongsTo(Message::class);
+    public function messages() {
+        return $this->hasMany(Message::class);
     }
 }
