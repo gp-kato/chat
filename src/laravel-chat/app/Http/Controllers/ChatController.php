@@ -16,14 +16,11 @@ class ChatController extends Controller
         return view('group', compact('groups', 'users'));
     }
 
-    public function show($group_id) {
-        $groups = Group::all();
-        $group = $groups->firstWhere('id', $group_id); // 特定のグループを取得
-        $group_id = (int)$group_id;
-        $messages = Message::where('group_id', $group_id)->get();
+    public function show(Group $group) {
+        $messages = Message::where('group_id', $group->id)->get();
         return view('chat', compact('messages', 'group'));
     }
-
+    
     public function store(Request $request, Group $group) {
         $request->validate([
             'content' => 'required|string|max:140',
