@@ -5,6 +5,7 @@
 @section('content')
     <div class="container">
         <h1>{{ $group->name }}</h1>
+        <hr>
         <ul>
             @if($messages->isEmpty())
                 <li>No messages.</li>
