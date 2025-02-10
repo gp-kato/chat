@@ -15,7 +15,7 @@
             </ul>
         </div>
         <h2>チャット</h2>
-        <div id="messages">
+        <div id="messages" class="chat-list">
             <ul>
                 @foreach($groups as $group)
                     <li>
