@@ -6,7 +6,7 @@
     max-width: 1360px;
     margin: 0 auto;
     padding: 0 40px;
-}  
+}
 .d-flex {
     display: flex;
 }
@@ -15,15 +15,17 @@
 }
 textarea {
     border: 1px solid;
+    width: 80%;
 }
 .btn-primary {
     border: 1px solid;
 }
-textarea {
-    width: 100%;
-}
-
 .chat-list {
     border: solid;
     padding-left: 10px;
+}
+form {
+    position: fixed; bottom: 0; width: 100%;
+    background-color: #fff;
+    padding: 20px;
 }
