@@ -6,7 +6,7 @@
     <div class="container">
         <h1>{{ $group->name }}</h1>
         <hr>
-        <ul>
+        <ul class="message-list">
             @if($messages->isEmpty())
                 <li>No messages.</li>
             @else

@@ -25,7 +25,10 @@ textarea {
     padding-left: 10px;
 }
 .message {
-    position: fixed; bottom: 0; width: 100%;
+    position: sticky; bottom: 0; width: 100%;
     background-color: #fff;
     padding: 20px;
+}
+.message-list {
+    margin-bottom: 10px;
 }
