@@ -18,7 +18,7 @@
                 @endforeach
             @endif
         </ul>
-        <form action="{{ route('store', ['group' => $group->id]) }}" method="POST">
+        <form class="message" action="{{ route('store', ['group' => $group->id]) }}" method="POST">
             @csrf
             <input type="hidden" name="user_id" value="{{ auth()->id() }}">
             <input type="hidden" name="group_id" value="{{ $group->id }}">
