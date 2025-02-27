@@ -10,6 +10,9 @@
 .d-flex {
     display: flex;
 }
+input {
+    border: solid;
+}
 .justify-content-end {
     justify-content: end;
 }
@@ -23,6 +26,7 @@ textarea {
 .chat-list {
     border: solid;
     padding-left: 10px;
+    margin-bottom: 5px;
 }
 .message {
     position: sticky; bottom: 0; width: 100%;

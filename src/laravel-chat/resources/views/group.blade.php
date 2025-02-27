@@ -15,5 +15,11 @@
                 @endforeach
             </ul>
         </div>
+        <form action="{{ route('add') }}" method="POST">
+            @csrf
+            <input type="text" name="name">
+            <input type="text" name="description">
+            <button type="submit" class="btn btn-primary">新チャット作成</button>
+        </form>
     </div>
 @endsection
