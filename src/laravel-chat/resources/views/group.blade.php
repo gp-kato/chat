@@ -26,7 +26,9 @@
         @endif
         <form action="{{ route('add') }}" method="POST">
             @csrf
+            <label for="name">チャット名</label>
             <input type="text" name="name">
+            <label for="description">説明文</label>
             <input type="text" name="description">
             <button type="submit" class="btn btn-primary">新チャット作成</button>
         </form>
