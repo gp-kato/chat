@@ -16,6 +16,20 @@ class ChatController extends Controller
         return view('group', compact('groups', 'users'));
     }
 
+    public function add(Request $request, Group $group) {
+        $request->validate([
+            'name' => 'required|string|max:10',
+            'description' => 'required|string|max:40',
+        ]);
+
+        $group->create([
+            'name' => $request->name,
+            'description' => $request->description,
+        ]);
+
+        return redirect()->route('index');
+    }
+
     public function show(Group $group) {
         $messages = Message::where('group_id', $group->id)->get();
         return view('chat', compact('messages', 'group'));
