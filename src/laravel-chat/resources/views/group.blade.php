@@ -11,6 +11,7 @@
                 @foreach($groups as $group)
                     <li>
                         <a href="{{ route('show', [$group->id]) }}">{{ $group->name }}</a>
+                        {{ $group->description }}
                     </li>
                 @endforeach
             </ul>
