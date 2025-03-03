@@ -36,6 +36,9 @@ td {
     background-color: #fff;
     padding: 20px;
 }
+.alert-danger {
+    color: #ff0000;
+}
 .message-list {
     margin-bottom: 10px;
 }
