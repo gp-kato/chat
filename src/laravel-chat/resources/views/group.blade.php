@@ -5,16 +5,25 @@
 @section('content')
     <div class="container">
         <h1>Group Chat</h1>
-        <h2>チャット</h2>
         <div id="messages" class="chat-list">
-            <ul>
-                @foreach($groups as $group)
-                    <li>
-                        <a href="{{ route('show', [$group->id]) }}">{{ $group->name }}</a>
-                        {{ $group->description }}
-                    </li>
-                @endforeach
-            </ul>
+            <table>
+                <thead>
+                    <tr>
+                        <th>チャット名</th>
+                        <th>説明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($groups as $group)
+                        <tr>
+                            <td>
+                                <a href="{{ route('show', [$group->id]) }}">{{ $group->name }}</a>
+                            </td>
+                            <td>{{ $group->description }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
         @if ($errors->any())
             <div class="alert alert-danger">
