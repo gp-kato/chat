@@ -37,9 +37,9 @@
         <form action="{{ route('add') }}" method="POST">
             @csrf
             <label for="name">チャット名</label>
-            <input type="text" name="name" value="{{ old('name') }}">
+            <input type="text" id="name" name="name" value="{{ old('name') }}">
             <label for="description">説明文</label>
-            <input type="text" name="description" value="{{ old('description') }}">
+            <input type="text" id="description" name="description" value="{{ old('description') }}">
             <button type="submit" class="btn btn-primary">新チャット作成</button>
         </form>
     </div>
