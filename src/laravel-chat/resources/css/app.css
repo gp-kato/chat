@@ -10,6 +10,9 @@
 .d-flex {
     display: flex;
 }
+input {
+    border: 1px solid;
+}
 .justify-content-end {
     justify-content: end;
 }
@@ -21,13 +24,20 @@ textarea {
     border: 1px solid;
 }
 .chat-list {
-    border: solid;
     padding-left: 10px;
+    margin-bottom: 5px;
+}
+td {
+    border: 1px solid;
+    padding: 5px;
 }
 .message {
     position: sticky; bottom: 0; width: 100%;
     background-color: #fff;
     padding: 20px;
+}
+.alert-danger {
+    color: #ff0000;
 }
 .message-list {
     margin-bottom: 10px;
