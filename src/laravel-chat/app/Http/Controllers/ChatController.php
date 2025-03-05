@@ -11,9 +11,8 @@ use App\Models\Message;
 class ChatController extends Controller
 {
     public function index() {
-        $users = User::all();
         $groups = Group::all();
-        return view('group', compact('groups', 'users'));
+        return view('group', compact('groups'));
     }
 
     public function add(Request $request, Group $group) {
@@ -22,7 +21,7 @@ class ChatController extends Controller
             'description' => 'required|string|max:40',
         ]);
 
-        $group->create([
+        $group::create([
             'name' => $request->name,
             'description' => $request->description,
         ]);
@@ -31,7 +30,7 @@ class ChatController extends Controller
     }
 
     public function show(Group $group) {
-        $messages = Message::where('group_id', $group->id)->get();
+        $messages = $group->messages()->oldest()->get();
         return view('chat', compact('messages', 'group'));
     }
     
@@ -43,7 +42,6 @@ class ChatController extends Controller
         // 新しいメッセージを作成
         $group->messages()->create([
             'user_id' => auth::id(),
-            'group_id' => $group->id, // 明示的に group_id を設定
             'content' => $request->content,
         ]);
 
