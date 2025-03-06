@@ -21,7 +21,7 @@ class ChatController extends Controller
             'description' => 'required|string|max:40',
         ]);
 
-        $group::create([
+        Group::create([
             'name' => $request->name,
             'description' => $request->description,
         ]);
