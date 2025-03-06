@@ -9,7 +9,6 @@
         <ul class="message-list">
             @forelse($messages as $message)
                 <li class="d-flex {{ $message->user->id === auth()->id() ? 'justify-content-end' : 'justify-content-start' }}">
-                    {{ $message->content }}
                     <div>
                         {!! nl2br(e($message->content)) !!}
                         <br>
