@@ -22,8 +22,6 @@
         </ul>
         <form class="message" action="{{ route('store', ['group' => $group->id]) }}" method="POST">
             @csrf
-            <input type="hidden" name="user_id" value="{{ auth()->id() }}">
-
             <textarea name="content" rows="3" required class="form-control"></textarea>
             <br>
             <button type="submit" class="btn btn-primary">送信</button>
