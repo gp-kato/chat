@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 use App\Models\Group;
 use App\Models\Message;
 
@@ -15,7 +14,7 @@ class ChatController extends Controller
         return view('group', compact('groups'));
     }
 
-    public function add(Request $request, Group $group) {
+    public function add(Request $request) {
         $request->validate([
             'name' => 'required|string|max:10',
             'description' => 'required|string|max:40',
