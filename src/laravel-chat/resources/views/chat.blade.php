@@ -25,5 +25,6 @@
             <br>
             <button type="submit" class="btn btn-primary">送信</button>
         </form>
+        <a href="/">Back To Chatlist</a>
     </div>
 @endsection
