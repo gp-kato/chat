@@ -4,25 +4,23 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 use App\Models\Group;
 use App\Models\Message;
 
 class ChatController extends Controller
 {
     public function index() {
-        $users = User::all();
         $groups = Group::all();
-        return view('group', compact('groups', 'users'));
+        return view('group', compact('groups'));
     }
 
-    public function add(Request $request, Group $group) {
+    public function add(Request $request) {
         $request->validate([
             'name' => 'required|string|max:10',
             'description' => 'required|string|max:40',
         ]);
 
-        $group->create([
+        Group::create([
             'name' => $request->name,
             'description' => $request->description,
         ]);
@@ -31,7 +29,7 @@ class ChatController extends Controller
     }
 
     public function show(Group $group) {
-        $messages = Message::where('group_id', $group->id)->get();
+        $messages = $group->messages()->oldest()->get();
         return view('chat', compact('messages', 'group'));
     }
     
@@ -43,7 +41,6 @@ class ChatController extends Controller
         // 新しいメッセージを作成
         $group->messages()->create([
             'user_id' => auth::id(),
-            'group_id' => $group->id, // 明示的に group_id を設定
             'content' => $request->content,
         ]);
 
