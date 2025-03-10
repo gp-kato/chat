@@ -18,6 +18,10 @@
         </main>
 
         <footer id="footer" class="wrapper">
+            <a href="{{ route('logout') }}" class="nav-link" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">LOGOUT</a></li>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                @csrf
+            </form>
         </footer>
     </body>
 </html>
