@@ -9,8 +9,14 @@
     </head>
     <body>
         <header id="header" class="wrapper">
-            <div class="site-title">
-            </div>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <x-dropdown-link :href="route('logout')"
+                    onclick="event.preventDefault();
+                    this.closest('form').submit();">
+                    {{ __('Log Out') }}
+                </x-dropdown-link>
+            </form>
         </header>
 
         <main>
@@ -18,10 +24,6 @@
         </main>
 
         <footer id="footer" class="wrapper">
-            <a href="{{ route('logout') }}" class="nav-link" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">LOGOUT</a></li>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                @csrf
-            </form>
         </footer>
     </body>
 </html>
