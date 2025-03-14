@@ -19,11 +19,14 @@
                 <li>No messages.</li>
             @endforelse
         </ul>
-        <form class="message" action="{{ route('store', ['group' => $group->id]) }}" method="POST">
-            @csrf
-            <textarea name="content" rows="3" required class="form-control"></textarea>
-            <br>
-            <button type="submit" class="btn btn-primary">送信</button>
-        </form>
+        <div class="message">
+            <form action="{{ route('store', ['group' => $group->id]) }}" method="POST">
+                @csrf
+                <textarea name="content" rows="3" required class="form-control"></textarea>
+                <br>
+                <button type="submit" class="btn btn-primary">送信</button>
+            </form>
+            <a href="/">Back To Chatlist</a>
+        </div>
     </div>
 @endsection
