@@ -9,8 +9,7 @@
     </head>
     <body>
         <header id="header" class="wrapper">
-            <div class="site-title">
-            </div>
+            @include('layouts.navigation')
         </header>
 
         <main>
