@@ -24,7 +24,7 @@ class MessageTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_message(): void
+    public function test_writing_message(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);

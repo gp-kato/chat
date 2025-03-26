@@ -12,7 +12,7 @@ class GroupTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_group(): void
+    public function test_adding_chatgroup(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
