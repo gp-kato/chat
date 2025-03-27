@@ -38,4 +38,50 @@ class MessageTest extends TestCase
         $this->assertAuthenticated();
         $response->assertRedirect(route('show', [$group->id], absolute: false));
     }
+
+    public function test_chat_screen_can_not_rendered_without_login(): void
+    {
+        $response = $this->get('/group/{$group->id}');
+
+        $response->assertRedirect('/login');
+    }
+
+    public function test_can_not_writ_message_without_login(): void
+    {
+        $group = Group::factory()->create();
+
+        $response = $this->post("/group/{$group->id}", [
+            'content' => 'content',
+        ]);
+
+        $response->assertRedirect('/login');
+    }
+
+    public function test_writing_message_fails_when_content_is_missing(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $group = Group::factory()->create();
+
+        $response = $this->post("/group/{$group->id}", [
+            'content' => '',
+        ]);
+
+        $response->assertSessionHasErrors(['content']);
+    }
+
+    public function test_writing_message_fails_when_content_exceeds_max_length(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $group = Group::factory()->create();
+
+        $response = $this->post("/group/{$group->id}", [
+            'content' => str_repeat('a', 141),
+        ]);
+
+        $response->assertSessionHasErrors(['content']);
+    }
 }
