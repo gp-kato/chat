@@ -40,6 +40,10 @@ class MessageTest extends TestCase
 
         $this->assertAuthenticated();
         $response->assertRedirect(route('show', [$this->group->id], absolute: false));
+
+        $this->assertDatabaseHas('messages', [
+            'content' => 'content',
+        ]);
     }
 
     public function test_chat_screen_can_not_rendered_without_login(): void
@@ -56,6 +60,8 @@ class MessageTest extends TestCase
         ]);
 
         $response->assertRedirect('/login');
+
+        $this->assertDatabaseMissing('messages');
     }
 
     public function test_writing_message_fails_when_content_is_missing(): void
@@ -67,6 +73,8 @@ class MessageTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors(['content']);
+
+        $this->assertDatabaseMissing('messages');
     }
 
     public function test_writing_message_fails_when_content_exceeds_max_length(): void
@@ -78,5 +86,7 @@ class MessageTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors(['content']);
+
+        $this->assertDatabaseMissing('messages', ['content' => 'content']);
     }
 }

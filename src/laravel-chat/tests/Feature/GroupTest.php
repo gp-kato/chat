@@ -39,6 +39,11 @@ class GroupTest extends TestCase
 
         $this->assertAuthenticated();
         $response->assertRedirect(route('index', absolute: false));
+
+        $this->assertDatabaseHas('groups', [
+            'name' => 'name',
+            'description' => 'description',
+        ]);
     }
 
     public function test_group_screen_can_not_rendered_without_login(): void
@@ -56,6 +61,8 @@ class GroupTest extends TestCase
         ]);
 
         $response->assertRedirect('/login');
+
+        $this->assertDatabaseMissing('groups');
     }
 
     public function test_group_adding_fails_when_name_is_missing(): void
@@ -68,6 +75,8 @@ class GroupTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors(['name']);
+
+        $this->assertDatabaseMissing('groups', ['description' => 'description']);
     }
 
     public function test_group_adding_fails_when_name_exceeds_max_length(): void
@@ -80,6 +89,8 @@ class GroupTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors(['name']);
+
+        $this->assertDatabaseMissing('groups', ['description' => 'description']);
     }
 
     public function test_group_adding_fails_when_description_exceeds_max_length(): void
@@ -92,5 +103,7 @@ class GroupTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors(['description']);
+
+        $this->assertDatabaseMissing('groups', ['name' => 'name']);
     }
 }
