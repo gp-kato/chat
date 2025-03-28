@@ -50,10 +50,8 @@ class GroupTest extends TestCase
 
     public function test_can_not_adding_chat_without_login(): void
     {
-        $group = Group::factory()->create();
-
         $response = $this->post('/group', [
-            'name' => $group->name,
+            'name' => 'name',
             'description' => 'description',
         ]);
 
