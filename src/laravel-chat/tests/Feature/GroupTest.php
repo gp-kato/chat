@@ -27,10 +27,8 @@ class GroupTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $group = Group::factory()->create();
-
         $response = $this->post('/group', [
-            'name' => $group->name,
+            'name' => 'name',
             'description' => 'description',
         ]);
 
