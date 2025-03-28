@@ -19,7 +19,7 @@ class MessageTest extends TestCase
 
         $group = Group::factory()->create();
 
-        $response = $this->get('/group/1');
+        $response = $this->get("/group/{$group->id}");
 
         $response->assertStatus(200);
     }
