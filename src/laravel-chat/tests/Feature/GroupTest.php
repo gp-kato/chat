@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\Group;
 use App\Models\User;
@@ -12,11 +11,18 @@ class GroupTest extends TestCase
 {
     use RefreshDatabase;
 
+    private ?User $user = null;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user = User::factory()->create(); // すべてのテストで使うユーザーを作成
+    }
+
     public function test_group_screen_can_be_rendered(): void
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
-    
+        $this->actingAs($this->user);
+
         $response = $this->get('/');
 
         $response->assertStatus(200);
@@ -24,8 +30,7 @@ class GroupTest extends TestCase
 
     public function test_adding_chatgroup(): void
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
+        $this->actingAs($this->user);
 
         $response = $this->post('/group', [
             'name' => 'name',
@@ -57,8 +62,7 @@ class GroupTest extends TestCase
 
     public function test_group_adding_fails_when_name_is_missing(): void
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
+        $this->actingAs($this->user);
 
         $response = $this->post('/group', [
             'name' => '',
@@ -70,8 +74,7 @@ class GroupTest extends TestCase
 
     public function test_group_adding_fails_when_name_exceeds_max_length(): void
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
+        $this->actingAs($this->user);
 
         $response = $this->post('/group', [
             'name' => str_repeat('a', 11),
@@ -83,8 +86,7 @@ class GroupTest extends TestCase
 
     public function test_group_adding_fails_when_description_exceeds_max_length(): void
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
+        $this->actingAs($this->user);
 
         $response = $this->post('/group', [
             'name' => 'Valid Name',
