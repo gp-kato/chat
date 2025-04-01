@@ -79,6 +79,20 @@ class GroupTest extends TestCase
         $this->assertDatabaseMissing('groups', ['description' => 'description']);
     }
 
+    public function test_group_adding_fails_when_description_is_missing(): void
+    {
+        $this->actingAs($this->user);
+
+        $response = $this->post('/group', [
+            'name' => 'name',
+            'description' => '',
+        ]);
+
+        $response->assertSessionHasErrors(['description']);
+
+        $this->assertDatabaseMissing('groups', ['name' => 'name']);
+    }
+
     public function test_group_adding_fails_when_name_exceeds_max_length(): void
     {
         $this->actingAs($this->user);
