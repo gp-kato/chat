@@ -120,4 +120,25 @@ class GroupTest extends TestCase
 
         $this->assertDatabaseMissing('groups', ['name' => 'name']);
     }
+
+    public function test_group_adding_succeeds_with_max_length(): void
+    {
+        $this->actingAs($this->user);
+    
+        $validName = str_repeat('a', 10);
+        $validDescription = str_repeat('b', 40);
+    
+        $response = $this->post(route('add'), [
+            'name' => $validName,
+            'description' => $validDescription,
+        ]);
+    
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('index', absolute: false));
+    
+        $this->assertDatabaseHas('groups', [
+            'name' => $validName,
+            'description' => $validDescription,
+        ]);
+    }
 }

@@ -89,4 +89,22 @@ class MessageTest extends TestCase
 
         $this->assertDatabaseMissing('messages', ['content' => 'content']);
     }
+
+    public function test_write_message_succeeds_with_max_length(): void
+    {
+        $this->actingAs($this->user);
+    
+        $validContent = str_repeat('a', 140);
+    
+        $response = $this->post(route('store', $this->group->id), [
+            'content' => $validContent,
+        ]);
+    
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('show', [$this->group->id], absolute: false));
+    
+        $this->assertDatabaseHas('messages', [
+            'content' => $validContent,
+        ]);
+    }
 }
