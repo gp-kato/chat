@@ -23,7 +23,7 @@ class GroupTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->get('/');
+        $response = $this->get(route('index'));
 
         $response->assertStatus(200);
     }
@@ -32,7 +32,7 @@ class GroupTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->post('/group', [
+        $response = $this->post(route('add'), [
             'name' => 'name',
             'description' => 'description',
         ]);
@@ -48,19 +48,19 @@ class GroupTest extends TestCase
 
     public function test_group_screen_can_not_rendered_without_login(): void
     {
-        $response = $this->get('/');
+        $response = $this->get(route('index'));
 
-        $response->assertRedirect('/login');
+        $response->assertRedirect(route('login'));
     }
 
     public function test_can_not_adding_chat_without_login(): void
     {
-        $response = $this->post('/group', [
+        $response = $this->post(route('add'), [
             'name' => 'name',
             'description' => 'description',
         ]);
 
-        $response->assertRedirect('/login');
+        $response->assertRedirect(route('login'));
 
         $this->assertDatabaseMissing('groups');
     }
@@ -69,7 +69,7 @@ class GroupTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->post('/group', [
+        $response = $this->post(route('add'), [
             'name' => '',
             'description' => 'description',
         ]);
@@ -83,7 +83,7 @@ class GroupTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->post('/group', [
+        $response = $this->post(route('add'), [
             'name' => 'name',
             'description' => '',
         ]);
@@ -97,7 +97,7 @@ class GroupTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->post('/group', [
+        $response = $this->post(route('add'), [
             'name' => str_repeat('a', 11),
             'description' => 'description',
         ]);
@@ -111,7 +111,7 @@ class GroupTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->post('/group', [
+        $response = $this->post(route('add'), [
             'name' => 'Valid Name',
             'description' => str_repeat('a', 41),
         ]);

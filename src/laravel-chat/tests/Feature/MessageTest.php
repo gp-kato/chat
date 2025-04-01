@@ -25,7 +25,7 @@ class MessageTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->get("/group/{$this->group->id}");
+        $response = $this->get(route('show', $this->group->id));
 
         $response->assertStatus(200);
     }
@@ -34,7 +34,7 @@ class MessageTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->post("/group/{$this->group->id}", [
+        $response = $this->post(route('store', $this->group->id), [
             'content' => 'content',
         ]);
 
@@ -48,18 +48,18 @@ class MessageTest extends TestCase
 
     public function test_chat_screen_can_not_rendered_without_login(): void
     {
-        $response = $this->get("/group/{$this->group->id}");
+        $response = $this->get(route('show', $this->group->id));
 
-        $response->assertRedirect('/login');
+        $response->assertRedirect(route('login'));
     }
 
     public function test_can_not_write_message_without_login(): void
     {
-        $response = $this->post("/group/{$this->group->id}", [
+        $response = $this->post(route('store', $this->group->id), [
             'content' => 'content',
         ]);
 
-        $response->assertRedirect('/login');
+        $response->assertRedirect(route('login'));
 
         $this->assertDatabaseMissing('messages');
     }
@@ -68,7 +68,7 @@ class MessageTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->post("/group/{$this->group->id}", [
+        $response = $this->post(route('store', $this->group->id), [
             'content' => '',
         ]);
 
@@ -81,7 +81,7 @@ class MessageTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->post("/group/{$this->group->id}", [
+        $response = $this->post(route('store', $this->group->id), [
             'content' => str_repeat('a', 141),
         ]);
 
