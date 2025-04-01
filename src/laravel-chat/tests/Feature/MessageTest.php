@@ -43,6 +43,8 @@ class MessageTest extends TestCase
 
         $this->assertDatabaseHas('messages', [
             'content' => 'content',
+            'group_id' => $this->group->id,
+            'user_id' => $this->user->id,
         ]);
     }
 
