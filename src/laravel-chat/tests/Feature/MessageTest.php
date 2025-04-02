@@ -39,6 +39,7 @@ class MessageTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
+        $response->assertSessionHasNoErrors();
         $response->assertRedirect(route('show', [$this->group->id], absolute: false));
 
         $this->assertDatabaseHas('messages', [
@@ -103,6 +104,7 @@ class MessageTest extends TestCase
         ]);
     
         $this->assertAuthenticated();
+        $response->assertSessionHasNoErrors();
         $response->assertRedirect(route('show', [$this->group->id], absolute: false));
     
         $this->assertDatabaseHas('messages', [

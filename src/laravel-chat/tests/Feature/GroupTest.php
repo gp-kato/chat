@@ -38,6 +38,7 @@ class GroupTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
+        $response->assertSessionHasNoErrors();
         $response->assertRedirect(route('index', absolute: false));
 
         $this->assertDatabaseHas('groups', [
@@ -134,6 +135,7 @@ class GroupTest extends TestCase
         ]);
     
         $this->assertAuthenticated();
+        $response->assertSessionHasNoErrors();
         $response->assertRedirect(route('index', absolute: false));
     
         $this->assertDatabaseHas('groups', [
