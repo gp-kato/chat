@@ -56,24 +56,29 @@ class GroupTest extends TestCase
 
     public function test_can_not_adding_chat_without_login(): void
     {
-        $response = $this->post(route('add'), [
+        $formData = [
             'name' => 'name',
             'description' => 'description',
-        ]);
-
+        ];
+    
+        $response = $this->post(route('add'), $formData);
+    
         $response->assertRedirect(route('login'));
-
-        $this->assertDatabaseMissing('groups');
+    
+        // フォームの内容に一致するデータがDBに存在しないことを確認
+        $this->assertDatabaseMissing('groups', $formData);
     }
 
     public function test_group_adding_fails_when_name_is_missing(): void
     {
         $this->actingAs($this->user);
 
-        $response = $this->post(route('add'), [
+        $formData = [
             'name' => '',
             'description' => 'description',
-        ]);
+        ];
+
+        $response = $this->post(route('add'), $formData);
 
         $response->assertSessionHasErrors(['name']);
 
@@ -84,10 +89,12 @@ class GroupTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->post(route('add'), [
+        $formData = [
             'name' => 'name',
             'description' => '',
-        ]);
+        ];
+
+        $response = $this->post(route('add'), $formData);
 
         $response->assertSessionHasErrors(['description']);
 
@@ -98,10 +105,12 @@ class GroupTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->post(route('add'), [
+        $formData = [
             'name' => str_repeat('a', 11),
             'description' => 'description',
-        ]);
+        ];
+
+        $response = $this->post(route('add'), $formData);
 
         $response->assertSessionHasErrors(['name']);
 
@@ -112,10 +121,12 @@ class GroupTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->post(route('add'), [
+        $formData = [
             'name' => 'Valid Name',
             'description' => str_repeat('a', 41),
-        ]);
+        ];
+
+        $response = $this->post(route('add'), $formData);
 
         $response->assertSessionHasErrors(['description']);
 

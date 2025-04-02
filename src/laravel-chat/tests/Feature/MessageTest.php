@@ -58,22 +58,26 @@ class MessageTest extends TestCase
 
     public function test_can_not_write_message_without_login(): void
     {
-        $response = $this->post(route('store', $this->group->id), [
+        $formData = [
             'content' => 'content',
-        ]);
+        ];
+
+        $response = $this->post(route('store', $this->group->id), $formData);
 
         $response->assertRedirect(route('login'));
 
-        $this->assertDatabaseMissing('messages');
+        $this->assertDatabaseMissing('messages', $formData);
     }
 
     public function test_writing_message_fails_when_content_is_missing(): void
     {
         $this->actingAs($this->user);
 
-        $response = $this->post(route('store', $this->group->id), [
+        $formData = [
             'content' => '',
-        ]);
+        ];
+
+        $response = $this->post(route('store', $this->group->id), $formData);
 
         $response->assertSessionHasErrors(['content']);
 
@@ -84,9 +88,11 @@ class MessageTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->post(route('store', $this->group->id), [
+        $formData = [
             'content' => str_repeat('a', 141),
-        ]);
+        ];
+    
+        $response = $this->post(route('store', $this->group->id), $formData);
 
         $response->assertSessionHasErrors(['content']);
 
