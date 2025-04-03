@@ -80,8 +80,8 @@ class GroupTest extends TestCase
 
         $response = $this->post(route('add'), $formData);
 
-        $response->assertSessionHasErrors(['name']);
-        $response->assertSessionHasNoErrors(['description']);
+        $response->assertInvalid(['name']);
+        $response->assertValid(['description']);
 
         $this->assertDatabaseMissing('groups', ['description' => 'description']);
     }
@@ -97,8 +97,8 @@ class GroupTest extends TestCase
 
         $response = $this->post(route('add'), $formData);
 
-        $response->assertSessionHasNoErrors(['name']);
-        $response->assertSessionHasErrors(['description']);
+        $response->assertvalid(['name']);
+        $response->assertInValid(['description']);
 
         $this->assertDatabaseMissing('groups', ['name' => 'name']);
     }
@@ -114,8 +114,8 @@ class GroupTest extends TestCase
 
         $response = $this->post(route('add'), $formData);
 
-        $response->assertSessionHasErrors(['name']);
-        $response->assertSessionHasNoErrors(['description']);
+        $response->assertInvalid(['name']);
+        $response->assertValid(['description']);
 
         $this->assertDatabaseMissing('groups', ['description' => 'description']);
     }
@@ -131,8 +131,8 @@ class GroupTest extends TestCase
 
         $response = $this->post(route('add'), $formData);
 
-        $response->assertSessionHasNoErrors(['name']);
-        $response->assertSessionHasErrors(['description']);
+        $response->assertvalid(['name']);
+        $response->assertInValid(['description']);
 
         $this->assertDatabaseMissing('groups', ['name' => 'name']);
     }
