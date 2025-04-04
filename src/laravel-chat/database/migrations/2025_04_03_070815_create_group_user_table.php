@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamp('joined_at')->nullable();
             $table->timestamp('left_at')->nullable();
-            $table->string('role')->nullable(); // 'admin', 'member' など
+            $table->string('role')->default('member'); // デフォルト値を設定
             $table->timestamps();
 
             $table->unique(['group_id', 'user_id']); // 同じ組み合わせの重複を防ぐ
