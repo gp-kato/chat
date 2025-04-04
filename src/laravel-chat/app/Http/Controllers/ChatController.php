@@ -29,6 +29,12 @@ class ChatController extends Controller
     }
 
     public function show(Group $group) {
+        $user = Auth::user();
+
+        if (!$group->isJoinedBy($user)) {
+            return redirect()->route('index')->with('error', 'このグループに参加していません');
+        }
+
         $messages = $group->messages()->oldest()->get();
         return view('chat', compact('messages', 'group'));
     }
