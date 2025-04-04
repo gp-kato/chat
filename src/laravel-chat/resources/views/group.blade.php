@@ -11,6 +11,7 @@
                     <tr>
                         <th>チャット名</th>
                         <th>説明</th>
+                        <th>操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -20,11 +21,26 @@
                                 <a href="{{ route('show', [$group->id]) }}">{{ $group->name }}</a>
                             </td>
                             <td>{{ $group->description }}</td>
+                            <td>
+                                @if ($group->isJoinedBy(auth()->user()))
+                                    <form action="{{ route('leave', $group->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger">退会</button>
+                                    </form>
+                                @else
+                                    <form action="{{ route('join', $group->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        <button type="submit" class="btn btn-success">参加</button>
+                                    </form>
+                                @endif
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
+
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
@@ -34,6 +50,7 @@
                 </ul>
             </div>
         @endif
+
         <form action="{{ route('add') }}" method="POST">
             @csrf
             <label for="name">チャット名</label>

@@ -49,4 +49,11 @@ class User extends Authenticatable
     public function messages() {
         return $this->hasMany(Message::class);
     }
+
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'group_user')
+                    ->withPivot('joined_at', 'left_at', 'role')
+                    ->withTimestamps();
+    }
 }
