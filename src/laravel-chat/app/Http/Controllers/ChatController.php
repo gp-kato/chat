@@ -46,4 +46,24 @@ class ChatController extends Controller
 
         return redirect()->route('show', $group->id);
     }
+
+    public function join(Group $group) {
+        $user = Auth::user();
+
+        if (!$group->isJoinedBy($user)) {
+            $group->users()->attach($user->id, ['joined_at' => now()]);
+        }
+
+        return redirect()->back()->with('success', 'グループに参加しました');
+    }
+
+    public function leave(Group $group) {
+        $user = Auth::user();
+
+        if ($group->isJoinedBy($user)) {
+            $group->users()->detach($user->id);
+        }
+
+        return redirect()->back()->with('success', 'グループから退会しました');
+    }
 }

@@ -24,4 +24,9 @@ class Group extends Model
         ->withPivot('joined_at', 'left_at', 'role')
          ->withTimestamps();
     }
+
+    public function isJoinedBy($user)
+    {
+        return $this->users()->where('user_id', $user->id)->exists();
+    }
 }
