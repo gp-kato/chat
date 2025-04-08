@@ -56,6 +56,10 @@ class ChatController extends Controller
     public function join(Group $group) {
         $user = Auth::user();
 
+        if ($group->isJoinedBy($user)) {
+            return redirect()->back();
+        }
+    
         $group->users()->syncWithoutDetaching([
             $user->id => [
                 'joined_at' => now(),
