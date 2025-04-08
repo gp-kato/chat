@@ -65,11 +65,13 @@ class ChatController extends Controller
 
     public function leave(Group $group) {
         $user = Auth::user();
-
-        if ($group->isJoinedBy($user)) {
-            $group->users()->detach($user->id);
+    
+        if ($group->isActiveMember($user)) {
+            $group->users()->updateExistingPivot($user->id, [
+                'left_at' => now(),
+            ]);
         }
-
+    
         return redirect()->back()->with('success', 'グループから退会しました');
     }
 }

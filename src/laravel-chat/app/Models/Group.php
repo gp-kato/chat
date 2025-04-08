@@ -25,8 +25,20 @@ class Group extends Model
          ->withTimestamps();
     }
 
-    public function isJoinedBy($user)
+    public function isJoinedBy(User $user)
     {
-        return $this->users()->where('user_id', $user->id)->exists();
+        return $this->users()
+        ->where('user_id', $user->id)
+        ->whereNull('left_at')               // まだ退会していない
+        ->whereNotNull('joined_at')            // 参加日時がある（念のため）
+        ->exists();
+    }
+
+    public function isActiveMember(User $user)
+    {
+        return $this->users()
+        ->where('user_id', $user->id)
+        ->whereNull('left_at')
+        ->exists();
     }
 }
