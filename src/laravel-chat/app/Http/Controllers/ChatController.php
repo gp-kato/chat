@@ -57,7 +57,7 @@ class ChatController extends Controller
         $user = Auth::user();
 
         if ($group->isJoinedBy($user)) {
-            return redirect()->back();
+            return redirect()->back()->with('info', 'すでにグループに参加しています');
         }
     
         $group->users()->syncWithoutDetaching([

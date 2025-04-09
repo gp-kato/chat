@@ -4,11 +4,13 @@
 
 @section('content')
     <div class="container">
-        @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
+        @foreach (['success', 'info', 'error'] as $msg)
+            @if (session($msg))
+                <div class="alert alert-{{ $msg }}">
+                    {{ session($msg) }}
+                </div>
+            @endif
+        @endforeach
         <h1>Group Chat</h1>
         <div id="messages" class="chat-list">
             <table>
