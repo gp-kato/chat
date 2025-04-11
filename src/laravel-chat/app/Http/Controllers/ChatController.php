@@ -40,6 +40,12 @@ class ChatController extends Controller
     }
     
     public function store(Request $request, Group $group) {
+        $user = Auth::user();
+
+        if (!$group->isJoinedBy($user)) {
+            return redirect()->route('index')->with('error', 'このグループに参加していません');
+        }
+
         $request->validate([
             'content' => 'required|string|max:140',
         ]);

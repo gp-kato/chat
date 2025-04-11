@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 use App\Models\Group;
 use App\Models\User;
@@ -12,11 +13,13 @@ class GroupTest extends TestCase
     use RefreshDatabase;
 
     private ?User $user = null;
+    private ?Group $group = null;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->user = User::factory()->create(); // すべてのテストで使うユーザーを作成
+        $this->group = Group::factory()->create(); // 1回だけグループを作成
     }
 
     public function test_group_screen_can_be_rendered(): void
@@ -157,5 +160,56 @@ class GroupTest extends TestCase
             'name' => $validName,
             'description' => $validDescription,
         ]);
+    }
+
+    public function test_join_chatgroup(): void
+    {
+        $this->actingAs($this->user);
+
+        $response = $this->post(route('join', $this->group->id));
+
+        $response->assertRedirect(route('index', absolute: false));
+        $this->assertDatabaseHas('group_user', [
+            'user_id' => $this->user->id,
+            'group_id' => $this->group->id,
+        ]);
+    }
+
+    public function test_can_not_rejoin_chatgroup_with_joined_group(): void
+    {
+        $this->actingAs($this->user);
+        $this->group->users()->attach($this->user->id);
+
+        $response = $this->post(route('join', $this->group->id));
+
+        $response->assertRedirect(route('index', absolute: false));
+        $this->assertDatabaseHas('group_user', [
+            'user_id' => $this->user->id,
+            'group_id' => $this->group->id,
+        ]);
+
+        $this->assertEquals(1, DB::table('group_user')
+        ->where('user_id', $this->user->id)
+        ->where('group_id', $this->group->id)
+        ->count());
+    }
+
+    public function test_can_leave_chatgroup(): void
+    {
+        $this->actingAs($this->user);
+        $this->group->users()->attach($this->user->id);
+
+        $response = $this->delete(route('leave', $this->group->id));
+
+        $response->assertRedirect(route('index', absolute: false));
+    }
+
+    public function test_can_leave_chatgroup_with_not_join(): void
+    {
+        $this->actingAs($this->user);
+
+        $response = $this->delete(route('leave', $this->group->id));
+
+        $response->assertRedirect(route('index', absolute: false));
     }
 }
