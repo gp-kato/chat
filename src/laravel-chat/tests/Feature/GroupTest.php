@@ -202,6 +202,9 @@ class GroupTest extends TestCase
         $response = $this->delete(route('leave', $this->group->id));
 
         $response->assertRedirect(route('index', absolute: false));
+        $this->assertDatabaseHas('group_user',[
+            'left_at' => now(),
+        ]);
     }
 
     public function test_can_leave_chatgroup_with_not_join(): void
