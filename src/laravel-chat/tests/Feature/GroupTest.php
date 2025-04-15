@@ -203,6 +203,8 @@ class GroupTest extends TestCase
 
         $response->assertRedirect(route('index', absolute: false));
         $this->assertDatabaseHas('group_user',[
+            'user_id' => $this->user->id,
+            'group_id' => $this->group->id,
             'left_at' => now(),
         ]);
     }
