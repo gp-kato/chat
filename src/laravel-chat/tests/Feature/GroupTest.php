@@ -217,4 +217,24 @@ class GroupTest extends TestCase
 
         $response->assertRedirect(route('index', absolute: false));
     }
+
+    public function test_can_rejoin_with_left(): void
+    {
+        $this->actingAs($this->user);
+        $this->group->users()->attach($this->user->id);
+        $this->group->users()->syncWithoutDetaching($this->user->id);
+
+        $response = $this->post(route('join', $this->group->id));
+
+        $response->assertRedirect(route('index', absolute: false));
+        $this->assertDatabaseHas('group_user', [
+            'user_id' => $this->user->id,
+            'group_id' => $this->group->id,
+        ]);
+
+        $this->assertEquals(1, DB::table('group_user')
+        ->where('user_id', $this->user->id)
+        ->where('group_id', $this->group->id)
+        ->count());
+    }
 }
