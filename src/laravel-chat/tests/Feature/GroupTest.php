@@ -216,6 +216,7 @@ class GroupTest extends TestCase
         $response = $this->delete(route('leave', $this->group->id));
 
         $response->assertRedirect(route('index', absolute: false));
+        $response->assertSessionHas('info', 'グループに参加していません');
     }
 
     public function test_can_rejoin_with_left(): void

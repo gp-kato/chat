@@ -83,8 +83,10 @@ class ChatController extends Controller
             $group->users()->updateExistingPivot($user->id, [
                 'left_at' => now(),
             ]);
+
+            return redirect()->back()->with('success', 'グループから退会しました');
         }
     
-        return redirect()->back()->with('success', 'グループから退会しました');
+        return redirect()->back()->with('info', 'グループに参加していません');
     }
 }
