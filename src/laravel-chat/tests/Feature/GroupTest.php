@@ -224,7 +224,10 @@ class GroupTest extends TestCase
     public function test_can_rejoin_with_left(): void
     {
         $this->actingAs($this->user);
-        $this->group->users()->syncWithoutDetaching($this->user->id);
+        $this->group->users()->syncWithoutDetaching($this->user->id, [
+            'joined_at' => '2025-04-07 08:30:17',
+            'left_at' => null,
+        ]);
 
         $response = $this->post(route('join', $this->group->id));
 
