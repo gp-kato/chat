@@ -235,6 +235,8 @@ class GroupTest extends TestCase
         $this->assertDatabaseHas('group_user', [
             'user_id' => $this->user->id,
             'group_id' => $this->group->id,
+            'joined_at' => now(),
+            'left_at' => null,
         ]);
 
         $this->assertEquals(1, DB::table('group_user')
