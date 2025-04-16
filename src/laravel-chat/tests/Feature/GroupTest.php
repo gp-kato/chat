@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 use App\Models\Group;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 
 class GroupTest extends TestCase
 {
@@ -20,6 +21,7 @@ class GroupTest extends TestCase
         parent::setUp();
         $this->user = User::factory()->create(); // すべてのテストで使うユーザーを作成
         $this->group = Group::factory()->create(); // 1回だけグループを作成
+        Carbon::setTestNow('2025-04-15 19:00:00');
     }
 
     public function test_group_screen_can_be_rendered(): void

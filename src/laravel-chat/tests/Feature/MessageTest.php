@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Group;
+use Illuminate\Support\Carbon;
 
 class MessageTest extends TestCase
 {
@@ -19,6 +20,7 @@ class MessageTest extends TestCase
         parent::setUp();
         $this->user = User::factory()->create(); // 1回だけユーザーを作成
         $this->group = Group::factory()->create(); // 1回だけグループを作成
+        Carbon::setTestNow('2025-04-15 19:00:00');
     }
 
     private function joinGroup(User $user, Group $group): void
