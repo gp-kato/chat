@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Group;
+use Illuminate\Support\Carbon;
 
 class MessageTest extends TestCase
 {
@@ -19,20 +20,31 @@ class MessageTest extends TestCase
         parent::setUp();
         $this->user = User::factory()->create(); // 1回だけユーザーを作成
         $this->group = Group::factory()->create(); // 1回だけグループを作成
+        Carbon::setTestNow('2025-04-15 19:00:00');
     }
 
-    public function test_chat_screen_can_be_rendered(): void
+    private function joinGroup(User $user, Group $group): void
+    {
+        $group->users()->attach($user->id, [
+            'joined_at' => now(),
+            'left_at' => null,
+        ]);
+    }
+
+    public function test_chat_screen_can_be_rendered_with_join_group(): void
     {
         $this->actingAs($this->user);
+        $this->joinGroup($this->user, $this->group);
 
         $response = $this->get(route('show', $this->group->id));
 
         $response->assertStatus(200);
     }
 
-    public function test_writing_message(): void
+    public function test_can_writing_message_with_join_group(): void
     {
         $this->actingAs($this->user);
+        $this->joinGroup($this->user, $this->group);
 
         $response = $this->post(route('store', $this->group->id), [
             'content' => 'content',
@@ -72,6 +84,7 @@ class MessageTest extends TestCase
     public function test_writing_message_fails_when_content_is_missing(): void
     {
         $this->actingAs($this->user);
+        $this->joinGroup($this->user, $this->group);
 
         $formData = [
             'content' => '',
@@ -87,6 +100,7 @@ class MessageTest extends TestCase
     public function test_writing_message_fails_when_content_exceeds_max_length(): void
     {
         $this->actingAs($this->user);
+        $this->joinGroup($this->user, $this->group);
 
         $formData = [
             'content' => str_repeat('a', 141),
@@ -102,7 +116,8 @@ class MessageTest extends TestCase
     public function test_write_message_succeeds_with_max_length(): void
     {
         $this->actingAs($this->user);
-    
+        $this->joinGroup($this->user, $this->group);
+
         $validContent = str_repeat('a', 140);
     
         $response = $this->post(route('store', $this->group->id), [
@@ -116,5 +131,26 @@ class MessageTest extends TestCase
         $this->assertDatabaseHas('messages', [
             'content' => $validContent,
         ]);
+    }
+
+    public function test_chat_screen_cannot_be_rendered_without_join_group(): void
+    {
+        $this->actingAs($this->user);
+
+        $response = $this->get(route('show', $this->group->id));
+
+        $response->assertRedirect(route('index', absolute: false));
+    }
+
+    public function test_cannot_writing_message_without_join_group(): void
+    {
+        $this->actingAs($this->user);
+
+        $response = $this->post(route('store', $this->group->id), [
+            'content' => 'content',
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('index', absolute: false));
     }
 }

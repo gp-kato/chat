@@ -29,11 +29,23 @@ class ChatController extends Controller
     }
 
     public function show(Group $group) {
+        $user = Auth::user();
+
+        if (!$group->isJoinedBy($user)) {
+            return redirect()->route('index')->with('error', 'このグループに参加していません');
+        }
+
         $messages = $group->messages()->oldest()->get();
         return view('chat', compact('messages', 'group'));
     }
     
     public function store(Request $request, Group $group) {
+        $user = Auth::user();
+
+        if (!$group->isJoinedBy($user)) {
+            return redirect()->route('index')->with('error', 'このグループに参加していません');
+        }
+
         $request->validate([
             'content' => 'required|string|max:140',
         ]);
@@ -45,5 +57,36 @@ class ChatController extends Controller
         ]);
 
         return redirect()->route('show', $group->id);
+    }
+
+    public function join(Group $group) {
+        $user = Auth::user();
+
+        if ($group->isJoinedBy($user)) {
+            return redirect()->back()->with('info', 'すでにグループに参加しています');
+        }
+    
+        $group->users()->syncWithoutDetaching([
+            $user->id => [
+                'joined_at' => now(),
+                'left_at' => null
+            ]
+        ]);
+    
+        return redirect()->back()->with('success', 'グループに参加しました');
+    }
+
+    public function leave(Group $group) {
+        $user = Auth::user();
+    
+        if ($group->isActiveMember($user)) {
+            $group->users()->updateExistingPivot($user->id, [
+                'left_at' => now(),
+            ]);
+
+            return redirect()->back()->with('success', 'グループから退会しました');
+        }
+    
+        return redirect()->back()->with('info', 'グループに参加していません');
     }
 }
