@@ -21,7 +21,7 @@ class Group extends Model
     public function users()
     {
         return $this->belongsToMany(User::class, 'group_user')
-        ->withPivot('joined_at', 'left_at', 'role')
+        ->withPivot('joined_at', 'left_at')
          ->withTimestamps();
     }
 

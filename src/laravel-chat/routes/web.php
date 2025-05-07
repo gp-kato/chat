@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -11,6 +12,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/group/{group}', [ChatController::class, 'store'])->name('store');
     Route::post('/groups/{group}/join', [ChatController::class, 'join'])->name('join');
     Route::delete('/groups/{group}/leave', [ChatController::class, 'leave'])->name('leave');
+});
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/', [AdminController::class, 'index'])->name('index');
+    Route::post('/invite', [AdminController::class, 'invite'])->name('invite');
 });
 
 require __DIR__.'/auth.php';
