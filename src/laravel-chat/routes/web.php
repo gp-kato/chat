@@ -11,6 +11,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/group/{group}', [ChatController::class, 'store'])->name('store');
     Route::post('/groups/{group}/join', [ChatController::class, 'join'])->name('join');
     Route::delete('/groups/{group}/leave', [ChatController::class, 'leave'])->name('leave');
+    Route::get('/group/{group}/search', [ChatController::class, 'search'])->name('search');
+    Route::post('/group/{group}/invite', [ChatController::class, 'invite'])->name('invite');
 });
 
 require __DIR__.'/auth.php';

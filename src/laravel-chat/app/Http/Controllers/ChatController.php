@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 use App\Models\Group;
 use App\Models\Message;
 
@@ -20,10 +21,12 @@ class ChatController extends Controller
             'description' => 'required|string|max:40',
         ]);
 
-        Group::create([
+        $group = Group::create([
             'name' => $request->name,
             'description' => $request->description,
         ]);
+
+        $group->users()->attach(Auth::id(), ['role' => 'admin', 'joined_at' => now()]);
 
         return redirect()->route('index');
     }
@@ -36,7 +39,8 @@ class ChatController extends Controller
         }
 
         $messages = $group->messages()->oldest()->get();
-        return view('chat', compact('messages', 'group'));
+        $users = $group->users;
+        return view('chat', compact('messages', 'group', 'users'));
     }
     
     public function store(Request $request, Group $group) {
@@ -88,5 +92,35 @@ class ChatController extends Controller
         }
     
         return redirect()->back()->with('info', 'グループに参加していません');
+    }
+
+    public function search(Request $request, Group $group) {
+        $query = $request->input('query');
+        $users = collect();
+
+        if (!empty($query)) {
+            $users = User::where(function($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                ->orWhere('email', 'like', "%{$query}%");
+            })
+            ->where('id', '!=', auth()->id())
+            ->get();
+        }
+
+        return view('chat', [
+            'group' => $group,
+            'users' => $users,
+            'messages' => $group->messages()->oldest()->get(),
+        ]);
+    }
+
+    public function invite(Request $request) {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $user = User::find($request->user_id);
+
+        return back()->with('success', "{$user->name}さんを招待しました。");
     }
 }
