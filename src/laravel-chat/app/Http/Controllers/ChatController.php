@@ -40,7 +40,13 @@ class ChatController extends Controller
 
         $messages = $group->messages()->oldest()->get();
         $users = $group->users;
-        return view('chat', compact('messages', 'group', 'users'));
+
+        $isAdmin = $group->users()
+        ->where('users.id', $user->id)
+        ->wherePivot('role', 'admin')
+        ->exists();
+
+        return view('chat', compact('messages', 'group', 'users', 'isAdmin'));
     }
     
     public function store(Request $request, Group $group) {
