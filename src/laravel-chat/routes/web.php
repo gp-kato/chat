@@ -13,6 +13,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/groups/{group}/leave', [ChatController::class, 'leave'])->name('leave');
     Route::get('/group/{group}/search', [ChatController::class, 'search'])->name('search');
     Route::post('/group/{group}/invite', [ChatController::class, 'invite'])->name('invite');
+    Route::get('/group/{group}/edit', [ChatController::class, 'edit'])->name('edit');
+    Route::put('/group/{group}/edit', [ChatController::class, 'update'])->name('update');
 });
 
 require __DIR__.'/auth.php';

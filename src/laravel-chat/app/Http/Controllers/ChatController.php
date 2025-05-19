@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Message;
+use App\Http\Requests\UpdateChatRequest;
 
 class ChatController extends Controller
 {
@@ -128,5 +129,19 @@ class ChatController extends Controller
         $user = User::find($request->user_id);
 
         return back()->with('success', "{$user->name}さんを招待しました。");
+    }
+
+    public function edit(Group $group) {
+        return view('edit', compact('group'));
+    }
+
+    public function update(UpdateChatRequest $request, Group $group) {
+        $request->validated();
+
+        $group->fill($request->only(['name', 'description']));
+
+        $group->save();
+    
+        return redirect()->route('show', compact('group'))->with('success', 'グループは更新されました');
     }
 }

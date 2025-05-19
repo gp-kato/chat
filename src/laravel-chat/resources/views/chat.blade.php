@@ -47,6 +47,7 @@
                     <p>検索結果が見つかりませんでした。</p>
                 @endif
             @endif
+            <a href="{{ route('edit', $group->id) }}">このグループを編集</a>
         @endif
         <hr>
         <ul class="message-list">
