@@ -32,7 +32,7 @@
                             <tbody>
                                 @foreach($users as $user)
                                     <tr>
-                                        td>
+                                        <td>
                                             <input type="radio" name="user_id" value="{{ $user->id }}" required>
                                         </td>
                                         <td>{{ $user->name }}</td>
