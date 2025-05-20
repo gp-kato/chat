@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Message;
-use App\Http\Requests\UpdateChatRequest;
+use App\Http\Requests\UpdateGroupRequest;
 
 class ChatController extends Controller
 {
@@ -142,7 +142,7 @@ class ChatController extends Controller
         return view('edit', compact('group'));
     }
 
-    public function update(UpdateChatRequest $request, Group $group) {
+    public function update(UpdateGroupRequest $request, Group $group) {
         $request->validated();
 
         $group->fill($request->only(['name', 'description']));
