@@ -29,7 +29,7 @@
                             </td>
                             <td>{{ $group->description }}</td>
                             <td>
-                                @if ($group->isJoinedBy(auth()->user()))
+                                @if ($isJoinedBy)
                                     <form action="{{ route('leave', $group->id) }}" method="POST" style="display:inline;">
                                         @csrf
                                         @method('DELETE')

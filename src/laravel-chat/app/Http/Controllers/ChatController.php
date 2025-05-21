@@ -11,9 +11,10 @@ use App\Http\Requests\UpdateGroupRequest;
 
 class ChatController extends Controller
 {
-    public function index() {
+    public function index(Group $group) {
         $groups = Group::all();
-        return view('group', compact('groups'));
+        $isJoinedBy = $group->isJoinedBy(Auth::user());
+        return view('group', compact('groups', 'isJoinedBy'));
     }
 
     public function add(Request $request) {
@@ -41,9 +42,9 @@ class ChatController extends Controller
 
         $messages = $group->messages()->oldest()->get();
         $users = $group->users;
-        $group->isAdmin($user);
+        $isAdmin = $group->isAdmin(Auth::user());
 
-        return view('chat', compact('messages', 'group', 'users'));
+        return view('chat', compact('messages', 'group', 'users','isAdmin'));
     }
     
     public function store(Request $request, Group $group) {
@@ -101,7 +102,7 @@ class ChatController extends Controller
         $query = $request->input('query');
         $users = collect();
         $user = Auth::user();
-        $group->isAdmin($user);
+        $isAdmin = $group->isAdmin(Auth::user());
 
         if (!empty($query)) {
             $users = User::where(function($q) use ($query) {
@@ -115,6 +116,7 @@ class ChatController extends Controller
         return view('chat', [
             'group' => $group,
             'users' => $users,
+            'isAdmin' => $isAdmin,
             'messages' => $group->messages()->oldest()->get(),
         ]);
     }
