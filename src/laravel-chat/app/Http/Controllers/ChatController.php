@@ -41,13 +41,9 @@ class ChatController extends Controller
 
         $messages = $group->messages()->oldest()->get();
         $users = $group->users;
+        $group->isAdmin($user);
 
-        $isAdmin = $group->users()
-        ->where('users.id', $user->id)
-        ->wherePivot('role', 'admin')
-        ->exists();
-
-        return view('chat', compact('messages', 'group', 'users', 'isAdmin'));
+        return view('chat', compact('messages', 'group', 'users'));
     }
     
     public function store(Request $request, Group $group) {
@@ -105,11 +101,7 @@ class ChatController extends Controller
         $query = $request->input('query');
         $users = collect();
         $user = Auth::user();
-
-        $isAdmin = $group->users()
-        ->where('users.id', $user->id)
-        ->wherePivot('role', 'admin')
-        ->exists();
+        $group->isAdmin($user);
 
         if (!empty($query)) {
             $users = User::where(function($q) use ($query) {
@@ -123,7 +115,6 @@ class ChatController extends Controller
         return view('chat', [
             'group' => $group,
             'users' => $users,
-            'isAdmin' => $isAdmin,
             'messages' => $group->messages()->oldest()->get(),
         ]);
     }

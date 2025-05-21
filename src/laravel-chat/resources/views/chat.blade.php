@@ -12,7 +12,7 @@
                 </div>
             @endif
         @endforeach
-        @if($isAdmin)
+        @if($group->isAdmin(auth()->user()))
             <form method="GET" action="{{ route('search', ['group' => $group->id]) }}" class="mb-4">
                 <input type="text" name="query" placeholder="名前またはメールアドレス" value="{{ request('query') }}" class="border p-2 rounded">
                 <button type="submit" class="bg-gray-200 px-4 py-2 rounded">検索</button>
