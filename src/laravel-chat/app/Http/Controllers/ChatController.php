@@ -11,10 +11,14 @@ use App\Http\Requests\UpdateGroupRequest;
 
 class ChatController extends Controller
 {
-    public function index(Group $group) {
-        $groups = Group::all();
-        $isJoinedBy = $group->isJoinedBy(Auth::user());
-        return view('group', compact('groups', 'isJoinedBy'));
+    public function index() {
+        $user = Auth::user();
+        $groups = Group::withExists(['users as is_joined' => function ($query) use ($user) {
+            $query->where('users.id', $user->id)
+            ->whereNull('left_at')
+            ->whereNotNull('joined_at');
+        }])->get();
+        return view('group', compact('groups'));
     }
 
     public function add(Request $request) {
