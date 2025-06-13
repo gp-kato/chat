@@ -48,6 +48,29 @@
                 @endif
             @endif
             <a href="{{ route('edit', $group->id) }}">このグループを編集</a>
+            <h1>メンバーを退会</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ユーザー名</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($users as $user)
+                        <tr>
+                            <td>{{ $user->name }}</td>
+                            <td>
+                                <form action="{{ route('remove', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger">退会</button>
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         @endif
         <hr>
         <ul class="message-list">

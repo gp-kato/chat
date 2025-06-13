@@ -90,7 +90,6 @@ class ChatController extends Controller
 
     public function leave(Group $group) {
         $user = Auth::user();
-    
         if ($group->isActiveMember($user)) {
             $group->users()->updateExistingPivot($user->id, [
                 'left_at' => now(),
@@ -136,7 +135,9 @@ class ChatController extends Controller
     }
 
     public function edit(Group $group) {
-        return view('edit', compact('group'));
+        $user = Auth::user();
+        $users = $group->users()->where('role', 'member')->get();
+        return view('edit', compact('group', 'users'));
     }
 
     public function update(UpdateGroupRequest $request, Group $group) {
@@ -147,5 +148,10 @@ class ChatController extends Controller
         $group->save();
     
         return redirect()->route('show', compact('group'))->with('success', 'グループは更新されました');
+    }
+
+    public function remove(Group $group, User $user) {
+        $group->users()->detach($user->id);
+        return redirect()->back()->with('success', 'グループから退会しました');
     }
 }

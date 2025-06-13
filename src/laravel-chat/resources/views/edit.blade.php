@@ -20,6 +20,31 @@
                     </div>
                     <button type="submit">グループを更新</button>
                 </form>
+                <hr>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ユーザー</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($users as $user)
+                            <tr>
+                                <td>
+                                    <p>{{ $user->name }}</p>
+                                </td>
+                                <td>
+                                    <form action="{{ route('remove', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger">退会</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </ul>
     </div>
