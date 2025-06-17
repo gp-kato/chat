@@ -45,13 +45,18 @@ class ChatController extends Controller
         }
 
         $messages = $group->messages()->oldest()->get();
+        $removableUsers = $group->users()
+        ->wherePivot('left_at', null)
+        ->where('users.id', '!=', $user->id)
+        ->withPivot('left_at')
+        ->get();
         $users = $group->users()
         ->wherePivot('left_at', null)
         ->withPivot('left_at')
         ->get();
         $isAdmin = $group->isAdmin(Auth::user());
 
-        return view('chat', compact('messages', 'group', 'users','isAdmin'));
+        return view('chat', compact('messages', 'group', 'users','removableUsers','isAdmin'));
     }
     
     public function store(Request $request, Group $group) {
