@@ -45,7 +45,10 @@ class ChatController extends Controller
         }
 
         $messages = $group->messages()->oldest()->get();
-        $users = $group->users;
+        $users = $group->users()
+        ->wherePivot('left_at', null)
+        ->withPivot('left_at')
+        ->get();
         $isAdmin = $group->isAdmin(Auth::user());
 
         return view('chat', compact('messages', 'group', 'users','isAdmin'));
@@ -151,7 +154,11 @@ class ChatController extends Controller
     }
 
     public function remove(Group $group, User $user) {
-        $group->users()->detach($user->id);
-        return redirect()->back()->with('success', 'グループから退会しました');
+        if ($group->isActiveMember($user)) {
+            $group->users()->updateExistingPivot($user->id, [
+                'left_at' => now(),
+            ]);
+            return redirect()->back()->with('success', 'グループから退会させました');
+        }
     }
 }
