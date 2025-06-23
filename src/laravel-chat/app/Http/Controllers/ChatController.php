@@ -114,19 +114,25 @@ class ChatController extends Controller
         $users = collect();
         $user = Auth::user();
         $isAdmin = $group->isAdmin(Auth::user());
-
+        $removableUsers = $group->users()
+        ->wherePivot('left_at', null)
+        ->where('users.id', '!=', $user->id)
+        ->withPivot('left_at')
+        ->get();
+        $joinedUserIds = $group->users()->pluck('users.id')->toArray();
         if (!empty($query)) {
             $users = User::where(function($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
                 ->orWhere('email', 'like', "%{$query}%");
             })
-            ->where('id', '!=', auth()->id())
+            ->whereNotIn('id', $joinedUserIds)
             ->get();
         }
 
         return view('chat', [
             'group' => $group,
             'users' => $users,
+            'removableUsers' => $removableUsers,
             'isAdmin' => $isAdmin,
             'messages' => $group->messages()->oldest()->get(),
         ]);
