@@ -47,7 +47,7 @@ class ChatController extends Controller
         $messages = $group->messages()->oldest()->get();
         $removableUsers = $group->users()
         ->wherePivot('left_at', null)
-        ->where('users.id', '!=', $user->id)
+        ->where('role', 'member')
         ->withPivot('left_at')
         ->get();
         $users = $group->users()
@@ -116,7 +116,7 @@ class ChatController extends Controller
         $isAdmin = $group->isAdmin(Auth::user());
         $removableUsers = $group->users()
         ->wherePivot('left_at', null)
-        ->where('users.id', '!=', $user->id)
+        ->where('role', 'member')
         ->withPivot('left_at')
         ->get();
         $joinedUserIds = $group->users()->pluck('users.id')->toArray();
