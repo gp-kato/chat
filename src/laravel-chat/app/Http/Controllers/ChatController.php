@@ -98,15 +98,23 @@ class ChatController extends Controller
 
     public function leave(Group $group) {
         $user = Auth::user();
-        if ($group->isActiveMember($user)) {
-            $group->users()->updateExistingPivot($user->id, [
-                'left_at' => now(),
-            ]);
-
-            return redirect()->back()->with('success', 'グループから退会しました');
+        if (!$group->isActiveMember($user)) {
+            return redirect()->back()->with('info', 'グループに参加していません');
         }
-    
-        return redirect()->back()->with('info', 'グループに参加していません');
+        if ($group->isAdmin($user)) {
+            $adminCount = $group->users()
+            ->wherePivot('left_at', null)
+            ->wherePivot('role', 'admin') // ← 中間テーブルにroleカラムがある想定
+            ->count();
+
+            if ($adminCount <= 1) {
+                return redirect()->back()->with('error', '管理者が1人しかいないため、退会できません');
+            }
+        }
+        $group->users()->updateExistingPivot($user->id, [
+            'left_at' => now(),
+        ]);
+        return redirect()->back()->with('success', 'グループから退会しました');
     }
 
     public function search(Request $request, Group $group) {
