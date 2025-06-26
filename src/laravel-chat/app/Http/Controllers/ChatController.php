@@ -105,6 +105,7 @@ class ChatController extends Controller
             $adminCount = $group->users()
             ->wherePivot('left_at', null)
             ->wherePivot('role', 'admin') // ← 中間テーブルにroleカラムがある想定
+            ->wherePivotNotNull('joined_at')
             ->count();
 
             if ($adminCount <= 1) {
