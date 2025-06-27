@@ -5,6 +5,13 @@
 @section('content')
     <div class="content wrapper">
         <ul>
+            @foreach (['success', 'error'] as $msg)
+                @if (session($msg))
+                    <div class="alert alert-{{ $msg }}">
+                        {{ session($msg) }}
+                    </div>
+                @endif
+            @endforeach
             <div class="container">
                 <h1>グループを編集</h1>
                 <form action="{{ route('update', $group->id) }}" method="POST" enctype="multipart/form-data">
