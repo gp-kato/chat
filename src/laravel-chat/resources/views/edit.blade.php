@@ -29,7 +29,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($users as $user)
+                        @foreach($removableUsers as $user)
                             <tr>
                                 <td>
                                     <p>{{ $user->name }}</p>

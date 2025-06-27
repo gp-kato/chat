@@ -173,7 +173,12 @@ class ChatController extends Controller
     public function edit(Group $group) {
         $user = Auth::user();
         $users = $group->users()->where('role', 'member')->get();
-        return view('edit', compact('group', 'users'));
+        $removableUsers = $group->users()
+        ->wherePivot('left_at', null)
+        ->where('role', 'member')
+        ->withPivot('left_at')
+        ->get();
+        return view('edit', compact('group', 'users', 'removableUsers'));
     }
 
     public function update(UpdateGroupRequest $request, Group $group) {
@@ -187,11 +192,12 @@ class ChatController extends Controller
     }
 
     public function remove(Group $group, User $user) {
-        if ($group->isActiveMember($user)) {
-            $group->users()->updateExistingPivot($user->id, [
-                'left_at' => now(),
-            ]);
-            return redirect()->back()->with('success', 'グループから退会させました');
+        if (!$group->isActiveMember($user)) {
+            return redirect()->back()->with('error', 'このユーザーは既に退会済みです');
         }
+        $group->users()->updateExistingPivot($user->id, [
+            'left_at' => now(),
+        ]);
+        return redirect()->back()->with('success', 'グループから退会させました');
     }
 }
