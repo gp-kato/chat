@@ -164,13 +164,18 @@ class ChatController extends Controller
         ]);
     }
 
-    public function invite(Request $request) {
+    public function invite(Request $request, Group $group) {
         $request->validate([
             'user_id' => 'required|exists:users,id',
         ]);
 
         $user = User::find($request->user_id);
-
+        $group->users()->syncWithoutDetaching([
+            $user->id => [
+                'joined_at' => now(),
+                'left_at' => null
+            ]
+        ]);
         return back()->with('success', "{$user->name}さんを招待しました。");
     }
 
