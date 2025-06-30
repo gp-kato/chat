@@ -127,8 +127,8 @@ class ChatController extends Controller
             if ($result['reason'] === 'last_admin') {
                 return redirect()->back()->with('error', '管理者が1人しかいないため、退会できません。');
             }
+            return redirect()->back()->with('error', '退会処理に失敗しました');
         }
-        return redirect()->back()->with('success', 'グループから退会しました');
     }
 
     public function search(Request $request, Group $group) {
