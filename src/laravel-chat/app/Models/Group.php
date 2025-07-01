@@ -41,4 +41,11 @@ class Group extends Model
         ->whereNull('left_at')
         ->exists();
     }
+
+    public function isAdmin(User $user) {
+        return $this->users()
+        ->where('user_id', $user->id)
+        ->wherePivot('role', 'admin')
+        ->exists();
+    }
 }

@@ -5,6 +5,73 @@
 @section('content')
     <div class="container">
         <h1>{{ $group->name }}</h1>
+        @foreach (['success', 'info', 'error'] as $msg)
+            @if (session($msg))
+                <div class="alert alert-{{ $msg }}">
+                    {{ session($msg) }}
+                </div>
+            @endif
+        @endforeach
+        @if($isAdmin)
+            <form method="GET" action="{{ route('search', ['group' => $group->id]) }}" class="mb-4">
+                <input type="text" name="query" placeholder="名前またはメールアドレス" value="{{ request('query') }}" class="border p-2 rounded">
+                <button type="submit" class="bg-gray-200 px-4 py-2 rounded">検索</button>
+            </form>
+            @if(request('query'))
+                @if($users->isNotEmpty())
+                    <form method="POST" action="{{ route('invite', ['group' => $group->id]) }}">
+                        @csrf
+                        <table class="table-auto w-full">
+                            <thead>
+                                <tr>
+                                    <th>選択</th>
+                                    <th>名前</th>
+                                    <th>メールアドレス</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($users as $user)
+                                    <tr>
+                                        <td>
+                                            <input type="radio" name="user_id" value="{{ $user->id }}" required>
+                                        </td>
+                                        <td>{{ $user->name }}</td>
+                                        <td>{{ $user->email }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                        <button type="submit" class="mt-4 px-4 py-2 rounded">招待</button>
+                    </form>
+                @else
+                    <p>検索結果が見つかりませんでした。</p>
+                @endif
+            @endif
+            <a href="{{ route('edit', $group->id) }}">このグループを編集</a>
+            <h1>メンバーを退会</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ユーザー名</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($removableUsers as $user)
+                        <tr>
+                            <td>{{ $user->name }}</td>
+                            <td>
+                                <form action="{{ route('remove', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger">退会</button>
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
         <hr>
         <ul class="message-list">
             @forelse($messages as $message)
