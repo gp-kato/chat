@@ -145,7 +145,10 @@ class ChatController extends Controller
         ->where('role', 'member')
         ->withPivot('left_at')
         ->get();
-        $joinedUserIds = $group->users()->pluck('users.id')->toArray();
+        $joinedUserIds = $group->users()
+        ->wherePivot('left_at', null) // 参加中のユーザーだけを取得
+        ->pluck('users.id')
+        ->toArray();
         if (!empty($query)) {
             $users = User::where(function($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
