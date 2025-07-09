@@ -5,10 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Message;
+use App\Models\Invitation;
 use App\Http\Requests\UpdateGroupRequest;
+use App\Mail\GroupInvitation;
 
 class ChatController extends Controller
 {
@@ -145,7 +149,10 @@ class ChatController extends Controller
         ->where('role', 'member')
         ->withPivot('left_at')
         ->get();
-        $joinedUserIds = $group->users()->pluck('users.id')->toArray();
+        $joinedUserIds = $group->users()
+        ->wherePivot('left_at', null) // 参加中のユーザーだけを取得
+        ->pluck('users.id')
+        ->toArray();
         if (!empty($query)) {
             $users = User::where(function($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
@@ -170,12 +177,16 @@ class ChatController extends Controller
         ]);
 
         $user = User::find($request->user_id);
-        $group->users()->syncWithoutDetaching([
-            $user->id => [
-                'joined_at' => now(),
-                'left_at' => null
-            ]
+        $token = Str::random(32);
+        $invitation = Invitation::create([
+            'group_id' => $group->id,
+            'inviter_id' => auth()->id(),
+            'invitee_email' => $user->email,
+            'token' => $token,
+            'expires_at' => now()->addDays(31),
         ]);
+        $url = route('join.token', ['token' => $token]);
+        Mail::to($user->email)->send(new GroupInvitation($group, $url));
         return back()->with('success', "{$user->name}さんを招待しました。");
     }
 
