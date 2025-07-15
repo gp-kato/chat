@@ -84,21 +84,30 @@ class ChatController extends Controller
         return redirect()->route('show', $group->id);
     }
 
-    public function join(Group $group) {
+    public function join($token, $groupId) {
+        $group = Group::findOrFail($groupId);
         $user = Auth::user();
 
         if ($group->isJoinedBy($user)) {
             return redirect()->back()->with('info', 'すでにグループに参加しています');
         }
+        DB::transaction(function () use ($group, $user) {
+            $invitation = $group->invitations()
+                ->where('invitee_email', $user->email)
+                ->first();
+            if ($invitation) {
+                $invitation->accepted_at = now();
+                $invitation->save();
+            }
+            $group->users()->syncWithoutDetaching([
+                $user->id => [
+                    'joined_at' => now(),
+                    'left_at' => null
+                ]
+            ]);
+        });
     
-        $group->users()->syncWithoutDetaching([
-            $user->id => [
-                'joined_at' => now(),
-                'left_at' => null
-            ]
-        ]);
-    
-        return redirect()->back()->with('success', 'グループに参加しました');
+        return redirect()->route('index')->with('success', 'グループに参加しました');
     }
 
     public function leave(Group $group) {
@@ -185,7 +194,7 @@ class ChatController extends Controller
             'token' => $token,
             'expires_at' => now()->addDays(31),
         ]);
-        $url = route('join.token', ['token' => $token]);
+        $url = route('join.token', ['token' => $token, 'group' => $group->id, ]);
         Mail::to($user->email)->send(new GroupInvitation($group, $url));
         return back()->with('success', "{$user->name}さんを招待しました。");
     }
