@@ -91,14 +91,17 @@ class ChatController extends Controller
         if ($group->isJoinedBy($user)) {
             return redirect()->back()->with('info', 'すでにグループに参加しています');
         }
-        DB::transaction(function () use ($group, $user) {
-            $invitation = $group->invitations()
-                ->where('invitee_email', $user->email)
-                ->first();
-            if ($invitation) {
-                $invitation->accepted_at = now();
-                $invitation->save();
-            }
+        $invitation = $group->invitations()
+            ->where('token', $token)
+            ->where('invitee_email', $user->email)
+            ->where('expires_at', '>', now())
+            ->first();
+        if (!$invitation) {
+            return redirect()->route('index')->with('error', '無効な招待リンクです');
+        }
+        DB::transaction(function () use ($group, $user, $invitation) {
+            $invitation->accepted_at = now();
+            $invitation->save();
             $group->users()->syncWithoutDetaching([
                 $user->id => [
                     'joined_at' => now(),
@@ -106,7 +109,6 @@ class ChatController extends Controller
                 ]
             ]);
         });
-    
         return redirect()->route('index')->with('success', 'グループに参加しました');
     }
 
@@ -186,6 +188,9 @@ class ChatController extends Controller
         ]);
 
         $user = User::find($request->user_id);
+        if (!$group->isAdmin(Auth::user())) {
+            return redirect()->back()->with('error', '管理者権限が必要です');
+        }
         $token = Str::random(32);
         $invitation = Invitation::create([
             'group_id' => $group->id,
