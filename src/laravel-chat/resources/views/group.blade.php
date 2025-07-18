@@ -36,10 +36,7 @@
                                         <button type="submit" class="btn btn-danger">退会</button>
                                     </form>
                                 @else
-                                    <form action="{{ route('join', $group->id) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        <button type="submit" class="btn btn-success">参加</button>
-                                    </form>
+                                    <p>ー</p>
                                 @endif
                             </td>
                         </tr>

@@ -5,10 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Message;
+use App\Models\Invitation;
 use App\Http\Requests\UpdateGroupRequest;
+use App\Mail\GroupInvitation;
 
 class ChatController extends Controller
 {
@@ -80,21 +84,32 @@ class ChatController extends Controller
         return redirect()->route('show', $group->id);
     }
 
-    public function join(Group $group) {
+    public function join($token, $groupId) {
+        $group = Group::findOrFail($groupId);
         $user = Auth::user();
 
         if ($group->isJoinedBy($user)) {
             return redirect()->back()->with('info', 'すでにグループに参加しています');
         }
-    
-        $group->users()->syncWithoutDetaching([
-            $user->id => [
-                'joined_at' => now(),
-                'left_at' => null
-            ]
-        ]);
-    
-        return redirect()->back()->with('success', 'グループに参加しました');
+        $invitation = $group->invitations()
+            ->where('token', $token)
+            ->where('invitee_email', $user->email)
+            ->where('expires_at', '>', now())
+            ->first();
+        if (!$invitation) {
+            return redirect()->route('index')->with('error', '無効な招待リンクです');
+        }
+        DB::transaction(function () use ($group, $user, $invitation) {
+            $invitation->accepted_at = now();
+            $invitation->save();
+            $group->users()->syncWithoutDetaching([
+                $user->id => [
+                    'joined_at' => now(),
+                    'left_at' => null
+                ]
+            ]);
+        });
+        return redirect()->route('index')->with('success', 'グループに参加しました');
     }
 
     public function leave(Group $group) {
@@ -145,7 +160,10 @@ class ChatController extends Controller
         ->where('role', 'member')
         ->withPivot('left_at')
         ->get();
-        $joinedUserIds = $group->users()->pluck('users.id')->toArray();
+        $joinedUserIds = $group->users()
+        ->wherePivot('left_at', null) // 参加中のユーザーだけを取得
+        ->pluck('users.id')
+        ->toArray();
         if (!empty($query)) {
             $users = User::where(function($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
@@ -170,12 +188,19 @@ class ChatController extends Controller
         ]);
 
         $user = User::find($request->user_id);
-        $group->users()->syncWithoutDetaching([
-            $user->id => [
-                'joined_at' => now(),
-                'left_at' => null
-            ]
+        if (!$group->isAdmin(Auth::user())) {
+            return redirect()->back()->with('error', '管理者権限が必要です');
+        }
+        $token = Str::random(32);
+        $invitation = Invitation::create([
+            'group_id' => $group->id,
+            'inviter_id' => auth()->id(),
+            'invitee_email' => $user->email,
+            'token' => $token,
+            'expires_at' => now()->addDays(31),
         ]);
+        $url = route('join.token', ['token' => $token, 'group' => $group->id, ]);
+        Mail::to($user->email)->send(new GroupInvitation($group, $url));
         return back()->with('success', "{$user->name}さんを招待しました。");
     }
 
