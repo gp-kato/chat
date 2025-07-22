@@ -95,6 +95,7 @@ class ChatController extends Controller
             ->where('token', $token)
             ->where('invitee_email', $user->email)
             ->where('expires_at', '>', now())
+            ->whereNull('accepted_at')
             ->first();
         if (!$invitation) {
             return redirect()->route('index')->with('error', '無効な招待リンクです');
