@@ -60,8 +60,11 @@ class ChatController extends Controller
         ->withPivot('left_at')
         ->get();
         $isAdmin = $group->isAdmin(Auth::user());
-
-        return view('chat', compact('messages', 'group', 'users','removableUsers','isAdmin'));
+        $invitations = Invitation::where('group_id', $group->id)
+            ->where('expires_at', '>', now())
+            ->whereNull('accepted_at')
+            ->get();
+        return view('chat', compact('messages', 'group', 'users','removableUsers','isAdmin', 'invitations'));
     }
     
     public function store(Request $request, Group $group) {
@@ -173,12 +176,16 @@ class ChatController extends Controller
             ->whereNotIn('id', $joinedUserIds)
             ->get();
         }
-
+        $invitations = Invitation::where('group_id', $group->id)
+            ->where('expires_at', '>', now())
+            ->whereNull('accepted_at')
+            ->get();
         return view('chat', [
             'group' => $group,
             'users' => $users,
             'removableUsers' => $removableUsers,
             'isAdmin' => $isAdmin,
+            'invitations' => $invitations,
             'messages' => $group->messages()->oldest()->get(),
         ]);
     }
@@ -192,6 +199,13 @@ class ChatController extends Controller
         if (!$group->isAdmin(Auth::user())) {
             return redirect()->back()->with('error', '管理者権限が必要です');
         }
+        $existing = Invitation::where('group_id', $group->id)
+            ->where('invitee_email', $user->email)
+            ->where('expires_at', '>', now())
+            ->first();
+        if ($existing) {
+            return back()->with('info', "{$user->name}さんには既に招待が送られています。");
+        }
         $token = Str::random(32);
         $invitation = Invitation::create([
             'group_id' => $group->id,
@@ -203,6 +217,22 @@ class ChatController extends Controller
         $url = route('join.token', ['token' => $token, 'group' => $group->id, ]);
         Mail::to($user->email)->send(new GroupInvitation($group, $url));
         return back()->with('success', "{$user->name}さんを招待しました。");
+    }
+
+    public function resend(Request $request, Group $group, Invitation $invitation) {
+        if (!$group->isAdmin(Auth::user())) {
+            return redirect()->back()->with('error', '管理者権限が必要です');
+        }
+        $existing = Invitation::where('group_id', $group->id)
+            ->where('invitee_email', $user->email)
+            ->where('expires_at', '>', now())
+            ->first();
+        if ($existing) {
+            $invitation->expires_at = now()->addDays(31);
+            $invitation->save();            $url = route('join.token', ['token' => $existing->token, 'group' => $group->id]);
+            Mail::to($user->email)->send(new GroupInvitation($group, $url));
+            return back()->with('success', "{$user->name}さんに再送信しました。");
+        }
     }
 
     public function edit(Group $group) {

@@ -15,6 +15,10 @@ class Invitation extends Model
         'expires_at',
     ];
 
+    protected $casts = [
+        'expires_at' => 'datetime',
+    ];
+
     public function inviter() {
         return $this->belongsTo(User::class, 'inviter_id');
     }
@@ -22,4 +26,9 @@ class Invitation extends Model
     public function group() {
         return $this->belongsTo(Group::class);
     }
+    
+    public function user() {
+        return $this->belongsTo(User::class, 'invitee_email', 'email');
+    }
+
 }
