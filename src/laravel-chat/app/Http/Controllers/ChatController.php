@@ -220,6 +220,7 @@ class ChatController extends Controller
     }
 
     public function resend(Request $request, Group $group, Invitation $invitation) {
+        $user = User::find($request->user_id);
         if (!$group->isAdmin(Auth::user())) {
             return redirect()->back()->with('error', '管理者権限が必要です');
         }
