@@ -223,20 +223,20 @@ class ChatController extends Controller
     }
 
     public function resend(Request $request, Group $group, Invitation $invitation) {
-        $user = User::find($request->user_id);
         if (!$group->isAdmin(Auth::user())) {
             return redirect()->back()->with('error', '管理者権限が必要です');
         }
-        $existing = Invitation::where('group_id', $group->id)
-            ->where('invitee_email', $user->email)
-            ->where('expires_at', '>', now())
-            ->first();
-        if ($existing) {
-            $invitation->expires_at = now()->addDays(31);
-            $invitation->save();            $url = route('join.token', ['token' => $existing->token, 'group' => $group->id]);
-            Mail::to($user->email)->send(new GroupInvitation($group, $url));
-            return back()->with('success', "{$user->name}さんに再送信しました。");
+        if ($invitation->group_id !== $group->id) {
+            return back()->with('error', 'この招待はこのグループに属していません');
         }
+        if ($invitation->expires_at < now()) {
+            return back()->with('error', 'この招待は期限切れです');
+        }
+        $invitation->expires_at = now()->addDays(31);
+        $invitation->save();
+        $url = route('join.token', ['token' => $invitation->token,'group' => $group->id,]);
+        Mail::to($invitation->invitee_email)->send(new GroupInvitation($group, $url));
+        return back()->with('success', "{$invitation->invitee_email} に招待を再送信しました。");
     }
 
     public function edit(Group $group) {
