@@ -209,17 +209,24 @@ class ChatController extends Controller
         if ($existing) {
             return back()->with('info', "{$user->name}さんには既に招待が送られています。");
         }
-        $token = Str::random(32);
-        $invitation = Invitation::create([
-            'group_id' => $group->id,
-            'inviter_id' => auth()->id(),
-            'invitee_email' => $user->email,
-            'token' => $token,
-            'expires_at' => now()->addDays(31),
-        ]);
-        $url = route('join.token', ['token' => $token, 'group' => $group->id, ]);
-        Mail::to($user->email)->send(new GroupInvitation($group, $url));
-        return back()->with('success', "{$user->name}さんを招待しました。");
+        try {
+            DB::beginTransaction();
+            $token = Str::random(32);
+            $invitation = Invitation::create([
+                'group_id' => $group->id,
+                'inviter_id' => auth()->id(),
+                'invitee_email' => $user->email,
+                'token' => $token,
+                'expires_at' => now()->addDays(31),
+            ]);
+            $url = route('join.token', ['token' => $token, 'group' => $group->id, ]);
+            Mail::to($user->email)->send(new GroupInvitation($group, $url));
+            DB::commit();
+            return back()->with('success', "{$user->name}さんを招待しました。");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', "招待に失敗しました。時間をおいて再試行してください。");
+        }
     }
 
     public function resend(Group $group, Invitation $invitation) {
@@ -232,11 +239,18 @@ class ChatController extends Controller
         if ($invitation->expires_at < now()) {
             return back()->with('error', 'この招待は期限切れです');
         }
-        $invitation->expires_at = now()->addDays(31);
-        $invitation->save();
-        $url = route('join.token', ['token' => $invitation->token,'group' => $group->id,]);
-        Mail::to($invitation->invitee_email)->send(new GroupInvitation($group, $url));
-        return back()->with('success', "{$invitation->invitee_email} に招待を再送信しました。");
+        try {
+            DB::beginTransaction();
+            $invitation->expires_at = now()->addDays(31);
+            $invitation->save();
+            $url = route('join.token', ['token' => $invitation->token,'group' => $group->id,]);
+            Mail::to($invitation->invitee_email)->send(new GroupInvitation($group, $url));
+            DB::commit();
+            return back()->with('success', "{$invitation->invitee_email} に招待を再送信しました。");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', "再送に失敗しました。時間をおいて再試行してください。");
+        }
     }
 
     public function edit(Group $group) {
