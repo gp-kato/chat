@@ -222,7 +222,7 @@ class ChatController extends Controller
         return back()->with('success', "{$user->name}さんを招待しました。");
     }
 
-    public function resend(Request $request, Group $group, Invitation $invitation) {
+    public function resend(Group $group, Invitation $invitation) {
         if (!$group->isAdmin(Auth::user())) {
             return redirect()->back()->with('error', '管理者権限が必要です');
         }

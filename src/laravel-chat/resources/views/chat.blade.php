@@ -92,7 +92,6 @@
                             <td>
                                 <form method="POST" action="{{ route('resend', ['group' => $group->id, 'invitation' => $invitation->id]) }}">
                                     @csrf
-                                    <input type="hidden" name="user_id" value="{{ $invitation->user->id }}">
                                     <button type="submit">再送</button>
                                 </form>
                             </td>
