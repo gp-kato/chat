@@ -202,15 +202,15 @@ class ChatController extends Controller
         if ($group->users()->where('users.id', $user->id)->exists()) {
             return back()->with('info', "{$user->name}さんは既にこのグループのメンバーです。");
         }
-        $existing = Invitation::where('group_id', $group->id)
-            ->where('invitee_email', $user->email)
-            ->where('expires_at', '>', now())
-            ->first();
-        if ($existing) {
-            return back()->with('info', "{$user->name}さんには既に招待が送られています。");
-        }
         try {
             DB::beginTransaction();
+            $existing = Invitation::where('group_id', $group->id)
+                ->where('invitee_email', $user->email)
+                ->where('expires_at', '>', now())
+                ->first();
+            if ($existing) {
+                return back()->with('info', "{$user->name}さんには既に招待が送られています。");
+            }
             $token = Str::random(32);
             $invitation = Invitation::create([
                 'group_id' => $group->id,
