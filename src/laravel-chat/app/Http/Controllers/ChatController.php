@@ -203,28 +203,27 @@ class ChatController extends Controller
             return back()->with('info', "{$user->name}さんは既にこのグループのメンバーです。");
         }
         try {
-            DB::beginTransaction();
-            $existing = Invitation::where('group_id', $group->id)
-                ->where('invitee_email', $user->email)
-                ->where('expires_at', '>', now())
-                ->first();
-            if ($existing) {
-                return back()->with('info', "{$user->name}さんには既に招待が送られています。");
-            }
-            $token = Str::random(32);
-            $invitation = Invitation::create([
-                'group_id' => $group->id,
-                'inviter_id' => auth()->id(),
-                'invitee_email' => $user->email,
-                'token' => $token,
-                'expires_at' => now()->addDays(31),
-            ]);
-            $url = route('join.token', ['token' => $token, 'group' => $group->id, ]);
-            Mail::to($user->email)->send(new GroupInvitation($group, $url));
-            DB::commit();
+            DB::transaction(function () use ($group, $user) {
+                $existing = Invitation::where('group_id', $group->id)
+                    ->where('invitee_email', $user->email)
+                    ->where('expires_at', '>', now())
+                    ->first();
+                if ($existing) {
+                    return back()->with('info', "{$user->name}さんには既に招待が送られています。");
+                }
+                $token = Str::random(32);
+                $invitation = Invitation::create([
+                    'group_id' => $group->id,
+                    'inviter_id' => auth()->id(),
+                    'invitee_email' => $user->email,
+                    'token' => $token,
+                    'expires_at' => now()->addDays(31),
+                ]);
+                $url = route('join.token', ['token' => $token, 'group' => $group->id, ]);
+                Mail::to($user->email)->send(new GroupInvitation($group, $url));
+            });
             return back()->with('success', "{$user->name}さんを招待しました。");
         } catch (\Exception $e) {
-            DB::rollBack();
             return back()->with('error', "招待に失敗しました。時間をおいて再試行してください。");
         }
     }
@@ -240,15 +239,14 @@ class ChatController extends Controller
             return back()->with('error', 'この招待は期限切れです');
         }
         try {
-            DB::beginTransaction();
-            $invitation->expires_at = now()->addDays(31);
-            $invitation->save();
-            $url = route('join.token', ['token' => $invitation->token,'group' => $group->id,]);
-            Mail::to($invitation->invitee_email)->send(new GroupInvitation($group, $url));
-            DB::commit();
+            DB::transaction(function () use ($group, $invitation) {
+                $invitation->expires_at = now()->addDays(31);
+                $invitation->save();
+                $url = route('join.token', ['token' => $invitation->token,'group' => $group->id,]);
+                Mail::to($invitation->invitee_email)->send(new GroupInvitation($group, $url));
+            });
             return back()->with('success', "{$invitation->invitee_email} に招待を再送信しました。");
         } catch (\Exception $e) {
-            DB::rollBack();
             return back()->with('error', "再送に失敗しました。時間をおいて再試行してください。");
         }
     }
