@@ -196,20 +196,17 @@ class ChatController extends Controller
         ]);
 
         $user = User::find($request->user_id);
-        if (!$group->isAdmin(Auth::user())) {
-            return redirect()->back()->with('error', '管理者権限が必要です');
-        }
         if ($group->users()->where('users.id', $user->id)->exists()) {
             return back()->with('info', "{$user->name}さんは既にこのグループのメンバーです。");
         }
         try {
-            DB::transaction(function () use ($group, $user) {
+            $result = DB::transaction(function () use ($group, $user) {
                 $existing = Invitation::where('group_id', $group->id)
                     ->where('invitee_email', $user->email)
                     ->where('expires_at', '>', now())
                     ->first();
                 if ($existing) {
-                    return back()->with('info', "{$user->name}さんには既に招待が送られています。");
+                    return ['success' => false, 'reason' => 'already_invited'];
                 }
                 $token = Str::random(32);
                 $invitation = Invitation::create([
@@ -221,8 +218,16 @@ class ChatController extends Controller
                 ]);
                 $url = route('join.token', ['token' => $token, 'group' => $group->id, ]);
                 Mail::to($user->email)->send(new GroupInvitation($group, $url));
+                return ['success' => true];
             });
-            return back()->with('success', "{$user->name}さんを招待しました。");
+            if ($result['success']) {
+                return back()->with('success', "{$user->name}さんを招待しました。");
+            } else {
+                if ($result['reason'] === 'already_invited') {
+                    return redirect()->back()->with('error', "{$user->name}さんには既に招待が送られています。");
+                }
+                return redirect()->back()->with('error', '退会処理に失敗しました');
+            }
         } catch (\Exception $e) {
             return back()->with('error', "招待に失敗しました。時間をおいて再試行してください。");
         }
