@@ -196,6 +196,9 @@ class ChatController extends Controller
         ]);
 
         $user = User::find($request->user_id);
+        if (!$group->isAdmin(Auth::user())) {
+            return redirect()->back()->with('error', '管理者権限が必要です');
+        }
         if ($group->users()->where('users.id', $user->id)->exists()) {
             return back()->with('info', "{$user->name}さんは既にこのグループのメンバーです。");
         }
