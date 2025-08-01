@@ -207,6 +207,7 @@ class ChatController extends Controller
                 $existing = Invitation::where('group_id', $group->id)
                     ->where('invitee_email', $user->email)
                     ->where('expires_at', '>', now())
+                    ->lockForUpdate() // 占有ロック
                     ->first();
                 if ($existing) {
                     return ['success' => false, 'reason' => 'already_invited'];
