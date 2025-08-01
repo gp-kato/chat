@@ -71,6 +71,34 @@
                     @endforeach
                 </tbody>
             </table>
+            <table>
+                <thead>
+                    <tr>
+                        <th>招待されたユーザー</th>
+                        <th>招待したユーザー</th>
+                        <th>残り期限</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($invitations as $invitation)
+                        <tr>
+                            <td>{{ $invitation->invitee_email }}</td>
+                            <td>{{ $invitation->inviter->name ?? '-' }}</td>
+                            <td>
+                                {{ $invitation->expires_at->diffForHumans() }} 
+                                （{{ $invitation->expires_at->format('Y-m-d') }}）
+                            </td>
+                            <td>
+                                <form method="POST" action="{{ route('resend', ['group' => $group->id, 'invitation' => $invitation->id]) }}">
+                                    @csrf
+                                    <button type="submit">再送</button>
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         @endif
         <hr>
         <ul class="message-list">

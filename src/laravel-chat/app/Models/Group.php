@@ -25,6 +25,10 @@ class Group extends Model
          ->withTimestamps();
     }
 
+    public function invitations() {
+        return $this->hasMany(Invitation::class);
+    }
+
     public function isJoinedBy(User $user)
     {
         return $this->users()
