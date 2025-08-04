@@ -80,7 +80,7 @@ class ChatController extends Controller
 
         // 新しいメッセージを作成
         $group->messages()->create([
-            'user_id' => auth::id(),
+            'user_id' => Auth::id(),
             'content' => $request->content,
         ]);
 
@@ -215,7 +215,7 @@ class ChatController extends Controller
                 $token = Str::random(32);
                 $invitation = Invitation::create([
                     'group_id' => $group->id,
-                    'inviter_id' => auth()->id(),
+                    'inviter_id' => Auth::id(),
                     'invitee_email' => $user->email,
                     'token' => $token,
                     'expires_at' => now()->addDays(31),
