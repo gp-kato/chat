@@ -42,13 +42,13 @@ class ChatController extends Controller
         return redirect()->route('index');
     }
 
-    public function show(Group $group) {
+    public function show(Request $request, Group $group) {
         $user = Auth::user();
 
         if (!$group->isJoinedBy($user)) {
             return redirect()->route('index')->with('error', 'このグループに参加していません');
         }
-
+        $query = $request->input('query');
         $messages = $group->messages()->oldest()->get();
         $removableUsers = $group->users()
         ->wherePivot('left_at', null)
@@ -64,7 +64,20 @@ class ChatController extends Controller
             ->where('expires_at', '>', now())
             ->whereNull('accepted_at')
             ->get();
-        return view('chat', compact('messages', 'group', 'users','removableUsers','isAdmin', 'invitations'));
+        $searchResults = collect();
+        if (!empty($query)) {
+            $joinedUserIds = $group->users()
+                ->wherePivot('left_at', null)
+                ->pluck('users.id')
+                ->toArray();
+            $searchResults = User::where(function($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                  ->orWhere('email', 'like', "%{$query}%");
+                })
+            ->whereNotIn('id', $joinedUserIds)
+            ->get();
+        }
+        return view('chat', compact('messages', 'group', 'users','removableUsers','isAdmin', 'invitations', 'query', 'searchResults'));
     }
     
     public function store(Request $request, Group $group) {
@@ -152,42 +165,6 @@ class ChatController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', '退会処理中にエラーが発生しました');
         }
-    }
-
-    public function search(Request $request, Group $group) {
-        $query = $request->input('query');
-        $users = collect();
-        $user = Auth::user();
-        $isAdmin = $group->isAdmin(Auth::user());
-        $removableUsers = $group->users()
-        ->wherePivot('left_at', null)
-        ->where('role', 'member')
-        ->withPivot('left_at')
-        ->get();
-        $joinedUserIds = $group->users()
-        ->wherePivot('left_at', null) // 参加中のユーザーだけを取得
-        ->pluck('users.id')
-        ->toArray();
-        if (!empty($query)) {
-            $users = User::where(function($q) use ($query) {
-                $q->where('name', 'like', "%{$query}%")
-                ->orWhere('email', 'like', "%{$query}%");
-            })
-            ->whereNotIn('id', $joinedUserIds)
-            ->get();
-        }
-        $invitations = Invitation::where('group_id', $group->id)
-            ->where('expires_at', '>', now())
-            ->whereNull('accepted_at')
-            ->get();
-        return view('chat', [
-            'group' => $group,
-            'users' => $users,
-            'removableUsers' => $removableUsers,
-            'isAdmin' => $isAdmin,
-            'invitations' => $invitations,
-            'messages' => $group->messages()->oldest()->get(),
-        ]);
     }
 
     public function invite(Request $request, Group $group) {
