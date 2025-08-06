@@ -55,7 +55,7 @@
             </div>
         @endif
 
-        <form action="{{ route('add') }}" method="POST">
+        <form action="{{ route('groups.add') }}" method="POST">
             @csrf
             <label for="name">チャット名</label>
             <input type="text" id="name" name="name" value="{{ old('name') }}">

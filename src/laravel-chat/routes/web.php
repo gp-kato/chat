@@ -8,18 +8,26 @@ use App\Http\Controllers\InvitationController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/', [GroupController::class, 'index'])->name('index');
-    Route::post('group',[GroupController::class,'add'])->name('add');
+    Route::prefix('groups')->name('groups.')->group(function () {
+        Route::get('/', [GroupController::class, 'index'])->name('index');
+        Route::post('/',[GroupController::class,'add'])->name('add');
+        Route::put('/group/{group}/edit', [GroupController::class, 'update'])->name('update');
+        Route::get('/group/{group}/edit', [GroupController::class, 'edit'])->name('edit');
+    });
     Route::get('/group/{group}', [MessageController::class, 'show'])->name('show');
-    Route::post('/group/{group}', [MessageController::class, 'store'])->name('store');
+    Route::prefix('groups/{group}/messages')->name('messages.')->group(function () {
+        Route::post('/', [MessageController::class, 'store'])->name('store');
+    });
+    Route::prefix('groups/{group}')->name('groups.')->group(function () {
+        Route::post('join', [MemberController::class, 'join'])->name('join');
+        Route::delete('leave', [MemberController::class, 'leave'])->name('leave');
+        Route::delete('remove/{user}', [MemberController::class, 'remove'])->name('remove');
+    });
     Route::get('/groups/{token}/join/{group}', [MemberController::class, 'join'])->name('join.token');
-    Route::post('/groups/{group}/join', [MemberController::class, 'join'])->name('join');
-    Route::delete('/groups/{group}/leave', [MemberController::class, 'leave'])->name('leave');
-    Route::post('/group/{group}/invite', [InvitationController::class, 'invite'])->name('invite');
-    Route::post('/group/{group}/resend/{invitation}', [InvitationController::class, 'resend'])->name('resend');
-    Route::get('/group/{group}/edit', [GroupController::class, 'edit'])->name('edit');
-    Route::put('/group/{group}/edit', [GroupController::class, 'update'])->name('update');
-    Route::delete('/groups/{group}/remove/{user}', [MemberController::class, 'remove'])->name('remove');
+    Route::prefix('group/{group}')->name('invitation.')->group(function () {
+        Route::post('invite', [InvitationController::class, 'invite'])->name('invite');
+        Route::post('resend/{invitation}', [InvitationController::class, 'resend'])->name('resend');
+    });
 });
 
 require __DIR__.'/auth.php';
