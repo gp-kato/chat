@@ -10,7 +10,7 @@ use App\Models\Invitation;
 
 class MessageController extends Controller
 {
-        public function show(Request $request, Group $group) {
+    public function show(Request $request, Group $group) {
         $user = Auth::user();
 
         if (!$group->isJoinedBy($user)) {
