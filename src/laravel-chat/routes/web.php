@@ -8,13 +8,14 @@ use App\Http\Controllers\InvitationController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->group(function () {
+Route::get('/', [GroupController::class, 'index'])->name('index');
     Route::prefix('groups')->name('groups.')->group(function () {
         Route::get('/', [GroupController::class, 'index'])->name('index');
         Route::post('/',[GroupController::class,'add'])->name('add');
-        Route::put('/group/{group}/edit', [GroupController::class, 'update'])->name('update');
-        Route::get('/group/{group}/edit', [GroupController::class, 'edit'])->name('edit');
+        Route::put('{group}/edit', [GroupController::class, 'update'])->name('update');
+        Route::get('{group}/edit', [GroupController::class, 'edit'])->name('edit');
     });
-    Route::get('/group/{group}', [MessageController::class, 'show'])->name('show');
+    Route::get('/groups/{group}', [MessageController::class, 'show'])->name('show');
     Route::prefix('groups/{group}/messages')->name('messages.')->group(function () {
         Route::post('/', [MessageController::class, 'store'])->name('store');
     });
@@ -24,7 +25,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('remove/{user}', [MemberController::class, 'remove'])->name('remove');
     });
     Route::get('/groups/{token}/join/{group}', [MemberController::class, 'join'])->name('join.token');
-    Route::prefix('group/{group}')->name('invitation.')->group(function () {
+    Route::prefix('groups/{group}')->name('invitation.')->group(function () {
         Route::post('invite', [InvitationController::class, 'invite'])->name('invite');
         Route::post('resend/{invitation}', [InvitationController::class, 'resend'])->name('resend');
     });

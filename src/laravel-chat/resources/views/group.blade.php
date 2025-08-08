@@ -30,7 +30,7 @@
                             <td>{{ $group->description }}</td>
                             <td>
                                 @if ($group->is_joined)
-                                    <form action="{{ route('leave', $group->id) }}" method="POST" style="display:inline;">
+                                    <form action="{{ route('groups.leave', $group->id) }}" method="POST" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger">退会</button>
