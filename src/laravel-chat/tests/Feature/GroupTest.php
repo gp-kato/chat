@@ -37,7 +37,7 @@ class GroupTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->post(route('add'), [
+        $response = $this->post(route('groups.add'), [
             'name' => 'name',
             'description' => 'description',
         ]);
@@ -66,7 +66,7 @@ class GroupTest extends TestCase
             'description' => 'description',
         ];
     
-        $response = $this->post(route('add'), $formData);
+        $response = $this->post(route('groups.add'), $formData);
     
         $response->assertRedirect(route('login'));
     
@@ -83,7 +83,7 @@ class GroupTest extends TestCase
             'description' => 'description',
         ];
 
-        $response = $this->post(route('add'), $formData);
+        $response = $this->post(route('groups.add'), $formData);
 
         $response->assertInvalid(['name']);
         $response->assertValid(['description']);
@@ -100,7 +100,7 @@ class GroupTest extends TestCase
             'description' => '',
         ];
 
-        $response = $this->post(route('add'), $formData);
+        $response = $this->post(route('groups.add'), $formData);
 
         $response->assertvalid(['name']);
         $response->assertInValid(['description']);
@@ -117,7 +117,7 @@ class GroupTest extends TestCase
             'description' => 'description',
         ];
 
-        $response = $this->post(route('add'), $formData);
+        $response = $this->post(route('groups.add'), $formData);
 
         $response->assertInvalid(['name']);
         $response->assertValid(['description']);
@@ -134,7 +134,7 @@ class GroupTest extends TestCase
             'description' => str_repeat('a', 41),
         ];
 
-        $response = $this->post(route('add'), $formData);
+        $response = $this->post(route('groups.add'), $formData);
 
         $response->assertvalid(['name']);
         $response->assertInValid(['description']);
@@ -149,7 +149,7 @@ class GroupTest extends TestCase
         $validName = str_repeat('a', 10);
         $validDescription = str_repeat('b', 40);
     
-        $response = $this->post(route('add'), [
+        $response = $this->post(route('groups.add'), [
             'name' => $validName,
             'description' => $validDescription,
         ]);
@@ -168,7 +168,7 @@ class GroupTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->post(route('join', $this->group->id));
+        $response = $this->post(route('groups.join', $this->group->id));
 
         $response->assertRedirect(route('index', absolute: false));
         $this->assertDatabaseHas('group_user', [
@@ -182,7 +182,7 @@ class GroupTest extends TestCase
         $this->actingAs($this->user);
         $this->group->users()->attach($this->user->id);
 
-        $response = $this->post(route('join', $this->group->id));
+        $response = $this->post(route('groups.join', $this->group->id));
 
         $response->assertRedirect(route('index', absolute: false));
         $this->assertDatabaseHas('group_user', [
@@ -201,7 +201,7 @@ class GroupTest extends TestCase
         $this->actingAs($this->user);
         $this->group->users()->attach($this->user->id);
 
-        $response = $this->delete(route('leave', $this->group->id));
+        $response = $this->delete(route('groups.leave', $this->group->id));
 
         $response->assertRedirect(route('index', absolute: false));
         $this->assertDatabaseHas('group_user',[
@@ -215,7 +215,7 @@ class GroupTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->delete(route('leave', $this->group->id));
+        $response = $this->delete(route('groups.leave', $this->group->id));
 
         $response->assertRedirect(route('index', absolute: false));
         $response->assertSessionHas('info', 'グループに参加していません');
@@ -229,7 +229,7 @@ class GroupTest extends TestCase
             'left_at' => null,
         ]);
 
-        $response = $this->post(route('join', $this->group->id));
+        $response = $this->post(route('groups.join', $this->group->id));
 
         $response->assertRedirect(route('index', absolute: false));
         $this->assertDatabaseHas('group_user', [
