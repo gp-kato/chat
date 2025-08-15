@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 use App\Models\Group;
 use App\Models\User;
+use App\Models\Invitation;
 use Illuminate\Support\Carbon;
 
 class GroupTest extends TestCase
@@ -167,8 +168,20 @@ class GroupTest extends TestCase
     public function test_join_chatgroup(): void
     {
         $this->actingAs($this->user);
-
-        $response = $this->post(route('groups.join', $this->group->id));
+        $inviter = User::factory()->create();
+        $token = 'dummyToken123';
+        Invitation::create([
+            'group_id' => $this->group->id,
+            'inviter_id'    => $inviter->id,
+            'token' => $token,
+            'invitee_email' => $this->user->email,
+            'expires_at' => now()->addDay(),
+            'accepted_at' => null,
+        ]);
+        $response = $this->get(route('join.token', [
+            'token' => $token,
+            'group' => $this->group->id,
+        ]));
 
         $response->assertRedirect(route('index', absolute: false));
         $this->assertDatabaseHas('group_user', [
@@ -182,7 +195,20 @@ class GroupTest extends TestCase
         $this->actingAs($this->user);
         $this->group->users()->attach($this->user->id);
 
-        $response = $this->post(route('groups.join', $this->group->id));
+        $inviter = User::factory()->create();
+        $token = 'dummyToken123';
+        Invitation::create([
+            'group_id' => $this->group->id,
+            'inviter_id'    => $inviter->id,
+            'token' => $token,
+            'invitee_email' => $this->user->email,
+            'expires_at' => now()->addDay(),
+            'accepted_at' => null,
+        ]);
+        $response = $this->get(route('join.token', [
+            'token' => $token,
+            'group' => $this->group->id,
+        ]));
 
         $response->assertRedirect(route('index', absolute: false));
         $this->assertDatabaseHas('group_user', [
@@ -229,7 +255,20 @@ class GroupTest extends TestCase
             'left_at' => null,
         ]);
 
-        $response = $this->post(route('groups.join', $this->group->id));
+        $inviter = User::factory()->create();
+        $token = 'dummyToken123';
+        Invitation::create([
+            'group_id' => $this->group->id,
+            'inviter_id'    => $inviter->id,
+            'token' => $token,
+            'invitee_email' => $this->user->email,
+            'expires_at' => now()->addDay(),
+            'accepted_at' => null,
+        ]);
+        $response = $this->get(route('join.token', [
+            'token' => $token,
+            'group' => $this->group->id,
+        ]));
 
         $response->assertRedirect(route('index', absolute: false));
         $this->assertDatabaseHas('group_user', [
