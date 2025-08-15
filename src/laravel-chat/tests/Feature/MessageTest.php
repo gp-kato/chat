@@ -46,7 +46,7 @@ class MessageTest extends TestCase
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
 
-        $response = $this->post(route('store', $this->group->id), [
+        $response = $this->post(route('messages.store', $this->group->id), [
             'content' => 'content',
         ]);
 
@@ -74,7 +74,7 @@ class MessageTest extends TestCase
             'content' => 'content',
         ];
 
-        $response = $this->post(route('store', $this->group->id), $formData);
+        $response = $this->post(route('messages.store', $this->group->id), $formData);
 
         $response->assertRedirect(route('login'));
 
@@ -90,7 +90,7 @@ class MessageTest extends TestCase
             'content' => '',
         ];
 
-        $response = $this->post(route('store', $this->group->id), $formData);
+        $response = $this->post(route('messages.store', $this->group->id), $formData);
 
         $response->assertSessionHasErrors(['content']);
 
@@ -106,7 +106,7 @@ class MessageTest extends TestCase
             'content' => str_repeat('a', 141),
         ];
     
-        $response = $this->post(route('store', $this->group->id), $formData);
+        $response = $this->post(route('messages.store', $this->group->id), $formData);
 
         $response->assertSessionHasErrors(['content']);
 
@@ -120,7 +120,7 @@ class MessageTest extends TestCase
 
         $validContent = str_repeat('a', 140);
     
-        $response = $this->post(route('store', $this->group->id), [
+        $response = $this->post(route('messages.store', $this->group->id), [
             'content' => $validContent,
         ]);
     
@@ -146,7 +146,7 @@ class MessageTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->post(route('store', $this->group->id), [
+        $response = $this->post(route('messages.store', $this->group->id), [
             'content' => 'content',
         ]);
 
