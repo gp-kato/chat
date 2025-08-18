@@ -42,7 +42,7 @@
                                     <p>{{ $user->name }}</p>
                                 </td>
                                 <td>
-                                    <form action="{{ route('groups.remove', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" style="display:inline;">
+                                    <form action="{{ route('groups.members.remove', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger">退会</button>

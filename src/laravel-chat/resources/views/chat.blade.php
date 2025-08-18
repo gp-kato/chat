@@ -13,7 +13,7 @@
             @endif
         @endforeach
         @if($isAdmin)
-            <form method="GET" action="{{ route('show', ['group' => $group->id]) }}" class="mb-4">
+            <form method="GET" action="{{ route('groups.messages.show', ['group' => $group->id]) }}" class="mb-4">
                 <input type="text" name="query" placeholder="名前またはメールアドレス" value="{{ request('query') }}" class="border p-2 rounded">
                 <button type="submit" class="bg-gray-200 px-4 py-2 rounded">検索</button>
             </form>
@@ -61,7 +61,7 @@
                         <tr>
                             <td>{{ $user->name }}</td>
                             <td>
-                                <form action="{{ route('groups.remove', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" style="display:inline;">
+                                <form action="{{ route('groups.members.remove', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger">退会</button>
@@ -90,7 +90,7 @@
                                 （{{ $invitation->expires_at->format('Y-m-d') }}）
                             </td>
                             <td>
-                                <form method="POST" action="{{ route('invitation.resend', ['group' => $group->id, 'invitation' => $invitation->id]) }}">
+                                <form method="POST" action="{{ route('groups.invitations.resend', ['group' => $group->id, 'invitation' => $invitation->id]) }}">
                                     @csrf
                                     <button type="submit">再送</button>
                                 </form>
@@ -115,7 +115,7 @@
             @endforelse
         </ul>
         <div class="message">
-            <form action="{{ route('messages.store', ['group' => $group->id]) }}" method="POST">
+            <form action="{{ route('groups.messages.store', ['group' => $group->id]) }}" method="POST">
                 @csrf
                 <textarea name="content" rows="3" required class="form-control"></textarea>
                 <br>
