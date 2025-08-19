@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class MemberController extends Controller
 {
-    public function join($token, $groupId) {
+    public function join($groupId, $token) {
         $group = Group::findOrFail($groupId);
         $user = Auth::user();
 
