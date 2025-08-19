@@ -19,7 +19,7 @@
             </form>
             @if(request('query'))
                 @if($searchResults->isNotEmpty())
-                    <form method="POST" action="{{ route('invitation.invite', ['group' => $group->id]) }}">
+                    <form method="POST" action="{{ route('groups.invitations.invite', ['group' => $group->id]) }}">
                         @csrf
                         <table class="table-auto w-full">
                             <thead>
