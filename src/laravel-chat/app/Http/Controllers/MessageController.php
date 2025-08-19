@@ -14,7 +14,7 @@ class MessageController extends Controller
         $user = Auth::user();
 
         if (!$group->isJoinedBy($user)) {
-            return redirect()->route('index')->with('error', 'このグループに参加していません');
+            return redirect()->route('groups.index')->with('error', 'このグループに参加していません');
         }
         $query = $request->input('query');
         $messages = $group->messages()->oldest()->get();
@@ -52,7 +52,7 @@ class MessageController extends Controller
         $user = Auth::user();
 
         if (!$group->isJoinedBy($user)) {
-            return redirect()->route('index')->with('error', 'このグループに参加していません');
+            return redirect()->route('groups.index')->with('error', 'このグループに参加していません');
         }
 
         $request->validate([
@@ -65,6 +65,6 @@ class MessageController extends Controller
             'content' => $request->content,
         ]);
 
-        return redirect()->route('show', $group->id);
+        return redirect()->route('groups.messages.show', $group->id);
     }
 }

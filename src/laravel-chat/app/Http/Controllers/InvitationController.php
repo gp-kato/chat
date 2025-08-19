@@ -44,7 +44,7 @@ class InvitationController extends Controller
                     'token' => $token,
                     'expires_at' => now()->addDays(31),
                 ]);
-                $url = route('join.token', ['token' => $token, 'group' => $group->id, ]);
+                $url = route('groups.invitations.join.token', ['token' => $token, 'group' => $group->id, ]);
                 Mail::to($user->email)->send(new GroupInvitation($group, $url));
                 return ['success' => true];
             });
@@ -75,7 +75,7 @@ class InvitationController extends Controller
             DB::transaction(function () use ($group, $invitation) {
                 $invitation->expires_at = now()->addDays(31);
                 $invitation->save();
-                $url = route('join.token', ['token' => $invitation->token,'group' => $group->id,]);
+                $url = route('groups.invitations.join.token', ['token' => $invitation->token,'group' => $group->id,]);
                 Mail::to($invitation->invitee_email)->send(new GroupInvitation($group, $url));
             });
             return back()->with('success', "{$invitation->invitee_email} に招待を再送信しました。");

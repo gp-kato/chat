@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class MemberController extends Controller
 {
-    public function join($token, $groupId) {
+    public function join($groupId, $token) {
         $group = Group::findOrFail($groupId);
         $user = Auth::user();
 
@@ -24,7 +24,7 @@ class MemberController extends Controller
             ->whereNull('accepted_at')
             ->first();
         if (!$invitation) {
-            return redirect()->route('index')->with('error', '無効な招待リンクです');
+            return redirect()->route('groups.index')->with('error', '無効な招待リンクです');
         }
         DB::transaction(function () use ($group, $user, $invitation) {
             $invitation->accepted_at = now();
@@ -36,7 +36,7 @@ class MemberController extends Controller
                 ]
             ]);
         });
-        return redirect()->route('index')->with('success', 'グループに参加しました');
+        return redirect()->route('groups.index')->with('success', 'グループに参加しました');
     }
 
     public function leave(Group $group) {

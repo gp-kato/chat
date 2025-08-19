@@ -32,7 +32,7 @@ class GroupController extends Controller
 
         $group->users()->attach(Auth::id(), ['role' => 'admin', 'joined_at' => now()]);
 
-        return redirect()->route('index');
+        return redirect()->route('groups.index');
     }
 
     public function edit(Group $group) {
@@ -53,6 +53,6 @@ class GroupController extends Controller
 
         $group->save();
     
-        return redirect()->route('show', compact('group'))->with('success', 'グループは更新されました');
+        return redirect()->route('groups.messages.show', compact('group'))->with('success', 'グループは更新されました');
     }
 }
