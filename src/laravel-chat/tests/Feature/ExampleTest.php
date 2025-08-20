@@ -18,7 +18,7 @@ class ExampleTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->get('/'); // 認証済みユーザーでアクセス
+        $response = $this->actingAs($user)->get('/groups'); // 認証済みユーザーでアクセス
 
         $response->assertStatus(200);
     }

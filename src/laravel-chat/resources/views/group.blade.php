@@ -25,12 +25,12 @@
                     @foreach($groups as $group)
                         <tr>
                             <td>
-                                <a href="{{ route('show', [$group->id]) }}">{{ $group->name }}</a>
+                                <a href="{{ route('groups.messages.show', [$group->id]) }}">{{ $group->name }}</a>
                             </td>
                             <td>{{ $group->description }}</td>
                             <td>
                                 @if ($group->is_joined)
-                                    <form action="{{ route('leave', $group->id) }}" method="POST" style="display:inline;">
+                                    <form action="{{ route('groups.members.leave', $group->id) }}" method="POST" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger">退会</button>
@@ -55,7 +55,7 @@
             </div>
         @endif
 
-        <form action="{{ route('add') }}" method="POST">
+        <form action="{{ route('groups.add') }}" method="POST">
             @csrf
             <label for="name">チャット名</label>
             <input type="text" id="name" name="name" value="{{ old('name') }}">

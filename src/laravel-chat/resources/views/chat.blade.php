@@ -13,13 +13,13 @@
             @endif
         @endforeach
         @if($isAdmin)
-            <form method="GET" action="{{ route('show', ['group' => $group->id]) }}" class="mb-4">
+            <form method="GET" action="{{ route('groups.messages.show', ['group' => $group->id]) }}" class="mb-4">
                 <input type="text" name="query" placeholder="名前またはメールアドレス" value="{{ request('query') }}" class="border p-2 rounded">
                 <button type="submit" class="bg-gray-200 px-4 py-2 rounded">検索</button>
             </form>
             @if(request('query'))
                 @if($searchResults->isNotEmpty())
-                    <form method="POST" action="{{ route('invite', ['group' => $group->id]) }}">
+                    <form method="POST" action="{{ route('groups.invitations.invite', ['group' => $group->id]) }}">
                         @csrf
                         <table class="table-auto w-full">
                             <thead>
@@ -47,7 +47,7 @@
                     <p>検索結果が見つかりませんでした。</p>
                 @endif
             @endif
-            <a href="{{ route('edit', $group->id) }}">このグループを編集</a>
+            <a href="{{ route('groups.edit', $group->id) }}">このグループを編集</a>
             <h1>メンバーを退会</h2>
             <table>
                 <thead>
@@ -61,7 +61,7 @@
                         <tr>
                             <td>{{ $user->name }}</td>
                             <td>
-                                <form action="{{ route('remove', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" style="display:inline;">
+                                <form action="{{ route('groups.members.remove', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger">退会</button>
@@ -90,7 +90,7 @@
                                 （{{ $invitation->expires_at->format('Y-m-d') }}）
                             </td>
                             <td>
-                                <form method="POST" action="{{ route('resend', ['group' => $group->id, 'invitation' => $invitation->id]) }}">
+                                <form method="POST" action="{{ route('groups.invitations.resend', ['group' => $group->id, 'invitation' => $invitation->id]) }}">
                                     @csrf
                                     <button type="submit">再送</button>
                                 </form>
@@ -115,7 +115,7 @@
             @endforelse
         </ul>
         <div class="message">
-            <form action="{{ route('store', ['group' => $group->id]) }}" method="POST">
+            <form action="{{ route('groups.messages.store', ['group' => $group->id]) }}" method="POST">
                 @csrf
                 <textarea name="content" rows="3" required class="form-control"></textarea>
                 <br>

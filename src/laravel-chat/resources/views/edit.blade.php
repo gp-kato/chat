@@ -14,7 +14,7 @@
             @endforeach
             <div class="container">
                 <h1>グループを編集</h1>
-                <form action="{{ route('update', $group->id) }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('groups.update', $group->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div>
@@ -42,7 +42,7 @@
                                     <p>{{ $user->name }}</p>
                                 </td>
                                 <td>
-                                    <form action="{{ route('remove', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" style="display:inline;">
+                                    <form action="{{ route('groups.members.remove', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger">退会</button>

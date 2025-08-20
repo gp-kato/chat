@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 use App\Models\Group;
 use App\Models\User;
+use App\Models\Invitation;
 use Illuminate\Support\Carbon;
 
 class GroupTest extends TestCase
@@ -28,7 +29,7 @@ class GroupTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->get(route('index'));
+        $response = $this->get(route('groups.index'));
 
         $response->assertStatus(200);
     }
@@ -37,14 +38,14 @@ class GroupTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->post(route('add'), [
+        $response = $this->post(route('groups.add'), [
             'name' => 'name',
             'description' => 'description',
         ]);
 
         $this->assertAuthenticated();
         $response->assertSessionHasNoErrors();
-        $response->assertRedirect(route('index', absolute: false));
+        $response->assertRedirect(route('groups.index', absolute: false));
 
         $this->assertDatabaseHas('groups', [
             'name' => 'name',
@@ -54,7 +55,7 @@ class GroupTest extends TestCase
 
     public function test_group_screen_can_not_rendered_without_login(): void
     {
-        $response = $this->get(route('index'));
+        $response = $this->get(route('groups.index'));
 
         $response->assertRedirect(route('login'));
     }
@@ -66,7 +67,7 @@ class GroupTest extends TestCase
             'description' => 'description',
         ];
     
-        $response = $this->post(route('add'), $formData);
+        $response = $this->post(route('groups.add'), $formData);
     
         $response->assertRedirect(route('login'));
     
@@ -83,7 +84,7 @@ class GroupTest extends TestCase
             'description' => 'description',
         ];
 
-        $response = $this->post(route('add'), $formData);
+        $response = $this->post(route('groups.add'), $formData);
 
         $response->assertInvalid(['name']);
         $response->assertValid(['description']);
@@ -100,7 +101,7 @@ class GroupTest extends TestCase
             'description' => '',
         ];
 
-        $response = $this->post(route('add'), $formData);
+        $response = $this->post(route('groups.add'), $formData);
 
         $response->assertvalid(['name']);
         $response->assertInValid(['description']);
@@ -117,7 +118,7 @@ class GroupTest extends TestCase
             'description' => 'description',
         ];
 
-        $response = $this->post(route('add'), $formData);
+        $response = $this->post(route('groups.add'), $formData);
 
         $response->assertInvalid(['name']);
         $response->assertValid(['description']);
@@ -134,7 +135,7 @@ class GroupTest extends TestCase
             'description' => str_repeat('a', 41),
         ];
 
-        $response = $this->post(route('add'), $formData);
+        $response = $this->post(route('groups.add'), $formData);
 
         $response->assertvalid(['name']);
         $response->assertInValid(['description']);
@@ -149,14 +150,14 @@ class GroupTest extends TestCase
         $validName = str_repeat('a', 10);
         $validDescription = str_repeat('b', 40);
     
-        $response = $this->post(route('add'), [
+        $response = $this->post(route('groups.add'), [
             'name' => $validName,
             'description' => $validDescription,
         ]);
     
         $this->assertAuthenticated();
         $response->assertSessionHasNoErrors();
-        $response->assertRedirect(route('index', absolute: false));
+        $response->assertRedirect(route('groups.index', absolute: false));
     
         $this->assertDatabaseHas('groups', [
             'name' => $validName,
@@ -167,10 +168,22 @@ class GroupTest extends TestCase
     public function test_join_chatgroup(): void
     {
         $this->actingAs($this->user);
+        $inviter = User::factory()->create();
+        $token = 'dummyToken123';
+        Invitation::create([
+            'group_id' => $this->group->id,
+            'inviter_id'    => $inviter->id,
+            'token' => $token,
+            'invitee_email' => $this->user->email,
+            'expires_at' => now()->addDay(),
+            'accepted_at' => null,
+        ]);
+        $response = $this->get(route('groups.invitations.join.token', [
+            'token' => $token,
+            'group' => $this->group->id,
+        ]));
 
-        $response = $this->post(route('join', $this->group->id));
-
-        $response->assertRedirect(route('index', absolute: false));
+        $response->assertRedirect(route('groups.index', absolute: false));
         $this->assertDatabaseHas('group_user', [
             'user_id' => $this->user->id,
             'group_id' => $this->group->id,
@@ -182,9 +195,22 @@ class GroupTest extends TestCase
         $this->actingAs($this->user);
         $this->group->users()->attach($this->user->id);
 
-        $response = $this->post(route('join', $this->group->id));
+        $inviter = User::factory()->create();
+        $token = 'dummyToken123';
+        Invitation::create([
+            'group_id' => $this->group->id,
+            'inviter_id'    => $inviter->id,
+            'token' => $token,
+            'invitee_email' => $this->user->email,
+            'expires_at' => now()->addDay(),
+            'accepted_at' => null,
+        ]);
+        $response = $this->get(route('groups.invitations.join.token', [
+            'token' => $token,
+            'group' => $this->group->id,
+        ]));
 
-        $response->assertRedirect(route('index', absolute: false));
+        $response->assertRedirect(route('groups.index', absolute: false));
         $this->assertDatabaseHas('group_user', [
             'user_id' => $this->user->id,
             'group_id' => $this->group->id,
@@ -201,9 +227,9 @@ class GroupTest extends TestCase
         $this->actingAs($this->user);
         $this->group->users()->attach($this->user->id);
 
-        $response = $this->delete(route('leave', $this->group->id));
+        $response = $this->delete(route('groups.members.leave', $this->group->id));
 
-        $response->assertRedirect(route('index', absolute: false));
+        $response->assertRedirect('/');
         $this->assertDatabaseHas('group_user',[
             'user_id' => $this->user->id,
             'group_id' => $this->group->id,
@@ -215,9 +241,9 @@ class GroupTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->delete(route('leave', $this->group->id));
+        $response = $this->delete(route('groups.members.leave', $this->group->id));
 
-        $response->assertRedirect(route('index', absolute: false));
+        $response->assertRedirect('/');
         $response->assertSessionHas('info', 'グループに参加していません');
     }
 
@@ -229,9 +255,22 @@ class GroupTest extends TestCase
             'left_at' => null,
         ]);
 
-        $response = $this->post(route('join', $this->group->id));
+        $inviter = User::factory()->create();
+        $token = 'dummyToken123';
+        Invitation::create([
+            'group_id' => $this->group->id,
+            'inviter_id'    => $inviter->id,
+            'token' => $token,
+            'invitee_email' => $this->user->email,
+            'expires_at' => now()->addDay(),
+            'accepted_at' => null,
+        ]);
+        $response = $this->get(route('groups.invitations.join.token', [
+            'token' => $token,
+            'group' => $this->group->id,
+        ]));
 
-        $response->assertRedirect(route('index', absolute: false));
+        $response->assertRedirect(route('groups.index', absolute: false));
         $this->assertDatabaseHas('group_user', [
             'user_id' => $this->user->id,
             'group_id' => $this->group->id,
