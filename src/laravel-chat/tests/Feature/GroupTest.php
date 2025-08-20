@@ -29,7 +29,7 @@ class GroupTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->get(route('index'));
+        $response = $this->get(route('groups.index'));
 
         $response->assertStatus(200);
     }
@@ -45,7 +45,7 @@ class GroupTest extends TestCase
 
         $this->assertAuthenticated();
         $response->assertSessionHasNoErrors();
-        $response->assertRedirect(route('index', absolute: false));
+        $response->assertRedirect(route('groups.index', absolute: false));
 
         $this->assertDatabaseHas('groups', [
             'name' => 'name',
@@ -55,7 +55,7 @@ class GroupTest extends TestCase
 
     public function test_group_screen_can_not_rendered_without_login(): void
     {
-        $response = $this->get(route('index'));
+        $response = $this->get(route('groups.index'));
 
         $response->assertRedirect(route('login'));
     }
@@ -157,7 +157,7 @@ class GroupTest extends TestCase
     
         $this->assertAuthenticated();
         $response->assertSessionHasNoErrors();
-        $response->assertRedirect(route('index', absolute: false));
+        $response->assertRedirect(route('groups.index', absolute: false));
     
         $this->assertDatabaseHas('groups', [
             'name' => $validName,
@@ -178,12 +178,12 @@ class GroupTest extends TestCase
             'expires_at' => now()->addDay(),
             'accepted_at' => null,
         ]);
-        $response = $this->get(route('join.token', [
+        $response = $this->get(route('groups.invitations.join.token', [
             'token' => $token,
             'group' => $this->group->id,
         ]));
 
-        $response->assertRedirect(route('index', absolute: false));
+        $response->assertRedirect(route('groups.index', absolute: false));
         $this->assertDatabaseHas('group_user', [
             'user_id' => $this->user->id,
             'group_id' => $this->group->id,
@@ -205,12 +205,12 @@ class GroupTest extends TestCase
             'expires_at' => now()->addDay(),
             'accepted_at' => null,
         ]);
-        $response = $this->get(route('join.token', [
+        $response = $this->get(route('groups.invitations.join.token', [
             'token' => $token,
             'group' => $this->group->id,
         ]));
 
-        $response->assertRedirect(route('index', absolute: false));
+        $response->assertRedirect(route('groups.index', absolute: false));
         $this->assertDatabaseHas('group_user', [
             'user_id' => $this->user->id,
             'group_id' => $this->group->id,
@@ -227,9 +227,9 @@ class GroupTest extends TestCase
         $this->actingAs($this->user);
         $this->group->users()->attach($this->user->id);
 
-        $response = $this->delete(route('groups.leave', $this->group->id));
+        $response = $this->delete(route('groups.members.leave', $this->group->id));
 
-        $response->assertRedirect(route('index', absolute: false));
+        $response->assertRedirect('/');
         $this->assertDatabaseHas('group_user',[
             'user_id' => $this->user->id,
             'group_id' => $this->group->id,
@@ -241,9 +241,9 @@ class GroupTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->delete(route('groups.leave', $this->group->id));
+        $response = $this->delete(route('groups.members.leave', $this->group->id));
 
-        $response->assertRedirect(route('index', absolute: false));
+        $response->assertRedirect('/');
         $response->assertSessionHas('info', 'グループに参加していません');
     }
 
@@ -265,12 +265,12 @@ class GroupTest extends TestCase
             'expires_at' => now()->addDay(),
             'accepted_at' => null,
         ]);
-        $response = $this->get(route('join.token', [
+        $response = $this->get(route('groups.invitations.join.token', [
             'token' => $token,
             'group' => $this->group->id,
         ]));
 
-        $response->assertRedirect(route('index', absolute: false));
+        $response->assertRedirect(route('groups.index', absolute: false));
         $this->assertDatabaseHas('group_user', [
             'user_id' => $this->user->id,
             'group_id' => $this->group->id,

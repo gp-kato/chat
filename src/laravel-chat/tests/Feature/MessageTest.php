@@ -36,7 +36,7 @@ class MessageTest extends TestCase
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
 
-        $response = $this->get(route('show', $this->group->id));
+        $response = $this->get(route('groups.messages.show', $this->group->id));
 
         $response->assertStatus(200);
     }
@@ -46,13 +46,13 @@ class MessageTest extends TestCase
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
 
-        $response = $this->post(route('messages.store', $this->group->id), [
+        $response = $this->post(route('groups.messages.store', $this->group->id), [
             'content' => 'content',
         ]);
 
         $this->assertAuthenticated();
         $response->assertSessionHasNoErrors();
-        $response->assertRedirect(route('show', [$this->group->id], absolute: false));
+        $response->assertRedirect(route('groups.messages.show', [$this->group->id], absolute: false));
 
         $this->assertDatabaseHas('messages', [
             'content' => 'content',
@@ -63,7 +63,7 @@ class MessageTest extends TestCase
 
     public function test_chat_screen_can_not_rendered_without_login(): void
     {
-        $response = $this->get(route('show', $this->group->id));
+        $response = $this->get(route('groups.messages.show', $this->group->id));
 
         $response->assertRedirect(route('login'));
     }
@@ -74,7 +74,7 @@ class MessageTest extends TestCase
             'content' => 'content',
         ];
 
-        $response = $this->post(route('messages.store', $this->group->id), $formData);
+        $response = $this->post(route('groups.messages.store', $this->group->id), $formData);
 
         $response->assertRedirect(route('login'));
 
@@ -90,7 +90,7 @@ class MessageTest extends TestCase
             'content' => '',
         ];
 
-        $response = $this->post(route('messages.store', $this->group->id), $formData);
+        $response = $this->post(route('groups.messages.store', $this->group->id), $formData);
 
         $response->assertSessionHasErrors(['content']);
 
@@ -106,7 +106,7 @@ class MessageTest extends TestCase
             'content' => str_repeat('a', 141),
         ];
     
-        $response = $this->post(route('messages.store', $this->group->id), $formData);
+        $response = $this->post(route('groups.messages.store', $this->group->id), $formData);
 
         $response->assertSessionHasErrors(['content']);
 
@@ -120,13 +120,13 @@ class MessageTest extends TestCase
 
         $validContent = str_repeat('a', 140);
     
-        $response = $this->post(route('messages.store', $this->group->id), [
+        $response = $this->post(route('groups.messages.store', $this->group->id), [
             'content' => $validContent,
         ]);
     
         $this->assertAuthenticated();
         $response->assertSessionHasNoErrors();
-        $response->assertRedirect(route('show', [$this->group->id], absolute: false));
+        $response->assertRedirect(route('groups.messages.show', [$this->group->id], absolute: false));
     
         $this->assertDatabaseHas('messages', [
             'content' => $validContent,
@@ -137,20 +137,20 @@ class MessageTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->get(route('show', $this->group->id));
+        $response = $this->get(route('groups.messages.show', $this->group->id));
 
-        $response->assertRedirect(route('index', absolute: false));
+        $response->assertRedirect(route('groups.index', absolute: false));
     }
 
     public function test_cannot_writing_message_without_join_group(): void
     {
         $this->actingAs($this->user);
 
-        $response = $this->post(route('messages.store', $this->group->id), [
+        $response = $this->post(route('groups.messages.store', $this->group->id), [
             'content' => 'content',
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('index', absolute: false));
+        $response->assertRedirect(route('groups.index', absolute: false));
     }
 }
