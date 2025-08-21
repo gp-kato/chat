@@ -19,9 +19,7 @@ class MessageController extends Controller
         $validated = $request->validate([
             'query' => ['nullable', 'string', 'max:100']
         ]);
-        $query = $request->validate([
-            'query' => ['nullable', 'string', 'max:100']
-        ])['query'] ?? null;
+        $query = $validated['query'];
         $messages = $group->messages()->oldest()->get();
         $removableUsers = $group->users()
         ->wherePivot('left_at', null)
