@@ -16,7 +16,10 @@ class MessageController extends Controller
         if (!$group->isJoinedBy($user)) {
             return redirect()->route('groups.index')->with('error', 'このグループに参加していません');
         }
-        $query = $request->input('query');
+        $validated = $request->validate([
+            'query' => ['nullable', 'string', 'max:100']
+        ]);
+        $query = $validated['query'] ?? null;
         $messages = $group->messages()->oldest()->get();
         $removableUsers = $group->users()
         ->wherePivot('left_at', null)
@@ -34,6 +37,7 @@ class MessageController extends Controller
             ->get();
         $searchResults = collect();
         if (!empty($query)) {
+            $query = addcslashes($query, '%_\\');
             $joinedUserIds = $group->users()
                 ->wherePivot('left_at', null)
                 ->pluck('users.id')
