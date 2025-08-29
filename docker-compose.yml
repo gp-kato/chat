@@ -1,4 +1,3 @@
-version: '3' # おまじない（Composeファイル形式の宣言）
 services: # サービス
   db: # (任意の文字列) サービスの名称：db
     image: mysql:latest # 用いるdockerイメージの指定
