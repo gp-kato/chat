@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Invitation;
+use App\Events\MessageEvent;
 
 class MessageController extends Controller
 {
@@ -64,10 +65,12 @@ class MessageController extends Controller
         ]);
 
         // 新しいメッセージを作成
-        $group->messages()->create([
+        $message = $group->messages()->create([
             'user_id' => Auth::id(),
             'content' => $request->content,
         ]);
+
+        event(new MessageEvent($message));
 
         return redirect()->route('groups.messages.show', $group->id);
     }

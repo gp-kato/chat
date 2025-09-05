@@ -10,3 +10,19 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
  */
 
 import './echo';
+
+Echo.channel("demo-channel").listen("MessageEvent", function (e) {
+    const newMessage = document.createElement("p");
+    newMessage.textContent = e.message;
+    const div = document.getElementById("messages");
+    div.appendChild(newMessage);
+});
+
+document.getElementById("send").addEventListener("click", function () {
+    const message = document.getElementById("message").value;
+    if (message === "") return;
+    axios.post("/", { message: message })
+        .then(() => {
+            document.getElementById("message").value = "";
+        })
+});
