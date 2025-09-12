@@ -119,7 +119,7 @@
                 @csrf
                 <textarea name="content" rows="3" required class="form-control"></textarea>
                 <br>
-                <button type="submit" class="btn btn-primary">送信</button>
+                <button type="submit" class="btn btn-primary" id="send">送信</button>
             </form>
             <a href="/">Back To Chatlist</a>
         </div>

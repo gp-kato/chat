@@ -27,6 +27,8 @@ services: # サービス
     container_name: "php-fpm" # (任意の文字列) コンテナの名称
     volumes: # (任意の文字列) ボリュームの名称とマウント先 -> src:/var/www
       - ./src:/var/www
+    ports:
+      - "6001:6001"   # Reverb 用ポートを公開
 
   nginx: # (任意の文字列) サービスの名称：nginx
     image: nginx:latest # 用いるdockerイメージの指定
