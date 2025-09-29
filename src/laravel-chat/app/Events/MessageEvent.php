@@ -16,12 +16,14 @@ class MessageEvent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $message;
+    public $user_id;
 
     /**
      * Create a new event instance.
      */
     public function __construct(Message $message) {
         $this->message = $message;
+        $this->user_id = $message->user_id; // ここでセットするのがポイント
     }
 
     /**
@@ -33,6 +35,12 @@ class MessageEvent implements ShouldBroadcast
     {
         return [
             new Channel('demo-channel'),
+        ];
+    }
+
+    public function broadcastWith() {
+        return [
+            'html' => view('partials.message', ['message' => $this->message])->render(),
         ];
     }
 }

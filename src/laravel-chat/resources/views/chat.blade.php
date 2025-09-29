@@ -101,10 +101,10 @@
             </table>
         @endif
         <hr>
-        <ul class="message-list">
+        <ul class="message-list" id="messages">
             @forelse($messages as $message)
                 <li class="d-flex {{ $message->user->id === auth()->id() ? 'justify-content-end' : 'justify-content-start' }}">
-                    <div>
+                    <div id="message">
                         {!! nl2br(e($message->content)) !!}
                         <br>
                         <small>by {{ $message->user->name }}</small>

@@ -12,8 +12,14 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 import './echo';
 
 Echo.channel("demo-channel").listen("MessageEvent", function (e) {
-    const newMessage = document.createElement("p");
+    const newMessage = document.createElement("li");
     newMessage.textContent = e.message;
+    console.log(e);
+    if (e.user_id === window.App.user_id) {
+        newMessage.classList.add("justify-content-end");
+    } else {
+        newMessage.classList.add("justify-content-start");
+    }
     const div = document.getElementById("messages");
     div.appendChild(newMessage);
 });
