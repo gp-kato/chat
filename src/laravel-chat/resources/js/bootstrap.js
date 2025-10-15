@@ -12,23 +12,25 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 import './echo';
 
 Echo.channel("demo-channel").listen("MessageEvent", function (e) {
-    const newMessage = document.createElement("li");
-    newMessage.textContent = e.message;
-    console.log(e);
+    const div = document.getElementById("messages");
+    const html = e.html;
+
+    div.insertAdjacentHTML("beforeend", html);
+
+    const newMessage = div.lastElementChild;
+
     if (e.user_id === window.App.user_id) {
         newMessage.classList.add("justify-content-end");
     } else {
         newMessage.classList.add("justify-content-start");
     }
-    const div = document.getElementById("messages");
-    div.appendChild(newMessage);
 });
 
-document.getElementById("send").addEventListener("click", function () {
-    const message = document.getElementById("message").value;
-    if (message === "") return;
-    axios.post("/", { message: message })
-        .then(() => {
-            document.getElementById("message").value = "";
-        })
-});
+//document.getElementById("send").addEventListener("click", function () {
+    //const message = document.getElementById("message").value;
+    //if (message === "") return;
+    //axios.post("/", { message: message })
+        //.then(() => {
+            //document.getElementById("message").value = "";
+        //})
+//});

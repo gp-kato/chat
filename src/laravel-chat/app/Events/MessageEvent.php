@@ -23,7 +23,7 @@ class MessageEvent implements ShouldBroadcast
      */
     public function __construct(Message $message) {
         $this->message = $message;
-        $this->user_id = $message->user_id; // ここでセットするのがポイント
+        $this->user_id = $message->user_id;
     }
 
     /**
@@ -40,7 +40,8 @@ class MessageEvent implements ShouldBroadcast
 
     public function broadcastWith() {
         return [
-            'html' => view('partials.message', ['message' => $this->message])->render(),
+            'user_id' => $this->user_id,
+            'html' => view('partials.message', ['message' => $this->message->load('user')])->render(),
         ];
     }
 }

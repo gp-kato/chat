@@ -18,5 +18,7 @@
 
         <footer id="footer" class="wrapper">
         </footer>
+        {{-- JavaScript 挿入用のセクション --}}
+        @yield('js')
     </body>
 </html>

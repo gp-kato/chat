@@ -86,7 +86,7 @@
                             <td>{{ $invitation->invitee_email }}</td>
                             <td>{{ $invitation->inviter->name ?? '-' }}</td>
                             <td>
-                                {{ $invitation->expires_at->diffForHumans() }} 
+                                {{ $invitation->expires_at->diffForHumans() }}
                                 （{{ $invitation->expires_at->format('Y-m-d') }}）
                             </td>
                             <td>
@@ -104,7 +104,7 @@
         <ul class="message-list" id="messages">
             @forelse($messages as $message)
                 <li class="d-flex {{ $message->user->id === auth()->id() ? 'justify-content-end' : 'justify-content-start' }}">
-                    <div id="message">
+                    <div>
                         {!! nl2br(e($message->content)) !!}
                         <br>
                         <small>by {{ $message->user->name }}</small>
@@ -124,4 +124,11 @@
             <a href="/">Back To Chatlist</a>
         </div>
     </div>
+@endsection
+
+@section('js')  {{-- 「js」セクションにスクリプトを注入 --}}
+    <script>
+        window.App = window.App || {}; // グローバル名前空間の初期化
+        window.App.user_id = {!! json_encode(auth()->id()) !!}; // ログインユーザーIDを格納
+    </script>
 @endsection
