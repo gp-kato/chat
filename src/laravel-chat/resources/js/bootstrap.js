@@ -21,8 +21,6 @@ Echo.channel("demo-channel").listen("MessageEvent", function (e) {
 
     if (e.user_id === window.App.user_id) {
         newMessage.classList.add("justify-content-end");
-    } else {
-        newMessage.classList.add("justify-content-start");
     }
 });
 
