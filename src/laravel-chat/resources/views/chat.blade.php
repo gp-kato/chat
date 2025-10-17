@@ -103,13 +103,7 @@
         <hr>
         <ul class="message-list" id="messages">
             @forelse($messages as $message)
-                <li class="d-flex {{ $message->user->id === auth()->id() ? 'justify-content-end' : 'justify-content-start' }}">
-                    <div>
-                        {!! nl2br(e($message->content)) !!}
-                        <br>
-                        <small>by {{ $message->user->name }}</small>
-                    </div>
-                </li>
+                @include('partials.message', ['message' => $message])
             @empty
                 <li>No messages.</li>
             @endforelse
