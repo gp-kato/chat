@@ -109,14 +109,11 @@
             @endforelse
         </ul>
         <div class="message">
-            <form action="{{ route('groups.messages.store', ['group' => $group->id]) }}" method="POST">
-                @csrf
-                <textarea name="content" rows="3" required class="form-control"></textarea>
-                <br>
-                <button type="submit" class="btn btn-primary" id="send">送信</button>
-            </form>
-            <a href="/">Back To Chatlist</a>
+            <textarea name="content" rows="3" required class="form-control" id="message"></textarea>
+            <br>
+            <button type="button" class="btn btn-primary" id="send">送信</button>
         </div>
+        <a href="/">Back To Chatlist</a>
     </div>
 @endsection
 
@@ -124,5 +121,6 @@
     <script>
         window.App = window.App || {}; // グローバル名前空間の初期化
         window.App.user_id = {!! json_encode(auth()->id()) !!}; // ログインユーザーIDを格納
+        const groupId = {{ $group->id }};
     </script>
 @endsection

@@ -24,11 +24,11 @@ Echo.channel("demo-channel").listen("MessageEvent", function (e) {
     }
 });
 
-//document.getElementById("send").addEventListener("click", function () {
-    //const message = document.getElementById("message").value;
-    //if (message === "") return;
-    //axios.post("/", { message: message })
-        //.then(() => {
-            //document.getElementById("message").value = "";
-        //})
-//});
+document.getElementById("send").addEventListener("click", function () {
+    const message = document.getElementById("message").value;
+    if (message === "") return;
+    axios.post(`/groups/${groupId}/messages`, { content: message })
+        .then(() => {
+            document.getElementById("message").value = "";
+        })
+});
