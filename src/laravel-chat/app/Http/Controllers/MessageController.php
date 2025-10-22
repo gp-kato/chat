@@ -72,6 +72,6 @@ class MessageController extends Controller
 
         event(new MessageEvent($message));
 
-        return redirect()->route('groups.messages.show', $group->id);
+        return response()->json(['status' => '201']);
     }
 }
