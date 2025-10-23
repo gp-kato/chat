@@ -31,4 +31,25 @@ document.getElementById("send").addEventListener("click", function () {
         .then(() => {
             document.getElementById("message").value = "";
         })
+        .catch(error => {
+            if (!error.response) {
+                console.error("ネットワークエラー:", error);
+                alert("ネットワークエラーが発生しました。ネットワーク接続を確認してください。");
+                return;
+            }
+
+            // ステータスコード別処理
+            const status = error.response.status;
+
+            // バリデーションエラー
+            if (status === 400 || status === 422) {
+                console.warn("バリデーションエラー:", error.response.data);
+                alert("入力内容に誤りがあります。\n" + JSON.stringify(error.response.data));
+                return;
+            }
+
+            // その他のサーバーエラー
+            console.error("サーバーエラー:", error.response);
+            alert("サーバーエラーが発生しました。後でもう一度お試しください。");
+        });
 });
