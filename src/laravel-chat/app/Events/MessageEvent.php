@@ -17,6 +17,7 @@ class MessageEvent implements ShouldBroadcast
 
     public $message;
     public $user_id;
+    public $groupId;
 
     /**
      * Create a new event instance.
@@ -24,6 +25,7 @@ class MessageEvent implements ShouldBroadcast
     public function __construct(Message $message) {
         $this->message = $message;
         $this->user_id = $message->user_id;
+        $this->groupId = $message->group_id;
     }
 
     /**
@@ -34,13 +36,14 @@ class MessageEvent implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('demo-channel'),
+            new Channel('group.' . $this->groupId),
         ];
     }
 
     public function broadcastWith() {
         return [
             'user_id' => $this->user_id,
+            'group_id' => $this->groupId,
             'html' => view('partials.message', ['message' => $this->message->load('user')])->render(),
         ];
     }
