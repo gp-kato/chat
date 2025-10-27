@@ -72,6 +72,8 @@ class MessageController extends Controller
 
         event(new MessageEvent($message));
 
-        return response()->json(['status' => '201']);
+        return response()->json([
+            'message' => 'メッセージを送信しました'
+        ], 201);
     }
 }
