@@ -36,7 +36,7 @@ class MessageEvent implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('group.' . $this->groupId),
+            new PrivateChannel('group.' . $this->groupId),
         ];
     }
 

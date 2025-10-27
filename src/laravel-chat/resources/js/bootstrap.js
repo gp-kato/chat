@@ -11,7 +11,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 import './echo';
 
-Echo.channel(`group.${groupId}`).listen("MessageEvent", function (e) {
+Echo.private(`group.${groupId}`).listen("MessageEvent", function (e) {
     const div = document.getElementById("messages");
     const html = e.html;
 
