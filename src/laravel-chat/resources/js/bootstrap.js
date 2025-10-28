@@ -43,8 +43,9 @@ document.getElementById("send").addEventListener("click", function () {
 
             // バリデーションエラー
             if (status === 400 || status === 422) {
-                console.warn("バリデーションエラー:", error.response.data);
-                alert("入力内容に誤りがあります。\n" + JSON.stringify(error.response.data));
+                const errors = error.response.data.errors;
+                const messageError = errors?.message?.[0] || "メッセージは140文字以内で入力してください。";
+                alert(messageError);
                 return;
             }
 
