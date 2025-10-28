@@ -43,7 +43,6 @@ class MessageEvent implements ShouldBroadcast
     public function broadcastWith() {
         return [
             'user_id' => $this->user_id,
-            'group_id' => $this->groupId,
             'html' => view('partials.message', ['message' => $this->message->load('user')])->render(),
         ];
     }
