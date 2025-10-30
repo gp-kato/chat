@@ -48,7 +48,7 @@ document.getElementById("send").addEventListener("click", function () {
             // バリデーションエラー
             if (status === 400 || status === 422) {
                 const errors = error.response.data.errors;
-                const messageError = errors?.message?.[0] || "メッセージは140文字以内で入力してください。";
+                const messageError = errors?.content?.[0] || "メッセージは140文字以内で入力してください。";
                 alert(messageError);
                 return;
             }
