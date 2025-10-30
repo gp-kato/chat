@@ -14,6 +14,10 @@ import './echo';
 Echo.private(`group.${groupId}`).listen("MessageEvent", function (e) {
     const div = document.getElementById("messages");
     const html = e.html;
+    const noMessages = div.querySelector(".no-messages");
+    if (noMessages) {
+        noMessages.remove();
+    }
 
     div.insertAdjacentHTML("beforeend", html);
 

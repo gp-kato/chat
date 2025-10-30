@@ -105,7 +105,7 @@
             @forelse($messages as $message)
                 @include('partials.message', ['message' => $message])
             @empty
-                <li>No messages.</li>
+                <li class="no-messages text-muted text-center">No messages.</li>
             @endforelse
         </ul>
         <div class="message">
