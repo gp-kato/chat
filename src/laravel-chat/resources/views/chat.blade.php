@@ -86,7 +86,7 @@
                             <td>{{ $invitation->invitee_email }}</td>
                             <td>{{ $invitation->inviter->name ?? '-' }}</td>
                             <td>
-                                {{ $invitation->expires_at->diffForHumans() }} 
+                                {{ $invitation->expires_at->diffForHumans() }}
                                 （{{ $invitation->expires_at->format('Y-m-d') }}）
                             </td>
                             <td>
@@ -101,27 +101,76 @@
             </table>
         @endif
         <hr>
-        <ul class="message-list">
+        <ul class="message-list" id="messages">
             @forelse($messages as $message)
-                <li class="d-flex {{ $message->user->id === auth()->id() ? 'justify-content-end' : 'justify-content-start' }}">
-                    <div>
-                        {!! nl2br(e($message->content)) !!}
-                        <br>
-                        <small>by {{ $message->user->name }}</small>
-                    </div>
-                </li>
+                @include('partials.message', ['message' => $message])
             @empty
-                <li>No messages.</li>
+                <li class="no-messages text-muted text-center">No messages.</li>
             @endforelse
         </ul>
         <div class="message">
-            <form action="{{ route('groups.messages.store', ['group' => $group->id]) }}" method="POST">
-                @csrf
-                <textarea name="content" rows="3" required class="form-control"></textarea>
-                <br>
-                <button type="submit" class="btn btn-primary">送信</button>
-            </form>
-            <a href="/">Back To Chatlist</a>
+            <textarea name="content" rows="3" required class="form-control" id="message"></textarea>
+            <br>
+            <button type="button" class="btn btn-primary" id="send">送信</button>
         </div>
+        <a href="/">Back To Chatlist</a>
     </div>
+@endsection
+
+@section('js')  {{-- 「js」セクションにスクリプトを注入 --}}
+    <script type="module">
+        window.App = window.App || {}; // グローバル名前空間の初期化
+        window.App.user_id = {!! json_encode(auth()->id()) !!}; // ログインユーザーIDを格納
+        const groupId = {{ $group->id }};
+
+        Echo.private(`group.${groupId}`).listen("MessageEvent", function (e) {
+            const div = document.getElementById("messages");
+            const html = e.html;
+            const noMessages = div.querySelector(".no-messages");
+            if (noMessages) {
+                noMessages.remove();
+            }
+
+            div.insertAdjacentHTML("beforeend", html);
+
+            const newMessage = div.lastElementChild;
+
+            if (e.user_id === window.App.user_id) {
+                newMessage.classList.add("justify-content-end");
+            }
+        });
+
+        document.getElementById("send").addEventListener("click", function () {
+            const message = document.getElementById("message").value;
+            if (message === "") return;
+            axios.post(`/groups/${groupId}/messages`, { content: message })
+
+            .then(() => {
+                document.getElementById("message").value = "";
+            })
+
+            .catch(error => {
+                if (!error.response) {
+                    console.error("ネットワークエラー:", error);
+                    alert("ネットワークエラーが発生しました。ネットワーク接続を確認してください。");
+                    return;
+                }
+
+                // ステータスコード別処理
+                const status = error.response.status;
+
+                // バリデーションエラー
+                if (status === 400 || status === 422) {
+                    const errors = error.response.data.errors;
+                    const messageError = errors?.content?.[1] || "正しい入力値で入力してください。";
+                    alert(messageError);
+                    return;
+                }
+
+                // その他のサーバーエラー
+                console.error("サーバーエラー:", error.response);
+                alert("サーバーエラーが発生しました。後でもう一度お試しください。");
+            });
+        });
+    </script>
 @endsection

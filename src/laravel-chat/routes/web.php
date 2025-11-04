@@ -6,6 +6,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\InvitationController;
 use Illuminate\Support\Facades\Route;
+use App\Events\MessageEvent;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // 認証後の着地点を /groups に統一（ハンドラ重複を避けるため '/' は一覧へ委譲）

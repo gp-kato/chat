@@ -13,6 +13,10 @@ RUN apt-get update \
     && apt-get install -y zlib1g-dev mariadb-client vim libzip-dev \
     # docker-php-ext-install：標準PHPの拡張パッケージリストのインストール（今回は zipとpdo_mysqlパッケージ）
     && docker-php-ext-install zip pdo_mysql
+RUN docker-php-ext-install pcntl \
+    && docker-php-ext-enable pcntl
+
+RUN docker-php-ext-install fileinfo
 
 ## Composer install ##
 # コマンドの実行-> RUN [実行するコマンド]
