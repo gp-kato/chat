@@ -83,11 +83,6 @@ class MessageController extends Controller
         $groupId = $request->query('group_id');
         $beforeId = $request->query('before_id');
 
-        dd([
-            'group_id' => $groupId,
-            'before_id' => $beforeId,
-        ]);
-
         $group = Group::findOrFail($groupId);
 
         $query = $group->messages()->oldest();
@@ -104,7 +99,11 @@ class MessageController extends Controller
             ->sortBy('created_at')
         ->values();
 
-        $html = view('partials.messages', ['messages' => $messages])->render();
+        $html = '';
+
+        foreach ($messages as $message) {
+            $html .= view('partials.message', ['message' => $message])->render();
+        }
 
         return response()->json([
             'html' => $html,
