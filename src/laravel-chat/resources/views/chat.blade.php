@@ -123,6 +123,48 @@
         window.App.user_id = {!! json_encode(auth()->id()) !!}; // ログインユーザーIDを格納
         const groupId = {{ $group->id }};
 
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('groupId:', groupId);
+            const messages = document.getElementById('messages');
+            let loading = false;
+            let hasMore = true;
+
+            // ページ読み込み時に最下部へスクロール
+            messages.scrollTop = messages.scrollHeight;
+
+            messages.addEventListener('scroll', async () => {
+                console.log('スクロールイベント発火:', messages.scrollTop);
+                if (loading || !hasMore) return;
+
+                // 上端近くまで来たら過去メッセージをロード
+                if (messages.scrollTop <= 50) {
+                    loading = true;
+                    console.log('上端付近なので読み込み開始');
+
+                    const firstMessage = messages.querySelector('li:first-child');
+                    const beforeId = firstMessage ? firstMessage.dataset.id : null;
+
+                    const res = await fetch(`/groups/${groupId}/messages/fetch?group_id=${groupId}&before_id=${beforeId}`);
+                    const data = await res.json();
+
+                    if (data.html.trim()) {
+                        const prevScrollHeight = messages.scrollHeight;
+                        const prevScrollTop = messages.scrollTop;
+
+                        // 過去分を上に追加
+                        messages.insertAdjacentHTML('afterbegin', data.html);
+
+                        // 挿入後の高さを取得してスクロール補正
+                        const newScrollHeight = messages.scrollHeight;
+                        messages.scrollTop = prevScrollTop + (newScrollHeight - prevScrollHeight);
+                    }
+
+                    hasMore = data.has_more;
+                    loading = false;
+                }
+            });
+        });
+
         Echo.private(`group.${groupId}`).listen("MessageEvent", function (e) {
             const div = document.getElementById("messages");
             const html = e.html;
