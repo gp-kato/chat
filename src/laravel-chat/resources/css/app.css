@@ -41,4 +41,6 @@ td {
 }
 .message-list {
     margin-bottom: 10px;
+    overflow-y: auto;
+    height: 50vh;
 }

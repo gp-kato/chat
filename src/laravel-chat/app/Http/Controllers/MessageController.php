@@ -21,7 +21,9 @@ class MessageController extends Controller
             'query' => ['nullable', 'string', 'max:100']
         ]);
         $query = $validated['query'] ?? null;
-        $messages = $group->messages()->oldest()->get();
+        $total = $group->messages()->count();
+        $limit = 50;
+        $messages = $group->messages()->oldest()->skip(max(0, $total - $limit))->take($limit)->get();
         $removableUsers = $group->users()
         ->wherePivot('left_at', null)
         ->where('role', 'member')
@@ -75,5 +77,38 @@ class MessageController extends Controller
         return response()->json([
             'message' => 'メッセージを送信しました'
         ], 201);
+    }
+
+    public function fetch(Request $request) {
+        $groupId = $request->query('group_id');
+        $beforeId = $request->query('before_id');
+
+        dd([
+            'group_id' => $groupId,
+            'before_id' => $beforeId,
+        ]);
+
+        $group = Group::findOrFail($groupId);
+
+        $query = $group->messages()->oldest();
+
+        if ($beforeId) {
+            $query->where('id', '<', $beforeId);
+        }
+
+        $messages = $query
+            ->with('user')
+            ->orderBy('id', 'desc')
+            ->limit(50)
+            ->get()
+            ->sortBy('created_at')
+        ->values();
+
+        $html = view('partials.messages', ['messages' => $messages])->render();
+
+        return response()->json([
+            'html' => $html,
+            'has_more' => $messages->count() === 50,
+        ]);
     }
 }
