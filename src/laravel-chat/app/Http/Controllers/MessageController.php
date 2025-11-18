@@ -85,6 +85,10 @@ class MessageController extends Controller
 
         $group = Group::findOrFail($groupId);
 
+        if (!$group->users()->where('users.id', Auth::id())->exists()) {
+            abort(403, 'You are not a member of this group.');
+        }
+
         $query = $group->messages()->oldest();
 
         if ($beforeId) {
