@@ -89,19 +89,25 @@ class MessageController extends Controller
             abort(403, 'You are not a member of this group.');
         }
 
-        $query = $group->messages()->oldest();
+        $query = $group->messages()
+            ->with('user')
+            ->orderBy('id', 'desc')
+        ->limit(50);
 
         if ($beforeId) {
             $query->where('id', '<', $beforeId);
         }
 
-        $messages = $query
-            ->with('user')
-            ->orderBy('id', 'desc')
-            ->limit(50)
-            ->get()
-            ->sortBy('created_at')
-        ->values();
+        $messages = $query->get();
+
+        if ($messages->isNotEmpty()) {
+            $oldestId = $messages->first()->id; // reverse() しているので first() が最古
+            $hasMore = $group->messages()->where('id', '<', $oldestId)->exists();
+        } else {
+            $hasMore = false;
+        }
+
+        $messages = $messages->sortBy('created_at')->values();
 
         $html = '';
 
