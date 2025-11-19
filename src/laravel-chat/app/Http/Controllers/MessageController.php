@@ -103,7 +103,7 @@ class MessageController extends Controller
         $messages = $query->get();
 
         if ($messages->isNotEmpty()) {
-            $oldestId = $messages->first()->id; // reverse() しているので first() が最古
+            $oldestId = $messages->first()->id;
             $hasMore = $group->messages()->where('id', '<', $oldestId)->exists();
         } else {
             $hasMore = false;
