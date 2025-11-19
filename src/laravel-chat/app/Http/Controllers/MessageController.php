@@ -11,6 +11,8 @@ use App\Events\MessageEvent;
 
 class MessageController extends Controller
 {
+    private const FETCH_LIMIT = 50;
+
     public function show(Request $request, Group $group) {
         $user = Auth::user();
 
@@ -92,7 +94,7 @@ class MessageController extends Controller
         $query = $group->messages()
             ->with('user')
             ->orderBy('id', 'desc')
-        ->limit(50);
+        ->limit(self::FETCH_LIMIT);
 
         if ($beforeId) {
             $query->where('id', '<', $beforeId);
