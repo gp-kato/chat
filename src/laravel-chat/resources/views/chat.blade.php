@@ -144,8 +144,27 @@
                     const firstMessage = messages.querySelector('li:first-child');
                     const beforeId = firstMessage ? firstMessage.dataset.id : null;
 
-                    const res = await fetch(`/groups/${groupId}/messages/fetch?group_id=${groupId}&before_id=${beforeId}`);
+                    await loadMessages(beforeId);
+
+                    loading = false;
+                }
+            });
+
+            async function loadMessages(beforeId) {
+                try {
+                    const url = `/groups/${groupId}/messages/fetch?group_id=${groupId}&before_id=${beforeId}`;
+                    const res = await fetch(url, { method: 'GET' });
+
+                    if (!res.ok) {
+                        throw new Error(`HTTP error: ${res.status}`);
+                    }
+
                     const data = await res.json();
+
+                    if (data.error) {
+                        showError("メッセージの取得に失敗しました。");
+                        return;
+                    }
 
                     if (data.html.trim()) {
                         const prevScrollHeight = messages.scrollHeight;
@@ -160,9 +179,41 @@
                     }
 
                     hasMore = data.has_more;
-                    loading = false;
+
+                } catch (e) {
+                    // 通信エラー時の処理
+                    showError("通信エラーが発生しました。再試行してください。");
+                    showRetryButton(beforeId);
                 }
-            });
+            }
+
+            // ====== 再試行ボタンの表示 ======
+            function showRetryButton(beforeId) {
+                const btn = document.createElement('button');
+                btn.className = 'retry-btn';
+                btn.textContent = '再読み込み';
+
+                btn.addEventListener('click', async () => {
+                    btn.remove();
+                    await loadMessages(beforeId);
+                });
+
+                messages.insertAdjacentElement('afterbegin', btn);
+            }
+
+            // ====== エラーバナー表示 ======
+            function showError(message) {
+                const div = document.createElement('div');
+                div.className = 'error-banner';
+                div.textContent = message;
+
+                document.body.appendChild(div);
+
+                setTimeout(() => {
+                    div.style.opacity = 0;
+                    setTimeout(() => div.remove(), 500);
+                }, 3000);
+            }
         });
 
         Echo.private(`group.${groupId}`).listen("MessageEvent", function (e) {

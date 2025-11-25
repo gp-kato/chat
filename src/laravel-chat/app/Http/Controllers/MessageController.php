@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Invitation;
@@ -82,44 +83,56 @@ class MessageController extends Controller
     }
 
     public function fetch(Request $request) {
-        $groupId = $request->query('group_id');
-        $beforeId = $request->query('before_id');
+        try {
+            $groupId = $request->query('group_id');
+            $beforeId = $request->query('before_id');
 
-        $group = Group::findOrFail($groupId);
+            $group = Group::findOrFail($groupId);
 
-        if (!$group->users()->where('users.id', Auth::id())->exists()) {
-            abort(403, 'You are not a member of this group.');
+            if (!$group->users()->where('users.id', Auth::id())->exists()) {
+                abort(403, 'You are not a member of this group.');
+            }
+
+            $query = $group->messages()
+                ->with('user')
+                ->orderBy('id', 'desc')
+            ->limit(self::FETCH_LIMIT);
+
+            if ($beforeId) {
+                $query->where('id', '<', $beforeId);
+            }
+
+            $messages = $query->get();
+
+            if ($messages->isNotEmpty()) {
+                $oldestId = $messages->first()->id;
+                $hasMore = $group->messages()->where('id', '<', $oldestId)->exists();
+            } else {
+                $hasMore = false;
+            }
+
+            $messages = $messages->sortBy('created_at')->values();
+
+            $html = '';
+
+            foreach ($messages as $message) {
+                $html .= view('partials.message', ['message' => $message])->render();
+            }
+
+            return response()->json([
+                'html' => $html,
+                'has_more' => $messages->count() === 50,
+            ]);
+
+        } catch (\Throwable $e) {
+
+            Log::error('Message fetch error', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'error' => '追加読み込みに失敗しました。',
+            ], 500);
         }
-
-        $query = $group->messages()
-            ->with('user')
-            ->orderBy('id', 'desc')
-        ->limit(self::FETCH_LIMIT);
-
-        if ($beforeId) {
-            $query->where('id', '<', $beforeId);
-        }
-
-        $messages = $query->get();
-
-        if ($messages->isNotEmpty()) {
-            $oldestId = $messages->first()->id;
-            $hasMore = $group->messages()->where('id', '<', $oldestId)->exists();
-        } else {
-            $hasMore = false;
-        }
-
-        $messages = $messages->sortBy('created_at')->values();
-
-        $html = '';
-
-        foreach ($messages as $message) {
-            $html .= view('partials.message', ['message' => $message])->render();
-        }
-
-        return response()->json([
-            'html' => $html,
-            'has_more' => $messages->count() === 50,
-        ]);
     }
 }
