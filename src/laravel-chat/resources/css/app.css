@@ -44,3 +44,15 @@ td {
     overflow-y: auto;
     height: 50vh;
 }
+.error-banner {
+    opacity: 1;
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ff4d4d;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    z-index: 9999;
+}
