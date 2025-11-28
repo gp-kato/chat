@@ -129,6 +129,8 @@
             let loading = false;
             let hasMore = true;
 
+            let retryButtonVisible = false;
+
             // ページ読み込み時に最下部へスクロール
             messages.scrollTop = messages.scrollHeight;
 
@@ -166,6 +168,10 @@
                         return;
                     }
 
+                    retryButtonVisible = false;
+
+                    document.querySelectorAll('.retry-btn').forEach(btn => btn.remove());
+
                     if (data.html.trim()) {
                         const prevScrollHeight = messages.scrollHeight;
                         const prevScrollTop = messages.scrollTop;
@@ -189,6 +195,9 @@
 
             // ====== 再試行ボタンの表示 ======
             function showRetryButton(beforeId) {
+                if (retryButtonVisible) return;
+                retryButtonVisible = true;
+
                 const btn = document.createElement('button');
                 btn.className = 'retry-btn';
                 btn.textContent = '再読み込み';
