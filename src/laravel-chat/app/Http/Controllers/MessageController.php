@@ -81,11 +81,8 @@ class MessageController extends Controller
         ], 201);
     }
 
-    public function fetch(Request $request) {
-        $groupId = $request->query('group_id');
+    public function fetch(Request $request, Group $group) {
         $beforeId = $request->query('before_id');
-
-        $group = Group::findOrFail($groupId);
 
         $query = $group->messages()
             ->with('user')
