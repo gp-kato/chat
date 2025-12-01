@@ -154,7 +154,7 @@
 
             async function loadMessages(beforeId) {
                 try {
-                    const url = `/groups/${groupId}/messages/fetch?group_id=${groupId}&before_id=${beforeId}`;
+                    const url = `/groups/${groupId}/messages/fetch?before_id=${beforeId}`;
                     const res = await fetch(url, { method: 'GET' });
 
                     if (!res.ok) {
