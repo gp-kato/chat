@@ -84,6 +84,10 @@ class MessageController extends Controller
     public function fetch(Request $request, Group $group) {
         $beforeId = $request->query('before_id');
 
+        if (!$group->users()->where('users.id', Auth::id())->exists()) {
+            abort(403, 'You are not a member of this group.');
+        }
+
         $query = $group->messages()
             ->with('user')
             ->orderBy('id', 'desc')
