@@ -112,7 +112,7 @@ class MessageController extends Controller
 
         return response()->json([
             'html' => $html,
-            'has_more' => $messages->count() === 50,
+            'has_more' => $hasMore,
         ]);
     }
 }
