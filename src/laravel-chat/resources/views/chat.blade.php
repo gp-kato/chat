@@ -188,40 +188,35 @@
 
                 } catch (e) {
                     // 通信エラー時の処理
-                    showError("通信エラーが発生しました。再試行してください。");
+                    showErrorWithRetry("メッセージの取得に失敗しました ", beforeId);
                     showRetryButton(beforeId);
                 }
             }
 
-            // ====== 再試行ボタンの表示 ======
-            function showRetryButton(beforeId) {
-                if (retryButtonVisible) return;
-                retryButtonVisible = true;
+            // ====== エラー + 再試行バナー ======
+            function showErrorWithRetry(message, beforeId) {
+                // すでに表示中のバナーがあれば消す
+                const oldBanner = document.querySelector('.error-banner');
+                if (oldBanner) oldBanner.remove();
+
+                const banner = document.createElement('div');
+                banner.className = 'error-banner integrated';
+
+                const msg = document.createElement('span');
+                msg.textContent = message;
 
                 const btn = document.createElement('button');
                 btn.className = 'retry-btn';
                 btn.textContent = '再読み込み';
 
                 btn.addEventListener('click', async () => {
-                    btn.remove();
+                    banner.remove(); // バナーごと削除
                     await loadMessages(beforeId);
                 });
 
-                messages.insertAdjacentElement('afterbegin', btn);
-            }
-
-            // ====== エラーバナー表示 ======
-            function showError(message) {
-                const div = document.createElement('div');
-                div.className = 'error-banner';
-                div.textContent = message;
-
-                document.body.appendChild(div);
-
-                setTimeout(() => {
-                    div.style.opacity = 0;
-                    setTimeout(() => div.remove(), 500);
-                }, 3000);
+                banner.appendChild(msg);
+                banner.appendChild(btn);
+                document.body.appendChild(banner);
             }
         });
 

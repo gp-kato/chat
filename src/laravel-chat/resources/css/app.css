@@ -56,3 +56,15 @@ td {
     border-radius: 6px;
     z-index: 9999;
 }
+.retry-btn {
+    background: white;
+    color: #e5484d;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.retry-btn:hover {
+    opacity: 0.85;
+}
