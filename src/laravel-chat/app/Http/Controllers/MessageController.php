@@ -83,7 +83,7 @@ class MessageController extends Controller
 
     public function fetch(Request $request, Group $group) {
         $validated = $request->validate([
-            'before_id' => 'required|numeric',
+            'before_id' => 'nullable|numeric',
         ]);
 
         $beforeId = $validated['before_id'];
