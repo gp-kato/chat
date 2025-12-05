@@ -124,24 +124,19 @@
         const groupId = {{ $group->id }};
 
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('groupId:', groupId);
             const messages = document.getElementById('messages');
             let loading = false;
             let hasMore = true;
-
-            let retryButtonVisible = false;
 
             // ページ読み込み時に最下部へスクロール
             messages.scrollTop = messages.scrollHeight;
 
             messages.addEventListener('scroll', async () => {
-                console.log('スクロールイベント発火:', messages.scrollTop);
                 if (loading || !hasMore) return;
 
                 // 上端近くまで来たら過去メッセージをロード
                 if (messages.scrollTop <= 50) {
                     loading = true;
-                    console.log('上端付近なので読み込み開始');
 
                     const firstMessage = messages.querySelector('li:first-child');
                     const beforeId = firstMessage ? firstMessage.dataset.id : null;
@@ -164,11 +159,9 @@
                     const data = await res.json();
 
                     if (data.error) {
-                        showError("メッセージの取得に失敗しました。");
+                        showErrorWithRetry("メッセージの取得に失敗しました。");
                         return;
                     }
-
-                    retryButtonVisible = false;
 
                     document.querySelectorAll('.retry-btn').forEach(btn => btn.remove());
 
