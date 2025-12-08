@@ -182,7 +182,8 @@
                 } catch (e) {
                     // 通信エラー時の処理
                     showErrorWithRetry("メッセージの取得に失敗しました ", beforeId);
-                    showRetryButton(beforeId);
+                } finally {
+                    loading = false;
                 }
             }
 
