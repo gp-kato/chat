@@ -101,7 +101,7 @@ class MessageController extends Controller
         $query = $group->messages()
             ->with('user')
             ->orderBy('id', 'desc')
-        ->limit(self::FETCH_LIMIT);
+        ->limit(self::FETCH_LIMIT + 1);
 
         if ($beforeId) {
             $query->where('id', '<', $beforeId);
@@ -111,9 +111,13 @@ class MessageController extends Controller
 
         if ($messages->isNotEmpty()) {
             $oldestId = $messages->last()->id;
-            $hasMore = $group->messages()->where('id', '<', $oldestId)->exists();
-        } else {
-            $hasMore = false;
+        }
+
+        $hasMore = $messages->count() > self::FETCH_LIMIT;
+
+        if ($hasMore) {
+            // 余分な1件を削除（表示は50件のみ）
+            $messages = $messages->slice(0, self::FETCH_LIMIT);
         }
 
         $messages = $messages->sortBy('created_at')->values();
