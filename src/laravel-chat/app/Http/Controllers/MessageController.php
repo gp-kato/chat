@@ -120,7 +120,7 @@ class MessageController extends Controller
             $messages = $messages->slice(0, self::FETCH_LIMIT);
         }
 
-        $messages = $messages->sortBy('created_at')->values();
+        $messages = $messages->sortBy('id')->values();
 
         $html = '';
 
