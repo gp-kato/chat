@@ -163,7 +163,7 @@
                         return;
                     }
 
-                    document.querySelectorAll('.retry-btn').forEach(btn => btn.remove());
+                    document.querySelectorAll('.error-banner').forEach(b => b.remove());
 
                     if (data.html.trim()) {
                         const prevScrollHeight = messages.scrollHeight;
