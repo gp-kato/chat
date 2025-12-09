@@ -86,13 +86,15 @@ class MessageController extends Controller
     }
 
     public function fetch(Request $request, Group $group) {
+        $user = Auth::user();
+
         $validated = $request->validate([
             'before_id' => 'nullable|numeric',
         ]);
 
         $beforeId = $validated['before_id'];
 
-        if (!$group->users()->where('users.id', Auth::id())->exists()) {
+        if (!$group->isJoinedBy($user)) {
             abort(403, 'You are not a member of this group.');
         }
 
