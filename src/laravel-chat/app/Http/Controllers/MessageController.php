@@ -23,9 +23,13 @@ class MessageController extends Controller
             'query' => ['nullable', 'string', 'max:100']
         ]);
         $query = $validated['query'] ?? null;
-        $total = $group->messages()->count();
-        $limit = 50;
-        $messages = $group->messages()->oldest()->skip(max(0, $total - $limit))->take($limit)->get();
+        $messages = $group->messages()
+            ->with('user')
+            ->orderBy('id', 'desc')
+            ->limit(50)
+            ->get()
+            ->sortBy('id')
+        ->values();
         $removableUsers = $group->users()
         ->wherePivot('left_at', null)
         ->where('role', 'member')
