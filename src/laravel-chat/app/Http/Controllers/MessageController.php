@@ -11,6 +11,8 @@ use App\Events\MessageEvent;
 
 class MessageController extends Controller
 {
+    private const FETCH_LIMIT = 50;
+
     public function show(Request $request, Group $group) {
         $user = Auth::user();
 
@@ -21,7 +23,13 @@ class MessageController extends Controller
             'query' => ['nullable', 'string', 'max:100']
         ]);
         $query = $validated['query'] ?? null;
-        $messages = $group->messages()->oldest()->get();
+        $messages = $group->messages()
+            ->with('user')
+            ->orderBy('id', 'desc')
+            ->limit(self::FETCH_LIMIT)
+            ->get()
+            ->sortBy('id')
+        ->values();
         $removableUsers = $group->users()
         ->wherePivot('left_at', null)
         ->where('role', 'member')
@@ -75,5 +83,50 @@ class MessageController extends Controller
         return response()->json([
             'message' => 'メッセージを送信しました'
         ], 201);
+    }
+
+    public function fetch(Request $request, Group $group) {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'before_id' => 'nullable|numeric',
+        ]);
+
+        $beforeId = $validated['before_id'];
+
+        if (!$group->isJoinedBy($user)) {
+            abort(403, 'You are not a member of this group.');
+        }
+
+        $query = $group->messages()
+            ->with('user')
+            ->orderBy('id', 'desc')
+        ->limit(self::FETCH_LIMIT + 1);
+
+        if ($beforeId) {
+            $query->where('id', '<', $beforeId);
+        }
+
+        $messages = $query->get();
+
+        $hasMore = $messages->count() > self::FETCH_LIMIT;
+
+        if ($hasMore) {
+            // 余分な1件を削除（表示は50件のみ）
+            $messages = $messages->slice(0, self::FETCH_LIMIT);
+        }
+
+        $messages = $messages->sortBy('id')->values();
+
+        $html = '';
+
+        foreach ($messages as $message) {
+            $html .= view('partials.message', ['message' => $message])->render();
+        }
+
+        return response()->json([
+            'html' => $html,
+            'has_more' => $hasMore,
+        ]);
     }
 }

@@ -123,6 +123,97 @@
         window.App.user_id = {!! json_encode(auth()->id()) !!}; // ログインユーザーIDを格納
         const groupId = {{ $group->id }};
 
+        document.addEventListener('DOMContentLoaded', () => {
+            const messages = document.getElementById('messages');
+            let loading = false;
+            let hasMore = true;
+
+            // ページ読み込み時に最下部へスクロール
+            messages.scrollTop = messages.scrollHeight;
+
+            messages.addEventListener('scroll', async () => {
+                if (loading || !hasMore) return;
+
+                // 上端近くまで来たら過去メッセージをロード
+                if (messages.scrollTop <= 50) {
+                    loading = true;
+
+                    const firstMessage = messages.querySelector('li:first-child');
+                    const beforeId = firstMessage ? firstMessage.dataset.id : null;
+
+                    await loadMessages(beforeId);
+
+                    loading = false;
+                }
+            });
+
+            async function loadMessages(beforeId) {
+                try {
+                    const url = `/groups/${groupId}/messages/fetch?before_id=${beforeId}`;
+                    const res = await fetch(url, { method: 'GET' });
+
+                    if (!res.ok) {
+                        throw new Error(`HTTP error: ${res.status}`);
+                    }
+
+                    const data = await res.json();
+
+                    if (data.error) {
+                        showErrorWithRetry("メッセージの取得に失敗しました。");
+                        return;
+                    }
+
+                    document.querySelectorAll('.error-banner').forEach(b => b.remove());
+
+                    if (data.html.trim()) {
+                        const prevScrollHeight = messages.scrollHeight;
+                        const prevScrollTop = messages.scrollTop;
+
+                        // 過去分を上に追加
+                        messages.insertAdjacentHTML('afterbegin', data.html);
+
+                        // 挿入後の高さを取得してスクロール補正
+                        const newScrollHeight = messages.scrollHeight;
+                        messages.scrollTop = prevScrollTop + (newScrollHeight - prevScrollHeight);
+                    }
+
+                    hasMore = data.has_more;
+
+                } catch (e) {
+                    // 通信エラー時の処理
+                    showErrorWithRetry("メッセージの取得に失敗しました ", beforeId);
+                } finally {
+                    loading = false;
+                }
+            }
+
+            // ====== エラー + 再試行バナー ======
+            function showErrorWithRetry(message, beforeId) {
+                // すでに表示中のバナーがあれば消す
+                const oldBanner = document.querySelector('.error-banner');
+                if (oldBanner) oldBanner.remove();
+
+                const banner = document.createElement('div');
+                banner.className = 'error-banner integrated';
+
+                const msg = document.createElement('span');
+                msg.textContent = message;
+
+                const btn = document.createElement('button');
+                btn.className = 'retry-btn';
+                btn.textContent = '再読み込み';
+
+                btn.addEventListener('click', async () => {
+                    banner.remove(); // バナーごと削除
+                    await loadMessages(beforeId);
+                });
+
+                banner.appendChild(msg);
+                banner.appendChild(btn);
+                document.body.appendChild(banner);
+            }
+        });
+
         Echo.private(`group.${groupId}`).listen("MessageEvent", function (e) {
             const div = document.getElementById("messages");
             const html = e.html;
