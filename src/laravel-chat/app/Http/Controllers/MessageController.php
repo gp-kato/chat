@@ -26,7 +26,7 @@ class MessageController extends Controller
         $messages = $group->messages()
             ->with('user')
             ->orderBy('id', 'desc')
-            ->limit(50)
+            ->limit(self::FETCH_LIMIT)
             ->get()
             ->sortBy('id')
         ->values();
