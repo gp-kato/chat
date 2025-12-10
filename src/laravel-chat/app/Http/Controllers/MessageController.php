@@ -109,10 +109,6 @@ class MessageController extends Controller
 
         $messages = $query->get();
 
-        if ($messages->isNotEmpty()) {
-            $oldestId = $messages->last()->id;
-        }
-
         $hasMore = $messages->count() > self::FETCH_LIMIT;
 
         if ($hasMore) {
