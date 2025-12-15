@@ -163,6 +163,8 @@
                         return;
                     }
 
+                    updateNetworkIndicator('online');
+
                     document.querySelectorAll('.error-banner').forEach(b => b.remove());
 
                     if (data.html.trim()) {
@@ -181,11 +183,46 @@
 
                 } catch (e) {
                     // 通信エラー時の処理
+                    updateNetworkIndicator('offline');
                     showErrorWithRetry("メッセージの取得に失敗しました ", beforeId);
                 } finally {
                     loading = false;
                 }
             }
+
+            function updateNetworkIndicator(state) {
+                const bar = document.getElementById('network-indicator');
+
+                bar.classList.remove('hidden', 'online', 'offline');
+
+                if (state === 'online') {
+                    bar.textContent = '接続中';
+                    bar.classList.add('online');
+                    setTimeout(() => bar.classList.add('hidden'), 800);
+                }
+
+                if (state === 'offline') {
+                    bar.textContent = 'ネットワークが切断されました';
+                    bar.classList.add('offline');
+                }
+            }
+
+            Echo.connector.pusher.connection.bind('connected', () => {
+                updateNetworkIndicator('online');
+            });
+
+            Echo.connector.pusher.connection.bind('disconnected', () => {
+                updateNetworkIndicator('offline');
+            });
+
+            Echo.connector.pusher.connection.bind('reconnected', () => {
+                updateNetworkIndicator('online');
+            });
+
+            Echo.connector.pusher.connection.bind('error', (err) => {
+                console.error('WebSocket error:', err);
+                updateNetworkIndicator('offline');
+            });
 
             // ====== エラー + 再試行バナー ======
             function showErrorWithRetry(message, beforeId) {

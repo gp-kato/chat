@@ -68,3 +68,16 @@ td {
 .retry-btn:hover {
     opacity: 0.85;
 }
+.network-indicator {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 6px;
+    font-size: 13px;
+    text-align: center;
+    background: #f3f4f6;
+    border-bottom: 1px solid #ddd;
+}
+.hidden { display: none; }
+.online { background: #e0ffe0; }
+.offline { background: #ffe0e0; }
