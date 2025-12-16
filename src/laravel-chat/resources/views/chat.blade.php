@@ -215,6 +215,14 @@
                 updateNetworkIndicator('offline');
             });
 
+            Echo.connector.pusher.connection.bind('unavailable', () => {
+                updateNetworkIndicator('offline');
+            });
+
+            Echo.connector.pusher.connection.bind('failed', () => {
+                updateNetworkIndicator('offline');
+            });
+
             Echo.connector.pusher.connection.bind('reconnected', () => {
                 updateNetworkIndicator('online');
             });
