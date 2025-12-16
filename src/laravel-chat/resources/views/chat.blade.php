@@ -207,6 +207,10 @@
                 }
             }
 
+            window.addEventListener('offline', () => {
+                updateNetworkIndicator('offline');
+            });
+
             Echo.connector.pusher.connection.bind('connected', () => {
                 updateNetworkIndicator('online');
             });
