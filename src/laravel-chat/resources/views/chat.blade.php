@@ -186,8 +186,8 @@
             }
 
             const notificationState = {
-                network: 'online',        // online | offline
-                fetchError: null          // { message, beforeId } | null
+                network: 'online',
+                fetchError: null
             };
 
             function notifyNetwork(state) {
@@ -235,54 +235,49 @@
                     return;
                 }
 
+                if (notificationState.network === 'connecting') {
+                    bar.textContent = '接続中...';
+                    bar.classList.add('connecting');
+                    return;
+                }
+
                 bar.textContent = '接続中';
                 bar.classList.add('online');
                 setTimeout(() => bar.classList.add('hidden'), 800);
-            }
-
-            function updateNetworkIndicator(state) {
-                const bar = document.getElementById('network-indicator');
-
-                bar.classList.remove('hidden', 'online', 'offline');
-
-                if (state === 'online') {
-                    bar.textContent = '接続中';
-                    bar.classList.add('online');
-                    setTimeout(() => bar.classList.add('hidden'), 800);
-                }
-
-                if (state === 'offline') {
-                    bar.textContent = 'ネットワークが切断されました';
-                    bar.classList.add('offline');
-                }
             }
 
             window.addEventListener('offline', () => {
                 notifyNetwork('offline');
             });
 
-            Echo.connector.pusher.connection.bind('connected', () => {
-                notifyNetwork('online');
+            window.addEventListener('online', () => {
+                notifyNetwork('connecting');
             });
 
-            Echo.connector.pusher.connection.bind('disconnected', () => {
-                notifyNetwork('offline');
-            });
+            function mapPusherStateToNetwork(state) {
+                switch (state) {
+                    case 'connected':
+                    return 'online';
 
-            Echo.connector.pusher.connection.bind('unavailable', () => {
-                notifyNetwork('offline');
-            });
+                    case 'connecting':
+                    case 'reconnecting':
+                    return 'connecting';
 
-            Echo.connector.pusher.connection.bind('failed', () => {
-                notifyNetwork('offline');
-            });
+                    case 'disconnected':
+                    case 'unavailable':
+                    case 'failed':
+                    return 'offline';
 
-            Echo.connector.pusher.connection.bind('reconnected', () => {
-                notifyNetwork('online');
-            });
+                    default:
+                    return null;
+                }
+            }
 
-            Echo.connector.pusher.connection.bind('error', () => {
-                notifyNetwork('offline');
+            Echo.connector.pusher.connection.bind('state_change', ({ previous, current }) => {
+                const mapped = mapPusherStateToNetwork(current);
+                if (!mapped) return;
+
+                notifyNetwork(mapped);
             });
         });
 
