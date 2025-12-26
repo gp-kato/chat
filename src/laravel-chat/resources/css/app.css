@@ -66,6 +66,18 @@ td {
     background: #f3f4f6;
     border-bottom: 1px solid #ddd;
 }
+.error {
+    opacity: 1;
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ff4d4d;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    z-index: 9999;
+}
 .hidden { display: none; }
 .online { background: #e0ffe0; }
 .offline { background: #ffe0e0; }
