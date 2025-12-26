@@ -44,18 +44,6 @@ td {
     overflow-y: auto;
     height: 50vh;
 }
-.error-banner {
-    opacity: 1;
-    position: fixed;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #ff4d4d;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 6px;
-    z-index: 9999;
-}
 .retry-btn {
     background: white;
     color: #e5484d;
@@ -68,3 +56,28 @@ td {
 .retry-btn:hover {
     opacity: 0.85;
 }
+.network-indicator {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 6px;
+    font-size: 13px;
+    text-align: center;
+    background: #f3f4f6;
+    border-bottom: 1px solid #ddd;
+}
+.error {
+    opacity: 1;
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ff4d4d;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    z-index: 9999;
+}
+.hidden { display: none; }
+.online { background: #e0ffe0; }
+.offline { background: #ffe0e0; }

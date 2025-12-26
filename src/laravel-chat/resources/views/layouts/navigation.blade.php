@@ -67,4 +67,5 @@
             </div>
         </div>
     </div>
+    <div id="network-indicator" class="network-indicator hidden"></div>
 </nav>
