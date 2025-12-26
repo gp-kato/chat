@@ -251,7 +251,7 @@
             });
 
             window.addEventListener('online', () => {
-                notifyNetwork('connecting');
+                notifyNetwork('online');
             });
 
             function mapPusherStateToNetwork(state) {
