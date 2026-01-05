@@ -159,11 +159,11 @@
                     const data = await res.json();
 
                     if (data.error) {
-                        showErrorWithRetry("メッセージの取得に失敗しました。");
+                        notifyFetchError("メッセージの取得に失敗しました", beforeId);
                         return;
                     }
 
-                    document.querySelectorAll('.error-banner').forEach(b => b.remove());
+                    clearFetchError();
 
                     if (data.html.trim()) {
                         const prevScrollHeight = messages.scrollHeight;
@@ -181,37 +181,106 @@
 
                 } catch (e) {
                     // 通信エラー時の処理
-                    showErrorWithRetry("メッセージの取得に失敗しました ", beforeId);
+                    notifyFetchError("通信エラーが発生しました", beforeId);
                 } finally {
                     loading = false;
                 }
             }
 
-            // ====== エラー + 再試行バナー ======
-            function showErrorWithRetry(message, beforeId) {
-                // すでに表示中のバナーがあれば消す
-                const oldBanner = document.querySelector('.error-banner');
-                if (oldBanner) oldBanner.remove();
+            const notificationState = {
+                network: 'online',
+                fetchError: null
+            };
 
-                const banner = document.createElement('div');
-                banner.className = 'error-banner integrated';
-
-                const msg = document.createElement('span');
-                msg.textContent = message;
-
-                const btn = document.createElement('button');
-                btn.className = 'retry-btn';
-                btn.textContent = '再読み込み';
-
-                btn.addEventListener('click', async () => {
-                    banner.remove(); // バナーごと削除
-                    await loadMessages(beforeId);
-                });
-
-                banner.appendChild(msg);
-                banner.appendChild(btn);
-                document.body.appendChild(banner);
+            function notifyNetwork(state) {
+                notificationState.network = state;
+                renderNotification();
             }
+
+            function notifyFetchError(message, beforeId) {
+                notificationState.fetchError = { message, beforeId };
+                renderNotification();
+            }
+
+            function clearFetchError() {
+                notificationState.fetchError = null;
+                renderNotification();
+            }
+
+            function renderNotification() {
+                const bar = document.getElementById('network-indicator');
+
+                bar.className = 'network-indicator';
+                bar.innerHTML = '';
+
+                if (notificationState.network === 'offline') {
+                    bar.textContent = 'ネットワークが切断されています';
+                    bar.classList.add('offline');
+                    return;
+                }
+
+                if (notificationState.fetchError) {
+                    const span = document.createElement('span');
+                    span.textContent = notificationState.fetchError.message;
+
+                    const btn = document.createElement('button');
+                    btn.className = 'retry-btn';
+                    btn.textContent = '再読み込み';
+                    btn.onclick = () => {
+                        clearFetchError();
+                        loadMessages(notificationState.fetchError.beforeId);
+                    };
+
+                    bar.appendChild(span);
+                    bar.appendChild(btn);
+                    bar.classList.add('error');
+                    return;
+                }
+
+                if (notificationState.network === 'connecting') {
+                    bar.textContent = '接続中...';
+                    bar.classList.add('connecting');
+                    return;
+                }
+
+                bar.textContent = '接続中';
+                bar.classList.add('online');
+                setTimeout(() => bar.classList.add('hidden'), 800);
+            }
+
+            window.addEventListener('offline', () => {
+                notifyNetwork('offline');
+            });
+
+            window.addEventListener('online', () => {
+                notifyNetwork('online');
+            });
+
+            function mapPusherStateToNetwork(state) {
+                switch (state) {
+                    case 'connected':
+                    return 'online';
+
+                    case 'connecting':
+                    case 'reconnecting':
+                    return 'connecting';
+
+                    case 'disconnected':
+                    case 'unavailable':
+                    case 'failed':
+                    return 'offline';
+
+                    default:
+                    return null;
+                }
+            }
+
+            Echo.connector.pusher.connection.bind('state_change', ({ previous, current }) => {
+                const mapped = mapPusherStateToNetwork(current);
+                if (!mapped) return;
+
+                notifyNetwork(mapped);
+            });
         });
 
         Echo.private(`group.${groupId}`).listen("MessageEvent", function (e) {
