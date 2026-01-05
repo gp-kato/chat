@@ -163,6 +163,8 @@
                         return;
                     }
 
+                    clearFetchError();
+
                     if (data.html.trim()) {
                         const prevScrollHeight = messages.scrollHeight;
                         const prevScrollTop = messages.scrollTop;
@@ -173,8 +175,6 @@
                         // 挿入後の高さを取得してスクロール補正
                         const newScrollHeight = messages.scrollHeight;
                         messages.scrollTop = prevScrollTop + (newScrollHeight - prevScrollHeight);
-
-                        clearFetchError();
                     }
 
                     hasMore = data.has_more;
