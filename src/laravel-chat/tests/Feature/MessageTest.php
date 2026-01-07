@@ -52,7 +52,9 @@ class MessageTest extends TestCase
 
         $this->assertAuthenticated();
         $response->assertSessionHasNoErrors();
-        $response->assertStatus(201);
+        $response->assertStatus(201)->assertJson([
+            'message'  =>  'メッセージを送信しました',
+        ]);
 
         $this->assertDatabaseHas('messages', [
             'content' => 'content',
@@ -126,7 +128,9 @@ class MessageTest extends TestCase
 
         $this->assertAuthenticated();
         $response->assertSessionHasNoErrors();
-        $response->assertStatus(201);
+        $response->assertStatus(201)->assertJson([
+            'message'  =>  'メッセージを送信しました',
+        ]);
 
         $this->assertDatabaseHas('messages', [
             'content' => $validContent,
