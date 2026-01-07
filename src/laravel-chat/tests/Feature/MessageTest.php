@@ -52,7 +52,9 @@ class MessageTest extends TestCase
 
         $this->assertAuthenticated();
         $response->assertSessionHasNoErrors();
-        $response->assertRedirect(route('groups.messages.show', [$this->group->id], absolute: false));
+        $response->assertStatus(201)->assertJson([
+            'message'  =>  'メッセージを送信しました',
+        ]);
 
         $this->assertDatabaseHas('messages', [
             'content' => 'content',
@@ -105,7 +107,7 @@ class MessageTest extends TestCase
         $formData = [
             'content' => str_repeat('a', 141),
         ];
-    
+
         $response = $this->post(route('groups.messages.store', $this->group->id), $formData);
 
         $response->assertSessionHasErrors(['content']);
@@ -119,15 +121,17 @@ class MessageTest extends TestCase
         $this->joinGroup($this->user, $this->group);
 
         $validContent = str_repeat('a', 140);
-    
+
         $response = $this->post(route('groups.messages.store', $this->group->id), [
             'content' => $validContent,
         ]);
-    
+
         $this->assertAuthenticated();
         $response->assertSessionHasNoErrors();
-        $response->assertRedirect(route('groups.messages.show', [$this->group->id], absolute: false));
-    
+        $response->assertStatus(201)->assertJson([
+            'message'  =>  'メッセージを送信しました',
+        ]);
+
         $this->assertDatabaseHas('messages', [
             'content' => $validContent,
         ]);
@@ -151,6 +155,6 @@ class MessageTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('groups.index', absolute: false));
+        $response->assertStatus(302);
     }
 }
