@@ -65,7 +65,7 @@ class MessageTest extends TestCase
     {
         $response = $this->get(route('groups.messages.show', $this->group->id));
 
-        $response->assertStatus(302);
+        $response->assertRedirect(route('login'));
     }
 
     public function test_can_not_write_message_without_login(): void
@@ -76,7 +76,7 @@ class MessageTest extends TestCase
 
         $response = $this->post(route('groups.messages.store', $this->group->id), $formData);
 
-        $response->assertStatus(302);
+        $response->assertRedirect(route('login'));
 
         $this->assertDatabaseMissing('messages', $formData);
     }
