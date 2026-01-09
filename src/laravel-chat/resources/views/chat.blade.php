@@ -122,6 +122,7 @@
         window.App = window.App || {}; // グローバル名前空間の初期化
         window.App.user_id = {!! json_encode(auth()->id()) !!}; // ログインユーザーIDを格納
         const groupId = {{ $group->id }};
+        const sendButton = document.getElementById("send");
 
         document.addEventListener('DOMContentLoaded', () => {
             const messages = document.getElementById('messages');
@@ -303,9 +304,14 @@
         document.getElementById("send").addEventListener("click", function () {
             const message = document.getElementById("message").value;
             if (message === "") return;
+
+            sendButton.disabled = true;
+            sendButton.textContent = "送信中...";
+
             axios.post(`/groups/${groupId}/messages`, { content: message })
 
-            .then(() => {
+            .then((response) => {
+                alert(response.data.message ?? "メッセージを送信しました");
                 document.getElementById("message").value = "";
             })
 
@@ -330,6 +336,11 @@
                 // その他のサーバーエラー
                 console.error("サーバーエラー:", error.response);
                 alert("サーバーエラーが発生しました。後でもう一度お試しください。");
+            })
+
+            .finally(() => {
+                sendButton.disabled = false;
+                sendButton.textContent = "送信";
             });
         });
     </script>
