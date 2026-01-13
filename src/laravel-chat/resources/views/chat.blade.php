@@ -122,7 +122,6 @@
         window.App = window.App || {}; // グローバル名前空間の初期化
         window.App.user_id = {!! json_encode(auth()->id()) !!}; // ログインユーザーIDを格納
         const groupId = {{ $group->id }};
-        const sendButton = document.getElementById("send");
 
         document.addEventListener('DOMContentLoaded', () => {
             const messages = document.getElementById('messages');
@@ -301,12 +300,11 @@
             }
         });
 
-        document.getElementById("send").addEventListener("click", function () {
+        document.getElementById("send").addEventListener("click", function (e) {
+            e.currentTarget.disabled = true;
+
             const message = document.getElementById("message").value;
             if (message === "") return;
-
-            sendButton.disabled = true;
-            sendButton.textContent = "送信中...";
 
             axios.post(`/groups/${groupId}/messages`, { content: message })
 
