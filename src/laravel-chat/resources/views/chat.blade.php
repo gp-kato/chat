@@ -307,10 +307,19 @@
             const message = document.getElementById("message").value;
             if (message === "") return;
 
+            function showToast(message) {
+                const toast = document.getElementById('toast');
+                toast.textContent = message;
+                toast.className = 'toast show';
+                setTimeout(() => {
+                    toast.className = toast.className.replace('show', '');
+                }, 3000);
+            }
+
             axios.post(`/groups/${groupId}/messages`, { content: message })
 
             .then((response) => {
-                alert(response.data.message ?? "メッセージを送信しました");
+                showToast('メッセージを送信しました');
                 document.getElementById("message").value = "";
             })
 

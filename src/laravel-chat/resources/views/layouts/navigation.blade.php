@@ -68,4 +68,5 @@
         </div>
     </div>
     <div id="network-indicator" class="network-indicator hidden"></div>
+    <div id="toast" class="toast">メッセージを送信しました</div>
 </nav>
