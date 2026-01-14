@@ -302,6 +302,7 @@
 
         document.getElementById("send").addEventListener("click", function (e) {
             e.currentTarget.disabled = true;
+            e.currentTarget.textContent = "送信中...";
 
             const message = document.getElementById("message").value;
             if (message === "") return;
@@ -337,8 +338,11 @@
             })
 
             .finally(() => {
-                sendButton.disabled = false;
-                sendButton.textContent = "送信";
+                const btn = document.getElementById("send");
+                if (!btn) return;
+
+                btn.disabled = false;
+                btn.textContent = "送信";
             });
         });
     </script>
