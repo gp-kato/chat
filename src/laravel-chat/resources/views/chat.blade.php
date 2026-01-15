@@ -300,12 +300,27 @@
             }
         });
 
-        document.getElementById("send").addEventListener("click", function () {
+        document.getElementById("send").addEventListener("click", function (e) {
+            const sendButton = e.currentTarget;
+            sendButton.disabled = true;
+            sendButton.textContent = "送信中...";
+
             const message = document.getElementById("message").value;
             if (message === "") return;
+
+            function showToast(message) {
+                const toast = document.getElementById('toast');
+                toast.textContent = message;
+                toast.className = 'toast show';
+                setTimeout(() => {
+                    toast.className = toast.className.replace('show', '');
+                }, 3000);
+            }
+
             axios.post(`/groups/${groupId}/messages`, { content: message })
 
-            .then(() => {
+            .then((response) => {
+                showToast('メッセージを送信しました');
                 document.getElementById("message").value = "";
             })
 
@@ -330,6 +345,11 @@
                 // その他のサーバーエラー
                 console.error("サーバーエラー:", error.response);
                 alert("サーバーエラーが発生しました。後でもう一度お試しください。");
+            })
+
+            .finally(() => {
+                sendButton.disabled = false;
+                sendButton.textContent = "送信";
             });
         });
     </script>
