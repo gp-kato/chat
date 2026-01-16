@@ -92,7 +92,7 @@ class MessageController extends Controller
             'before_id' => 'nullable|numeric',
         ]);
 
-        $beforeId = $validated['before_id'];
+        $beforeId = $validated['before_id'] ?? null;
 
         if (!$group->isJoinedBy($user)) {
             abort(403, 'You are not a member of this group.');

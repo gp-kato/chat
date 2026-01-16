@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Group;
+use App\Models\Message;
 use Illuminate\Support\Carbon;
 
 class MessageTest extends TestCase
@@ -156,5 +157,99 @@ class MessageTest extends TestCase
 
         $this->assertAuthenticated();
         $response->assertStatus(302);
+    }
+
+    public function test_fetch_messages_initial_load()
+    {
+        $this->actingAs($this->user);
+        $this->joinGroup($this->user, $this->group);
+
+        Message::factory()->count(50)->create([
+            'group_id' => $this->group->id,
+        ]);
+
+        $response = $this->getJson(
+            route('groups.messages.fetch', $this->group->id)
+        );
+
+        $response->assertOk();
+        $this->assertAuthenticated();
+        $response->assertSessionHasNoErrors();
+        $response->assertJson([
+            'has_more' => false,
+        ]);
+
+        $this->assertNotEmpty($response->json('html'));
+    }
+
+    public function test_fetch_messages_has_more_true()
+    {
+        $this->actingAs($this->user);
+        $this->joinGroup($this->user, $this->group);
+
+        Message::factory()->count(51)->create([
+            'group_id' => $this->group->id,
+        ]);
+
+        $response = $this->getJson(
+            route('groups.messages.fetch', $this->group->id)
+        );
+
+        $response->assertOk();
+        $this->assertAuthenticated();
+        $response->assertSessionHasNoErrors();
+        $response->assertJson([
+            'has_more' => true,
+        ]);
+    }
+
+    public function test_fetch_messages_with_before_id()
+    {
+        $this->actingAs($this->user);
+        $this->joinGroup($this->user, $this->group);
+
+        $messages = Message::factory()->count(10)->create([
+            'group_id' => $this->group->id,
+        ]);
+
+        $beforeId = $messages->last()->id;
+
+        $response = $this->getJson(
+            route('groups.messages.fetch', $this->group->id, [
+                'before_id' => $beforeId,
+            ])
+        );
+
+        $response->assertOk();
+        $response->assertJson([
+            'has_more' => false,
+        ]);
+    }
+
+    public function test_fetch_messages_forbidden_for_non_member()
+    {
+        $this->actingAs($this->user);
+
+        $response = $this->getJson(
+            route('groups.messages.fetch', $this->group->id)
+        );
+
+        $response->assertStatus(403);
+    }
+
+    public function test_fetch_messages_validation_error()
+    {
+        $this->actingAs($this->user);
+        $this->joinGroup($this->user, $this->group);
+
+        $response = $this->getJson(
+            route('groups.messages.fetch', [
+                'group' => $this->group->id,
+                'before_id' => 'invalid',
+            ])
+        );
+
+
+        $response->assertStatus(422);
     }
 }
