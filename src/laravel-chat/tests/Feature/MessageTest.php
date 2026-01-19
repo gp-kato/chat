@@ -252,4 +252,17 @@ class MessageTest extends TestCase
 
         $response->assertStatus(422);
     }
+
+    public function test_can_not_fetch_without_login(): void
+    {
+        Message::factory()->count(50)->create([
+            'group_id' => $this->group->id,
+        ]);
+
+        $response = $this->getJson(
+            route('groups.messages.fetch', $this->group->id)
+        );
+
+        $response->assertStatus(401);
+    }
 }
