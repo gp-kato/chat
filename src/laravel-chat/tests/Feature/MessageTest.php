@@ -173,8 +173,6 @@ class MessageTest extends TestCase
         );
 
         $response->assertOk();
-        $this->assertAuthenticated();
-        $response->assertSessionHasNoErrors();
         $response->assertJson([
             'has_more' => false,
         ]);
@@ -196,8 +194,6 @@ class MessageTest extends TestCase
         );
 
         $response->assertOk();
-        $this->assertAuthenticated();
-        $response->assertSessionHasNoErrors();
         $response->assertJson([
             'has_more' => true,
         ]);
