@@ -265,4 +265,21 @@ class MessageTest extends TestCase
 
         $response->assertStatus(401);
     }
+
+    public function test_can_not_fetch_with_0message()
+    {
+        $this->actingAs($this->user);
+        $this->joinGroup($this->user, $this->group);
+
+        $response = $this->getJson(
+            route('groups.messages.fetch', $this->group->id)
+        );
+
+        $response->assertOk();
+        $response->assertJson([
+            'has_more' => false,
+        ]);
+
+        $this->assertEmpty($response->json('html'));
+    }
 }
