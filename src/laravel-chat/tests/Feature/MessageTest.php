@@ -263,6 +263,8 @@ class MessageTest extends TestCase
 
 
         $response->assertStatus(422);
+
+        $response->assertJsonValidationErrors(['before_id']);
     }
 
     public function test_can_not_fetch_without_login(): void
