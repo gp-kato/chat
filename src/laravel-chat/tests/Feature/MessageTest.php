@@ -153,6 +153,7 @@ class MessageTest extends TestCase
         $response = $this->get(route('groups.messages.show', $this->group->id));
 
         $response->assertRedirect(route('groups.index', absolute: false));
+        $response->assertSessionHas('error', 'このグループに参加していません');
     }
 
     public function test_cannot_writing_message_without_join_group(): void
@@ -181,8 +182,6 @@ class MessageTest extends TestCase
         );
 
         $response->assertOk();
-        $this->assertAuthenticated();
-        $response->assertSessionHasNoErrors();
         $response->assertJson([
             'has_more' => false,
         ]);
@@ -216,22 +215,36 @@ class MessageTest extends TestCase
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
 
-        $messages = Message::factory()->count(10)->create([
-            'group_id' => $this->group->id,
-        ]);
+        $messages = Message::factory()
+            ->count(3)
+            ->sequence(
+                ['content' => 'message-1'],
+                ['content' => 'message-2'],
+                ['content' => 'message-3'],
+            )
+            ->create([
+                'group_id' => $this->group->id,
+            ]);
 
-        $beforeId = $messages->last()->id;
+        $beforeId = $messages[1]->id;
 
         $response = $this->getJson(
-            route('groups.messages.fetch', $this->group->id, [
+            route('groups.messages.fetch', [
+                'group' => $this->group->id,
                 'before_id' => $beforeId,
             ])
         );
 
         $response->assertOk();
-        $response->assertJson([
-            'has_more' => false,
-        ]);
+        $response->assertJsonPath('has_more', false);
+
+        $html = $response->json('html');
+
+        $this->assertStringContainsString('message-1', $html);
+
+        $this->assertStringNotContainsString('message-2', $html);
+
+        $this->assertStringNotContainsString('message-3', $html);
     }
 
     public function test_fetch_messages_forbidden_for_non_member()
@@ -259,6 +272,38 @@ class MessageTest extends TestCase
 
 
         $response->assertStatus(422);
+
+        $response->assertJsonValidationErrors(['before_id']);
+    }
+
+    public function test_can_not_fetch_without_login(): void
+    {
+        Message::factory()->count(50)->create([
+            'group_id' => $this->group->id,
+        ]);
+
+        $response = $this->getJson(
+            route('groups.messages.fetch', $this->group->id)
+        );
+
+        $response->assertStatus(401);
+    }
+
+    public function test_can_not_fetch_with_0message()
+    {
+        $this->actingAs($this->user);
+        $this->joinGroup($this->user, $this->group);
+
+        $response = $this->getJson(
+            route('groups.messages.fetch', $this->group->id)
+        );
+
+        $response->assertOk();
+        $response->assertJson([
+            'has_more' => false,
+        ]);
+
+        $this->assertEmpty($response->json('html'));
     }
 
     public function test_chat_screen_cannot_be_rendered_with_left(): void
@@ -269,6 +314,7 @@ class MessageTest extends TestCase
         $response = $this->get(route('groups.messages.show', $this->group->id));
 
         $response->assertRedirect(route('groups.index', absolute: false));
+        $response->assertSessionHas('error', 'このグループに参加していません');
     }
 
     public function test_cannot_writing_message_with_left(): void
