@@ -204,22 +204,36 @@ class MessageTest extends TestCase
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
 
-        $messages = Message::factory()->count(10)->create([
-            'group_id' => $this->group->id,
-        ]);
+        $messages = Message::factory()
+            ->count(3)
+            ->sequence(
+                ['content' => 'message-1'],
+                ['content' => 'message-2'],
+                ['content' => 'message-3'],
+            )
+            ->create([
+                'group_id' => $this->group->id,
+            ]);
 
-        $beforeId = $messages->last()->id;
+        $beforeId = $messages[1]->id;
 
         $response = $this->getJson(
-            route('groups.messages.fetch', $this->group->id, [
+            route('groups.messages.fetch', [
+                'group' => $this->group->id,
                 'before_id' => $beforeId,
             ])
         );
 
         $response->assertOk();
-        $response->assertJson([
-            'has_more' => false,
-        ]);
+        $response->assertJsonPath('has_more', false);
+
+        $html = $response->json('html');
+
+        $this->assertStringContainsString('message-1', $html);
+
+        $this->assertStringNotContainsString('message-2', $html);
+
+        $this->assertStringNotContainsString('message-3', $html);
     }
 
     public function test_fetch_messages_forbidden_for_non_member()
