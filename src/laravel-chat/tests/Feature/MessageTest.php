@@ -328,7 +328,8 @@ class MessageTest extends TestCase
 
         $response = $this->post(route('groups.messages.store', $this->group->id), $formData);
 
-        $response = $this->get(route('groups.messages.show', $this->group->id));
+        $response->assertRedirect(route('groups.index', absolute: false));
+        $response->assertSessionHas('error', 'このグループに参加していません');
 
         $this->assertDatabaseMissing('messages', $formData);
     }
