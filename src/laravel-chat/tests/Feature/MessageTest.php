@@ -333,4 +333,16 @@ class MessageTest extends TestCase
 
         $this->assertDatabaseMissing('messages', $formData);
     }
+
+    public function test_cannot_fetch_with_left(): void
+    {
+        $this->actingAs($this->user);
+        $this->joinGroupAsLeft($this->user, $this->group);
+
+        $response = $this->getJson(
+            route('groups.messages.fetch', $this->group->id)
+        );
+
+        $response->assertStatus(403);
+    }
 }
