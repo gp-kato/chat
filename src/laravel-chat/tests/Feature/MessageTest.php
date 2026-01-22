@@ -32,6 +32,14 @@ class MessageTest extends TestCase
         ]);
     }
 
+    private function joinGroupAsLeft(User $user, Group $group): void
+    {
+        $group->users()->attach($user->id, [
+            'joined_at' => now()->subDays(2),
+            'left_at'   => now()->subDay(),
+        ]);
+    }
+
     public function test_chat_screen_can_be_rendered_with_join_group(): void
     {
         $this->actingAs($this->user);
@@ -145,6 +153,7 @@ class MessageTest extends TestCase
         $response = $this->get(route('groups.messages.show', $this->group->id));
 
         $response->assertRedirect(route('groups.index', absolute: false));
+        $response->assertSessionHas('error', 'このグループに参加していません');
     }
 
     public function test_cannot_writing_message_without_join_group(): void
@@ -295,5 +304,45 @@ class MessageTest extends TestCase
         ]);
 
         $this->assertEmpty($response->json('html'));
+    }
+
+    public function test_chat_screen_cannot_be_rendered_with_left(): void
+    {
+        $this->actingAs($this->user);
+        $this->joinGroupAsLeft($this->user, $this->group);
+
+        $response = $this->get(route('groups.messages.show', $this->group->id));
+
+        $response->assertRedirect(route('groups.index', absolute: false));
+        $response->assertSessionHas('error', 'このグループに参加していません');
+    }
+
+    public function test_cannot_writing_message_with_left(): void
+    {
+        $this->actingAs($this->user);
+        $this->joinGroupAsLeft($this->user, $this->group);
+
+        $formData = [
+            'content' => 'content',
+        ];
+
+        $response = $this->post(route('groups.messages.store', $this->group->id), $formData);
+
+        $response->assertRedirect(route('groups.index', absolute: false));
+        $response->assertSessionHas('error', 'このグループに参加していません');
+
+        $this->assertDatabaseMissing('messages', $formData);
+    }
+
+    public function test_cannot_fetch_with_left(): void
+    {
+        $this->actingAs($this->user);
+        $this->joinGroupAsLeft($this->user, $this->group);
+
+        $response = $this->getJson(
+            route('groups.messages.fetch', $this->group->id)
+        );
+
+        $response->assertStatus(403);
     }
 }
