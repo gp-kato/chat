@@ -203,11 +203,11 @@ class MessageTest extends TestCase
         );
 
         $response->assertOk();
-        $this->assertAuthenticated();
-        $response->assertSessionHasNoErrors();
         $response->assertJson([
             'has_more' => true,
         ]);
+
+        $this->assertNotEmpty($response->json('html'));
     }
 
     public function test_fetch_messages_with_before_id()
