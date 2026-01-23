@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Gate;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Invitation;
@@ -13,12 +15,11 @@ class MessageController extends Controller
 {
     private const FETCH_LIMIT = 50;
 
-    public function show(Request $request, Group $group) {
-        $user = Auth::user();
+    use AuthorizesRequests;
 
-        if (!$group->isJoinedBy($user)) {
-            return redirect()->route('groups.index')->with('error', 'このグループに参加していません');
-        }
+    public function show(Request $request, Group $group) {
+        $this->authorize('view', $group);
+
         $validated = $request->validate([
             'query' => ['nullable', 'string', 'max:100']
         ]);
@@ -30,16 +31,12 @@ class MessageController extends Controller
             ->get()
             ->sortBy('id')
         ->values();
-        $removableUsers = $group->users()
-        ->wherePivot('left_at', null)
-        ->where('role', 'member')
-        ->withPivot('left_at')
-        ->get();
         $users = $group->users()
         ->wherePivot('left_at', null)
         ->withPivot('left_at')
         ->get();
-        $isAdmin = $group->isAdmin(Auth::user());
+        $removableUsers = $users->where('role', 'member');
+        $isAdmin = Gate::allows('admin', $group);
         $invitations = Invitation::where('group_id', $group->id)
             ->where('expires_at', '>', now())
             ->whereNull('accepted_at')
@@ -47,18 +44,15 @@ class MessageController extends Controller
         $searchResults = collect();
         if (!empty($query)) {
             $query = addcslashes($query, '%_\\');
-            $joinedUserIds = $group->users()
-                ->wherePivot('left_at', null)
-                ->pluck('users.id')
-                ->toArray();
-            $searchResults = User::where(function($q) use ($query) {
+            $joinedUserIds = $users->pluck('id');
+            $searchResults = User::where(function ($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
                   ->orWhere('email', 'like', "%{$query}%");
                 })
             ->whereNotIn('id', $joinedUserIds)
             ->get();
         }
-        return view('chat', compact('messages', 'group', 'users','removableUsers','isAdmin', 'invitations', 'query', 'searchResults'));
+        return view('chat', compact('messages', 'group', 'users', 'removableUsers', 'isAdmin', 'invitations', 'query', 'searchResults'));
     }
 
     public function store(Request $request, Group $group) {
