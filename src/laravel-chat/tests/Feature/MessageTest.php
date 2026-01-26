@@ -152,8 +152,7 @@ class MessageTest extends TestCase
 
         $response = $this->get(route('groups.messages.show', $this->group->id));
 
-        $response->assertRedirect(route('groups.index', absolute: false));
-        $response->assertSessionHas('error', 'このグループに参加していません');
+        $response->assertForbidden();
     }
 
     public function test_cannot_writing_message_without_join_group(): void
@@ -313,8 +312,7 @@ class MessageTest extends TestCase
 
         $response = $this->get(route('groups.messages.show', $this->group->id));
 
-        $response->assertRedirect(route('groups.index', absolute: false));
-        $response->assertSessionHas('error', 'このグループに参加していません');
+        $response->assertForbidden();
     }
 
     public function test_cannot_writing_message_with_left(): void
