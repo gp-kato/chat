@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Group;
 use App\Models\Invitation;
 use App\Events\MessageEvent;
+use App\Http\Requests\ShowGroupRequest;
 
 class MessageController extends Controller
 {
@@ -17,12 +18,9 @@ class MessageController extends Controller
 
     use AuthorizesRequests;
 
-    public function show(Request $request, Group $group) {
+    public function show(ShowGroupRequest $request, Group $group) {
         $this->authorize('view', $group);
 
-        $validated = $request->validate([
-            'query' => ['nullable', 'string', 'max:100']
-        ]);
         $query = $validated['query'] ?? null;
         $messages = $group->messages()
             ->with('user')
@@ -43,11 +41,14 @@ class MessageController extends Controller
             ->get();
         $searchResults = collect();
         if (!empty($query)) {
-            $query = addcslashes($query, '%_\\');
-            $joinedUserIds = $users->pluck('id');
-            $searchResults = User::where(function ($q) use ($query) {
-                $q->where('name', 'like', "%{$query}%")
-                  ->orWhere('email', 'like', "%{$query}%");
+            $escapedQuery = addcslashes($query, '%_\\');
+            $joinedUserIds = $group->users()
+                ->wherePivot('left_at', null)
+                ->pluck('users.id')
+            ->toArray();
+            $searchResults = User::where(function ($q) use ($escapedQuery) {
+                $q->where('name', 'like', "%{$escapedQuery}%")
+                  ->orWhere('email', 'like', "%{$escapedQuery}%");
                 })
             ->whereNotIn('id', $joinedUserIds)
             ->get();
