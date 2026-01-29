@@ -22,4 +22,15 @@ class Message extends Model
     public function group() {
         return $this->belongsTo(Group::class);
     }
+
+    public function scopeLatestForGroup($query, Group $group, int $limit) {
+        return $query
+            ->where('group_id', $group->id)
+            ->with('user')
+            ->orderByDesc('id')
+            ->limit($limit)
+            ->get()
+            ->sortBy('id')
+        ->values();
+    }
 }

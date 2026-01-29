@@ -26,9 +26,16 @@ class Invitation extends Model
     public function group() {
         return $this->belongsTo(Group::class);
     }
-    
+
     public function user() {
         return $this->belongsTo(User::class, 'invitee_email', 'email');
     }
 
+    public function scopeActiveForGroup($query, Group $group) {
+        return $query
+            ->where('group_id', $group->id)
+            ->where('expires_at', '>', now())
+            ->whereNull('accepted_at')
+        ->get();
+    }
 }
