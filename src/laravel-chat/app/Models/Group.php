@@ -52,4 +52,12 @@ class Group extends Model
         ->wherePivot('role', 'admin')
         ->exists();
     }
+
+    public function activeUsers() {
+        return $this->users()->wherePivot('left_at', null)->get();
+    }
+
+    public function removableUsers() {
+        return $this->activeUsers()->where('role', 'member');
+    }
 }

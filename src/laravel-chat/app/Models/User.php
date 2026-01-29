@@ -56,4 +56,16 @@ class User extends Authenticatable
                     ->withPivot('joined_at', 'left_at', 'role')
                     ->withTimestamps();
     }
+
+    public function scopeSearchNotJoined($query, string $keyword, $excludedIds) {
+        $escaped = addcslashes($keyword, '%_\\');
+
+        return $query
+            ->where(function ($q) use ($escaped) {
+                $q->where('name', 'like', "%{$escaped}%")
+                  ->orWhere('email', 'like', "%{$escaped}%");
+            })
+            ->whereNotIn('id', $excludedIds)
+        ->get();
+    }
 }
