@@ -41,16 +41,12 @@ class MessageController extends Controller
             ->get();
         $searchResults = collect();
         if (!empty($query)) {
-            $escapedQuery = addcslashes($query, '%_\\');
-            $joinedUserIds = $group->users()
-                ->wherePivot('left_at', null)
-                ->pluck('users.id')
-            ->toArray();
-            $searchResults = User::where(function ($q) use ($escapedQuery) {
-                $q->where('name', 'like', "%{$escapedQuery}%")
-                  ->orWhere('email', 'like', "%{$escapedQuery}%");
-                })
-            ->whereNotIn('id', $joinedUserIds)
+            $query = addcslashes($query, '%_\\');
+            $joinedUserIds = $users->pluck('id');
+            $searchResults = User::where(function($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                ->orWhere('email', 'like', "%{$query}%"); })
+                ->whereNotIn('id', $joinedUserIds)
             ->get();
         }
         return view('chat', compact('messages', 'group', 'users', 'removableUsers', 'isAdmin', 'invitations', 'query', 'searchResults'));
