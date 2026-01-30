@@ -21,7 +21,7 @@ class MessageController extends Controller
     public function show(ShowGroupRequest $request, Group $group) {
         $this->authorize('view', $group);
 
-        $query = $validated['query'] ?? null;
+        $query = $request->validatedQuery();
         $messages = $group->messages()
             ->with('user')
             ->orderBy('id', 'desc')
