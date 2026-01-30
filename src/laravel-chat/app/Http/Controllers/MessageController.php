@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Group;
 use App\Models\Invitation;
 use App\Events\MessageEvent;
+use App\Http\Requests\ShowGroupRequest;
 
 class MessageController extends Controller
 {
@@ -17,13 +18,10 @@ class MessageController extends Controller
 
     use AuthorizesRequests;
 
-    public function show(Request $request, Group $group) {
+    public function show(ShowGroupRequest $request, Group $group) {
         $this->authorize('view', $group);
 
-        $validated = $request->validate([
-            'query' => ['nullable', 'string', 'max:100']
-        ]);
-        $query = $validated['query'] ?? null;
+        $query = $request->validatedQuery();
         $messages = $group->messages()
             ->with('user')
             ->orderBy('id', 'desc')
@@ -45,11 +43,10 @@ class MessageController extends Controller
         if (!empty($query)) {
             $query = addcslashes($query, '%_\\');
             $joinedUserIds = $users->pluck('id');
-            $searchResults = User::where(function ($q) use ($query) {
+            $searchResults = User::where(function($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
-                  ->orWhere('email', 'like', "%{$query}%");
-                })
-            ->whereNotIn('id', $joinedUserIds)
+                ->orWhere('email', 'like', "%{$query}%"); })
+                ->whereNotIn('id', $joinedUserIds)
             ->get();
         }
         return view('chat', compact('messages', 'group', 'users', 'removableUsers', 'isAdmin', 'invitations', 'query', 'searchResults'));
