@@ -22,7 +22,7 @@ class MessageController extends Controller
     public function show(ShowGroupRequest $request, Group $group) {
         $this->authorize('view', $group);
 
-        $query = $request->input('query');
+        $query = $request->validatedQuery();
 
         $users = $group->activeUsers();
 
