@@ -54,10 +54,12 @@ class Group extends Model
     }
 
     public function activeUsers() {
-        return $this->users()->wherePivot('left_at', null)->get();
+        return $this->users()->wherePivotNull('left_at');
     }
 
-    public function removableUsers() {
-        return $this->activeUsers()->where('role', 'member');
+    public function removableUsers($activeUsers) {
+        return $activeUsers->filter(
+            fn ($user) => $user->pivot->role === 'member'
+        )->values();
     }
 }

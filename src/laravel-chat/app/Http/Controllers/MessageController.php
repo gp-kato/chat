@@ -24,18 +24,18 @@ class MessageController extends Controller
 
         $query = $request->validatedQuery();
 
-        $users = $group->activeUsers();
+        $activeUsers = $group->activeUsers()->get();
 
         return view('chat', [
             'group'           => $group,
             'messages'        => Message::latestForGroup($group, self::FETCH_LIMIT),
-            'users'           => $users,
-            'removableUsers'  => $group->removableUsers(),
+            'users'           => $activeUsers,
+            'removableUsers'  => $group->removableUsers($activeUsers),
             'isAdmin'         => Gate::allows('admin', $group),
             'invitations'     => Invitation::activeForGroup($group),
             'query'           => $query,
             'searchResults'   => $query
-            ? User::searchNotJoined($query, $users->pluck('id'))
+            ? User::searchNotJoined($query, $activeUsers->pluck('id'))
             : collect(),
         ]);
     }
