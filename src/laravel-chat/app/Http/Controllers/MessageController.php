@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Gate;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Invitation;
+use App\Models\Message;
 use App\Events\MessageEvent;
 use App\Http\Requests\ShowGroupRequest;
 
@@ -22,34 +23,21 @@ class MessageController extends Controller
         $this->authorize('view', $group);
 
         $query = $request->validatedQuery();
-        $messages = $group->messages()
-            ->with('user')
-            ->orderBy('id', 'desc')
-            ->limit(self::FETCH_LIMIT)
-            ->get()
-            ->sortBy('id')
-        ->values();
-        $users = $group->users()
-        ->wherePivot('left_at', null)
-        ->withPivot('left_at')
-        ->get();
-        $removableUsers = $users->where('role', 'member');
-        $isAdmin = Gate::allows('admin', $group);
-        $invitations = Invitation::where('group_id', $group->id)
-            ->where('expires_at', '>', now())
-            ->whereNull('accepted_at')
-            ->get();
-        $searchResults = collect();
-        if (!empty($query)) {
-            $query = addcslashes($query, '%_\\');
-            $joinedUserIds = $users->pluck('id');
-            $searchResults = User::where(function($q) use ($query) {
-                $q->where('name', 'like', "%{$query}%")
-                ->orWhere('email', 'like', "%{$query}%"); })
-                ->whereNotIn('id', $joinedUserIds)
-            ->get();
-        }
-        return view('chat', compact('messages', 'group', 'users', 'removableUsers', 'isAdmin', 'invitations', 'query', 'searchResults'));
+
+        $activeUsers = $group->activeUsers();
+
+        return view('chat', [
+            'group'           => $group,
+            'messages'        => Message::latestForGroup($group, self::FETCH_LIMIT),
+            'users'           => $activeUsers,
+            'removableUsers'  => $group->removableUsers($activeUsers),
+            'isAdmin'         => Gate::allows('admin', $group),
+            'invitations'     => Invitation::activeForGroup($group),
+            'query'           => $query,
+            'searchResults'   => $query
+            ? User::searchNotJoined($query, $activeUsers->pluck('id'))
+            : collect(),
+        ]);
     }
 
     public function store(Request $request, Group $group) {
