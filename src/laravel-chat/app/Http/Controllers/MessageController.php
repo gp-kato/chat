@@ -24,7 +24,7 @@ class MessageController extends Controller
 
         $query = $request->validatedQuery();
 
-        $activeUsers = $group->activeUsers()->get();
+        $activeUsers = $group->activeUsers();
 
         return view('chat', [
             'group'           => $group,

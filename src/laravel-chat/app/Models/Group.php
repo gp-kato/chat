@@ -54,7 +54,7 @@ class Group extends Model
     }
 
     public function activeUsers() {
-        return $this->users()->wherePivotNull('left_at');
+        return $this->users()->wherePivot('left_at', null)->get();
     }
 
     public function removableUsers($activeUsers) {
