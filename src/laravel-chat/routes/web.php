@@ -26,6 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::get('/', [MessageController::class, 'show'])->name('show');
                 Route::post('/', [MessageController::class, 'store'])->name('store');
                 Route::get('/fetch', [MessageController::class, 'fetch'])->name('fetch');
+                Route::get('/admin', [MessageController::class, 'admin'])->name('admin');
             });
 
             // メンバー管理

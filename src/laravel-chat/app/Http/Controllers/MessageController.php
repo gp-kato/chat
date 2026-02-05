@@ -22,13 +22,22 @@ class MessageController extends Controller
     public function show(ShowGroupRequest $request, Group $group) {
         $this->authorize('view', $group);
 
+        return view('chat', [
+            'group'           => $group,
+            'messages'        => Message::latestForGroup($group, self::FETCH_LIMIT),
+            'isAdmin'         => Gate::allows('admin', $group),
+        ]);
+    }
+
+    public function admin(ShowGroupRequest $request, Group $group) {
+        $this->authorize('view', $group);
+
         $query = $request->validatedQuery();
 
         $activeUsers = $group->activeUsers();
 
-        return view('chat', [
+        return view('admin', [
             'group'           => $group,
-            'messages'        => Message::latestForGroup($group, self::FETCH_LIMIT),
             'users'           => $activeUsers,
             'removableUsers'  => $group->removableUsers($activeUsers),
             'isAdmin'         => Gate::allows('admin', $group),
