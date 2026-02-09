@@ -29,26 +29,6 @@ class MessageController extends Controller
         ]);
     }
 
-    public function admin(ShowGroupRequest $request, Group $group) {
-        $this->authorize('view', $group);
-
-        $query = $request->validatedQuery();
-
-        $activeUsers = $group->activeUsers();
-
-        return view('admin', [
-            'group'           => $group,
-            'users'           => $activeUsers,
-            'removableUsers'  => $group->removableUsers($activeUsers),
-            'isAdmin'         => Gate::allows('admin', $group),
-            'invitations'     => Invitation::activeForGroup($group),
-            'query'           => $query,
-            'searchResults'   => $query
-            ? User::searchNotJoined($query, $activeUsers->pluck('id'))
-            : collect(),
-        ]);
-    }
-
     public function store(Request $request, Group $group) {
         $user = Auth::user();
 
