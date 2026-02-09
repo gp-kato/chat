@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Models\User;
 use App\Models\Group;
@@ -53,7 +52,6 @@ class GroupController extends Controller
             'group'           => $group,
             'users'           => $activeUsers,
             'removableUsers'  => $group->removableUsers($activeUsers),
-            'isAdmin'         => Gate::allows('admin', $group),
             'invitations'     => Invitation::activeForGroup($group),
             'query'           => $query,
             'searchResults'   => $query
