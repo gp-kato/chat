@@ -43,7 +43,7 @@ class GroupController extends Controller
     use AuthorizesRequests;
 
     public function edit(ShowGroupRequest $request, Group $group) {
-        $this->authorize('view', $group);
+        $this->authorize('admin', $group);
 
         $query = $request->validatedQuery();
 
