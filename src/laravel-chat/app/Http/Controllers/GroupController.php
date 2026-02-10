@@ -13,6 +13,8 @@ use App\Http\Requests\ShowGroupRequest;
 
 class GroupController extends Controller
 {
+    use AuthorizesRequests;
+
     public function index() {
         $user = Auth::user();
         $groups = Group::withExists(['users as is_joined' => function ($query) use ($user) {
@@ -38,8 +40,6 @@ class GroupController extends Controller
 
         return redirect()->route('groups.index');
     }
-
-    use AuthorizesRequests;
 
     public function edit(ShowGroupRequest $request, Group $group) {
         $this->authorize('admin', $group);
