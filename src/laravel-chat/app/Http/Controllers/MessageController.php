@@ -6,12 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Gate;
-use App\Models\User;
 use App\Models\Group;
-use App\Models\Invitation;
 use App\Models\Message;
 use App\Events\MessageEvent;
-use App\Http\Requests\ShowGroupRequest;
 
 class MessageController extends Controller
 {
@@ -19,24 +16,13 @@ class MessageController extends Controller
 
     use AuthorizesRequests;
 
-    public function show(ShowGroupRequest $request, Group $group) {
+    public function show(Request $request, Group $group) {
         $this->authorize('view', $group);
-
-        $query = $request->validatedQuery();
-
-        $activeUsers = $group->activeUsers();
 
         return view('chat', [
             'group'           => $group,
             'messages'        => Message::latestForGroup($group, self::FETCH_LIMIT),
-            'users'           => $activeUsers,
-            'removableUsers'  => $group->removableUsers($activeUsers),
             'isAdmin'         => Gate::allows('admin', $group),
-            'invitations'     => Invitation::activeForGroup($group),
-            'query'           => $query,
-            'searchResults'   => $query
-            ? User::searchNotJoined($query, $activeUsers->pluck('id'))
-            : collect(),
         ]);
     }
 
