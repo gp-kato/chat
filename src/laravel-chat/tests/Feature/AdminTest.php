@@ -53,6 +53,17 @@ class AdminTest extends TestCase
         $response->assertForbidden();
     }
 
+    public function test_edit_screen_cannot_rendered_with_other_admin(): void
+    {
+        $otherGroup = Group::factory()->create();
+        $this->adminGroup($this->user, $otherGroup);
+        $this->actingAs($this->user);
+
+        $response = $this->get(route('groups.edit', $this->group->id));
+
+        $response->assertForbidden();
+    }
+
     public function test_editing_chatgroup(): void
     {
         $this->actingAs($this->user);
