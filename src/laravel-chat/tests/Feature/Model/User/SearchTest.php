@@ -35,6 +35,48 @@ class SearchTest extends TestCase
         $this->assertFalse($results->contains($excludedUser));
     }
 
+    public function test_search_with_username(): void
+    {
+        // 検索対象
+        $matchedUser = User::factory()->create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+        ]);
+
+        // 除外されるユーザー
+        $excludedUser = User::factory()->create([
+            'name' => 'Test Admin',
+        ]);
+
+        $excludedIds = [$excludedUser->id];
+
+        $results = User::searchNotJoined('test', $excludedIds);
+
+        $this->assertTrue($results->contains($matchedUser));
+        $this->assertFalse($results->contains($excludedUser));
+    }
+
+    public function test_search_with_email(): void
+    {
+        // 検索対象
+        $matchedUser = User::factory()->create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+        ]);
+
+        // 除外されるユーザー
+        $excludedUser = User::factory()->create([
+            'email' => 'admin@example.com',
+        ]);
+
+        $excludedIds = [$excludedUser->id];
+
+        $results = User::searchNotJoined('test', $excludedIds);
+
+        $this->assertTrue($results->contains($matchedUser));
+        $this->assertFalse($results->contains($excludedUser));
+    }
+
     public function test_search_escapes_like_wildcards(): void
     {
         $user = User::factory()->create([
