@@ -81,6 +81,9 @@ class MemberController extends Controller
         if (!$group->isActiveMember($user)) {
             return redirect()->back()->with('error', 'このユーザーは既に退会済みです');
         }
+        if (!$group->isAdmin(Auth::user())) {
+            return redirect()->back()->with('error', '管理者権限が必要です');
+        }
         $group->users()->updateExistingPivot($user->id, [
             'left_at' => now(),
         ]);
