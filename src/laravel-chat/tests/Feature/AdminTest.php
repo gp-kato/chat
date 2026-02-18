@@ -34,6 +34,14 @@ class AdminTest extends TestCase
         ]);
     }
 
+    private function joinGroup(User $user, Group $group): void
+    {
+        $group->users()->attach($user->id, [
+            'joined_at' => now(),
+            'left_at' => null,
+        ]);
+    }
+
     public function test_edit_screen_can_be_rendered_with_admin(): void
     {
         $this->actingAs($this->user);
@@ -45,6 +53,16 @@ class AdminTest extends TestCase
     }
 
     public function test_edit_screen_cannot_rendered_without_admin(): void
+    {
+        $this->actingAs($this->user);
+        $this->joinGroup($this->user, $this->group);
+
+        $response = $this->get(route('groups.edit', $this->group->id));
+
+        $response->assertForbidden();
+    }
+
+    public function test_edit_screen_cannot_rendered_without_member(): void
     {
         $this->actingAs($this->user);
 
