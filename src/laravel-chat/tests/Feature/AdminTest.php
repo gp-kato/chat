@@ -267,7 +267,7 @@ class AdminTest extends TestCase
     public function test_cannot_be_remove_user_without_admin(): void
     {
         $this->actingAs($this->user);
-        $this->adminGroup($this->user, $this->group);
+        $this->joinGroup($this->user, $this->group);
 
         $memberUser = User::factory()->create();
 
@@ -364,7 +364,7 @@ class AdminTest extends TestCase
     public function test_cannot_be_resend_without_admin(): void
     {
         $this->actingAs($this->user);
-        $this->adminGroup($this->user, $this->group);
+        $this->joinGroup($this->user, $this->group);
 
         $memberUser = User::factory()->create();
         $this->group->users()->attach($memberUser->id, [
