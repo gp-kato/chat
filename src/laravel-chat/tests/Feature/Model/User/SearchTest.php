@@ -50,7 +50,7 @@ class SearchTest extends TestCase
 
         $excludedIds = [$excludedUser->id];
 
-        $results = User::searchNotJoined('test', $excludedIds);
+        $results = User::searchNotJoined('test', $excludedIds); // 'test' だと name/email のどちらでヒットしたか判別できない。除外ユーザーも email/name を明示しないと Factory 値で偶然ヒットする可能性がある。
 
         $this->assertTrue($results->contains($matchedUser));
         $this->assertFalse($results->contains($excludedUser));
@@ -71,7 +71,7 @@ class SearchTest extends TestCase
 
         $excludedIds = [$excludedUser->id];
 
-        $results = User::searchNotJoined('test', $excludedIds);
+        $results = User::searchNotJoined('test', $excludedIds); // 'test' だと name/email のどちらでヒットしたか判別できない。除外ユーザーも email/name を明示しないと Factory 値で偶然ヒットする可能性がある。
 
         $this->assertTrue($results->contains($matchedUser));
         $this->assertFalse($results->contains($excludedUser));
