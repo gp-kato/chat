@@ -35,43 +35,41 @@ class SearchTest extends TestCase
         $this->assertFalse($results->contains($excludedUser));
     }
 
-    public function test_search_with_username(): void
+    public function test_search_hits_by_name_only(): void
     {
-        // 検索対象
+        // name にのみヒットするユーザー
         $matchedUser = User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name'  => 'AlphaUser',
+            'email' => 'no-match@example.com',
         ]);
 
-        // 除外されるユーザー
+        // 除外ユーザー（どちらにもヒットしない）
         $excludedUser = User::factory()->create([
-            'name' => 'Test Admin',
+            'name'  => 'BetaUser',
+            'email' => 'excluded@example.com',
         ]);
 
-        $excludedIds = [$excludedUser->id];
-
-        $results = User::searchNotJoined('test', $excludedIds); // 'test' だと name/email のどちらでヒットしたか判別できない。除外ユーザーも email/name を明示しないと Factory 値で偶然ヒットする可能性がある。
+        $results = User::searchNotJoined('Alpha', [$excludedUser->id]);
 
         $this->assertTrue($results->contains($matchedUser));
         $this->assertFalse($results->contains($excludedUser));
     }
 
-    public function test_search_with_email(): void
+    public function test_search_hits_by_email_only(): void
     {
-        // 検索対象
+        // email にのみヒットするユーザー
         $matchedUser = User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name'  => 'NoMatchUser',
+            'email' => 'unique-email@example.com',
         ]);
 
-        // 除外されるユーザー
+        // 除外ユーザー
         $excludedUser = User::factory()->create([
-            'email' => 'admin@example.com',
+            'name'  => 'ExcludedUser',
+            'email' => 'excluded@example.com',
         ]);
 
-        $excludedIds = [$excludedUser->id];
-
-        $results = User::searchNotJoined('test', $excludedIds); // 'test' だと name/email のどちらでヒットしたか判別できない。除外ユーザーも email/name を明示しないと Factory 値で偶然ヒットする可能性がある。
+        $results = User::searchNotJoined('unique-email', [$excludedUser->id]);
 
         $this->assertTrue($results->contains($matchedUser));
         $this->assertFalse($results->contains($excludedUser));
