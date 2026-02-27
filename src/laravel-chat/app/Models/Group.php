@@ -14,6 +14,12 @@ class Group extends Model
         'description',
     ];
 
+    private function activeMemberQuery(User $user) {
+        return $this->users()
+        ->where('user_id', $user->id)
+        ->wherePivotNull('left_at');
+    }
+
     public function messages() {
         return $this->hasMany(Message::class);
     }
@@ -31,25 +37,20 @@ class Group extends Model
 
     public function isJoinedBy(User $user)
     {
-        return $this->users()
-        ->where('user_id', $user->id)
-        ->whereNull('left_at')               // まだ退会していない
-        ->whereNotNull('joined_at')            // 参加日時がある（念のため）
+        return $this->activeMemberQuery($user)
+        ->wherePivotNotNull('joined_at')
         ->exists();
     }
 
     public function isActiveMember(User $user)
     {
-        return $this->users()
-        ->where('user_id', $user->id)
-        ->whereNull('left_at')
-        ->exists();
+        return $this->activeMemberQuery($user)->exists();
     }
 
     public function isAdmin(User $user) {
-        return $this->users()
-        ->where('user_id', $user->id)
+        return $this->activeMemberQuery($user)
         ->wherePivot('role', 'admin')
+        ->wherePivotNotNull('joined_at')
         ->exists();
     }
 
