@@ -65,7 +65,6 @@ class User extends Authenticatable
                 $q->where('name', 'like', "%{$escaped}%")
                   ->orWhere('email', 'like', "%{$escaped}%");
             })
-            ->whereNotIn('id', $excludedIds)
-        ->get();
+            ->whereNotIn('id', $excludedIds);
     }
 }

@@ -35,7 +35,6 @@ class Invitation extends Model
         return $query
             ->where('group_id', $group->id)
             ->where('expires_at', '>', now())
-            ->whereNull('accepted_at')
-        ->get();
+            ->whereNull('accepted_at');
     }
 }

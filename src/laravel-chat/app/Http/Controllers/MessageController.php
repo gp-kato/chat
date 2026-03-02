@@ -21,7 +21,7 @@ class MessageController extends Controller
 
         return view('chat', [
             'group'           => $group,
-            'messages'        => Message::latestForGroup($group, self::FETCH_LIMIT),
+            'messages'        => Message::latestForGroup($group, self::FETCH_LIMIT)->get(),
             'isAdmin'         => Gate::allows('admin', $group),
         ]);
     }

@@ -28,9 +28,6 @@ class Message extends Model
             ->where('group_id', $group->id)
             ->with('user')
             ->orderByDesc('id')
-            ->limit($limit)
-            ->get()
-            ->sortBy('id')
-        ->values();
+            ->limit($limit);
     }
 }
