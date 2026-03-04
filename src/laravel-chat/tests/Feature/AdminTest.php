@@ -42,6 +42,15 @@ class AdminTest extends TestCase
         ]);
     }
 
+    private function leftadminGroup(User $user, Group $group): void
+    {
+        $group->users()->attach($user->id, [
+            'joined_at' => '2025-04-07 08:30:17',
+            'left_at' => now(),
+            'role' => 'admin',
+        ]);
+    }
+
     public function test_edit_screen_can_be_rendered_with_admin(): void
     {
         $this->actingAs($this->user);
@@ -76,6 +85,16 @@ class AdminTest extends TestCase
         $otherGroup = Group::factory()->create();
         $this->adminGroup($this->user, $otherGroup);
         $this->actingAs($this->user);
+
+        $response = $this->get(route('groups.edit', $this->group->id));
+
+        $response->assertForbidden();
+    }
+
+    public function test_edit_screen_cannot_rendered_with_leftadmin(): void
+    {
+        $this->actingAs($this->user);
+        $this->leftadminGroup($this->user, $this->group);
 
         $response = $this->get(route('groups.edit', $this->group->id));
 
@@ -144,6 +163,25 @@ class AdminTest extends TestCase
         ]);
     }
 
+    public function test_cannot_be_editing_chatgroup_with_leftadmin(): void
+    {
+        $this->actingAs($this->user);
+        $this->leftadminGroup($this->user, $this->group);
+
+        $response = $this->put(route('groups.update', $this->group->id), [
+            'name' => 'name',
+            'description' => 'description',
+        ]);
+
+        $response->assertStatus(403);
+
+        $this->assertDatabaseMissing('groups', [
+            'id' => $this->group->id,
+            'name' => 'name',
+            'description' => 'description',
+        ]);
+    }
+
     public function test_can_be_invitation_with_admin(): void
     {
         $this->actingAs($this->user);
@@ -192,6 +230,25 @@ class AdminTest extends TestCase
     {
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
+
+        $inviteUser = User::factory()->create();
+
+        $response = $this->post(
+            route('groups.invitations.invite', $this->group),
+            ['user_id' => $inviteUser->id,]
+        );
+
+        $response->assertStatus(302);
+
+        $this->assertDatabaseMissing('invitations', [
+            'group_id'       => $this->group->id,
+        ]);
+    }
+
+    public function test_cannot_be_invitation_with_leftadmin(): void
+    {
+        $this->actingAs($this->user);
+        $this->leftadminGroup($this->user, $this->group);
 
         $inviteUser = User::factory()->create();
 
@@ -292,6 +349,34 @@ class AdminTest extends TestCase
         ]);
     }
 
+    public function test_cannot_be_remove_user_with_leftadmin(): void
+    {
+        $this->actingAs($this->user);
+        $this->leftadminGroup($this->user, $this->group);
+
+        $memberUser = User::factory()->create();
+
+        $this->group->users()->attach($memberUser->id, [
+            'joined_at' => '2025-04-07 08:30:17',
+            'left_at' => null,
+        ]);
+
+        $response = $this->delete(
+            route('groups.members.remove', [
+                'group' => $this->group->id,
+                'user'  => $memberUser->id,
+            ])
+        );
+
+        $response->assertStatus(302);
+
+        $this->assertDatabaseMissing('group_user', [
+            'group_id' => $this->group->id,
+            'user_id'  => $memberUser->id,
+            'left_at'  => now(),
+        ]);
+    }
+
     public function test_can_be_resend_with_admin(): void
     {
         $this->actingAs($this->user);
@@ -365,6 +450,39 @@ class AdminTest extends TestCase
     {
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
+
+        $memberUser = User::factory()->create();
+        $this->group->users()->attach($memberUser->id, [
+            'joined_at' => null,
+        ]);
+
+        $invitation = Invitation::create([
+            'group_id'      => $this->group->id,
+            'inviter_id'    => $this->user->id,
+            'invitee_email' => 'invitee@example.com',
+            'token'         => \Illuminate\Support\Str::uuid(),
+            'created_at' => '2025-04-07 08:30:17',
+            'expires_at' => '2025-05-07 08:30:17',
+        ]);
+
+        $response = $this->post(
+            route('groups.invitations.resend', [
+                'group' => $this->group->id,
+                'invitation' => $invitation->id
+            ])
+        );
+
+        $response->assertForbidden();
+
+        $this->assertDatabaseHas('invitations', [
+            'expires_at' => '2025-05-07 08:30:17',
+        ]);
+    }
+
+    public function test_cannot_be_resend_with_leftadmin(): void
+    {
+        $this->actingAs($this->user);
+        $this->leftadminGroup($this->user, $this->group);
 
         $memberUser = User::factory()->create();
         $this->group->users()->attach($memberUser->id, [
