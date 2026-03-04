@@ -64,7 +64,7 @@ class InvitationController extends Controller
 
     public function resend(Group $group, Invitation $invitation) {
         if (!$group->isAdmin(Auth::user())) {
-            return redirect()->back()->with('error', '管理者権限が必要です');
+            abort(403, '管理者権限が必要です');
         }
         if ($invitation->group_id !== $group->id) {
             return back()->with('error', 'この招待はこのグループに属していません');
