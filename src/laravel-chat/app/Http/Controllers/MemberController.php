@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Models\User;
 use App\Models\Group;
 use Illuminate\Support\Facades\DB;
 
 class MemberController extends Controller
 {
+    use AuthorizesRequests;
+
     public function join($groupId, $token) {
         $group = Group::findOrFail($groupId);
         $user = Auth::user();
@@ -81,9 +84,7 @@ class MemberController extends Controller
         if (!$group->isActiveMember($user)) {
             return redirect()->back()->with('error', 'このユーザーは既に退会済みです');
         }
-        if (!$group->isAdmin(Auth::user())) {
-            return redirect()->back()->with('error', '管理者権限が必要です');
-        }
+        $this->authorize('admin', $group);
         $group->users()->updateExistingPivot($user->id, [
             'left_at' => now(),
         ]);

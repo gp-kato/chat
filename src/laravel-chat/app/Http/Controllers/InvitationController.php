@@ -8,21 +8,23 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Models\Group;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Models\User;
 use App\Models\Invitation;
 use App\Mail\GroupInvitation;
 
 class InvitationController extends Controller
 {
+    use AuthorizesRequests;
+
     public function invite(Request $request, Group $group) {
         $request->validate([
             'user_id' => 'required|exists:users,id',
         ]);
 
         $user = User::find($request->user_id);
-        if (!$group->isAdmin(Auth::user())) {
-            return redirect()->back()->with('error', '管理者権限が必要です');
-        }
+
+        $this->authorize('admin', $group);
         if ($group->isActiveMember($user)) {
             return back()->with('info', "{$user->name}さんは既にこのグループのメンバーです。");
         }
@@ -63,9 +65,7 @@ class InvitationController extends Controller
     }
 
     public function resend(Group $group, Invitation $invitation) {
-        if (!$group->isAdmin(Auth::user())) {
-            abort(403, '管理者権限が必要です');
-        }
+        $this->authorize('admin', $group);
         if ($invitation->group_id !== $group->id) {
             return back()->with('error', 'この招待はこのグループに属していません');
         }
