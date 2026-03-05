@@ -343,4 +343,26 @@ class MessageTest extends TestCase
 
         $response->assertStatus(403);
     }
+
+    public function test_messages_are_sorted_ascending_on_initial_display()
+    {
+        $this->actingAs($this->user);
+        $this->joinGroup($this->user, $this->group);
+
+        $messages = Message::factory()
+            ->count(5)
+            ->for($this->group)
+            ->create();
+
+        $response = $this->get(route('groups.messages.show', $this->group));
+
+        $response->assertOk();
+
+        $viewMessages = $response->viewData('messages');
+
+        $ids = $viewMessages->pluck('id')->values()->all();
+        $sorted = collect($ids)->sort()->values()->all();
+
+        $this->assertSame($sorted, $ids);
+    }
 }

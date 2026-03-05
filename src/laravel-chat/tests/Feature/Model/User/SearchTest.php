@@ -29,10 +29,10 @@ class SearchTest extends TestCase
 
         $excludedIds = [$excludedUser->id];
 
-        $results = User::searchNotJoined('test', $excludedIds);
+        $results = User::searchNotJoined('test', $excludedIds)->get();
 
-        $this->assertTrue($results->contains($matchedUser));
-        $this->assertFalse($results->contains($excludedUser));
+        $this->assertTrue($results->contains('id', $matchedUser->id));
+        $this->assertFalse($results->contains('id', $excludedUser->id));
     }
 
     public function test_search_hits_by_name_only(): void
@@ -49,10 +49,10 @@ class SearchTest extends TestCase
             'email' => 'excluded@example.com',
         ]);
 
-        $results = User::searchNotJoined('Alpha', [$excludedUser->id]);
+        $results = User::searchNotJoined('Alpha', [$excludedUser->id])->get();
 
-        $this->assertTrue($results->contains($matchedUser));
-        $this->assertFalse($results->contains($excludedUser));
+        $this->assertTrue($results->contains('id', $matchedUser->id));
+        $this->assertFalse($results->contains('id', $excludedUser->id));
     }
 
     public function test_search_hits_by_email_only(): void
@@ -69,10 +69,10 @@ class SearchTest extends TestCase
             'email' => 'excluded@example.com',
         ]);
 
-        $results = User::searchNotJoined('unique-email', [$excludedUser->id]);
+        $results = User::searchNotJoined('unique-email', [$excludedUser->id])->get();
 
-        $this->assertTrue($results->contains($matchedUser));
-        $this->assertFalse($results->contains($excludedUser));
+        $this->assertTrue($results->contains('id', $matchedUser->id));
+        $this->assertFalse($results->contains('id', $excludedUser->id));
     }
 
     public function test_search_escapes_like_wildcards(): void
@@ -82,8 +82,8 @@ class SearchTest extends TestCase
             'email' => 'percent@example.com',
         ]);
 
-        $results = User::searchNotJoined('%', []);
+        $results = User::searchNotJoined('%', [])->get();
 
-        $this->assertFalse($results->contains($user));
+        $this->assertFalse($results->contains('id', $user->id));
     }
 }

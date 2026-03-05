@@ -51,9 +51,9 @@ class GroupController extends Controller
         return view('edit', [
             'group'           => $group,
             'removableUsers'  => $group->removableUsers($activeUsers),
-            'invitations'     => Invitation::activeForGroup($group),
+            'invitations'     => Invitation::activeForGroup($group)->get(),
             'searchResults'   => $query
-            ? User::searchNotJoined($query, $activeUsers->pluck('id'))
+            ? User::searchNotJoined($query, $activeUsers->pluck('id'))->get()
             : collect(),
         ]);
     }

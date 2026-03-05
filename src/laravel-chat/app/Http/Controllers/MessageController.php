@@ -19,9 +19,14 @@ class MessageController extends Controller
     public function show(Request $request, Group $group) {
         $this->authorize('view', $group);
 
+        $messages = Message::latestForGroup($group, self::FETCH_LIMIT)
+            ->get()
+            ->sortBy('id')
+            ->values();
+
         return view('chat', [
             'group'           => $group,
-            'messages'        => Message::latestForGroup($group, self::FETCH_LIMIT),
+            'messages'        => $messages,
             'isAdmin'         => Gate::allows('admin', $group),
         ]);
     }
