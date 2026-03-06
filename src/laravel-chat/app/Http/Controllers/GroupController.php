@@ -61,9 +61,7 @@ class GroupController extends Controller
     public function update(UpdateGroupRequest $request, Group $group) {
         $request->validated();
 
-        if (!$group->isAdmin(Auth::user())) {
-            abort(403, '管理者権限が必要です');
-        }
+        $this->authorize('admin', $group);
 
         $group->fill($request->only(['name', 'description']));
 

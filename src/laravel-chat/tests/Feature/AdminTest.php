@@ -219,7 +219,7 @@ class AdminTest extends TestCase
             ['user_id' => $inviteUser->id,]
         );
 
-        $response->assertStatus(302);
+        $response->assertForbidden();
 
         $this->assertDatabaseMissing('invitations', [
             'group_id'       => $this->group->id,
@@ -238,7 +238,7 @@ class AdminTest extends TestCase
             ['user_id' => $inviteUser->id,]
         );
 
-        $response->assertStatus(302);
+        $response->assertForbidden();
 
         $this->assertDatabaseMissing('invitations', [
             'group_id'       => $this->group->id,
@@ -257,7 +257,7 @@ class AdminTest extends TestCase
             ['user_id' => $inviteUser->id,]
         );
 
-        $response->assertStatus(302);
+        $response->assertForbidden();
 
         $this->assertDatabaseMissing('invitations', [
             'group_id'       => $this->group->id,
@@ -312,7 +312,7 @@ class AdminTest extends TestCase
             ])
         );
 
-        $response->assertStatus(302);
+        $response->assertForbidden();
 
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
@@ -340,7 +340,7 @@ class AdminTest extends TestCase
             ])
         );
 
-        $response->assertStatus(302);
+        $response->assertForbidden();
 
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
@@ -368,7 +368,7 @@ class AdminTest extends TestCase
             ])
         );
 
-        $response->assertStatus(302);
+        $response->assertForbidden();
 
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
