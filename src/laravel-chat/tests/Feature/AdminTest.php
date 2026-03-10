@@ -380,11 +380,6 @@ class AdminTest extends TestCase
         $this->actingAs($this->user);
         $this->adminGroup($this->user, $this->group);
 
-        $memberUser = User::factory()->create();
-        $this->group->users()->attach($memberUser->id, [
-            'joined_at' => null,
-        ]);
-
         $invitation = Invitation::create([
             'group_id'      => $this->group->id,
             'inviter_id'    => $this->user->id,
@@ -416,11 +411,6 @@ class AdminTest extends TestCase
         $this->adminGroup($this->user, $otherGroup);
         $this->actingAs($this->user);
 
-        $memberUser = User::factory()->create();
-        $this->group->users()->attach($memberUser->id, [
-            'joined_at' => null,
-        ]);
-
         $invitation = Invitation::create([
             'group_id'      => $this->group->id,
             'inviter_id'    => $this->user->id,
@@ -449,11 +439,6 @@ class AdminTest extends TestCase
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
 
-        $memberUser = User::factory()->create();
-        $this->group->users()->attach($memberUser->id, [
-            'joined_at' => null,
-        ]);
-
         $invitation = Invitation::create([
             'group_id'      => $this->group->id,
             'inviter_id'    => $this->user->id,
@@ -481,11 +466,6 @@ class AdminTest extends TestCase
     {
         $this->actingAs($this->user);
         $this->leftadminGroup($this->user, $this->group);
-
-        $memberUser = User::factory()->create();
-        $this->group->users()->attach($memberUser->id, [
-            'joined_at' => null,
-        ]);
 
         $invitation = Invitation::create([
             'group_id'      => $this->group->id,
