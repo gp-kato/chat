@@ -91,7 +91,7 @@ class AdminTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function test_edit_screen_cannot_be_rendered_after_admin_left(): void
+    public function test_edit_screen_cannot_be_rendered_after_left_admin(): void
     {
         $this->actingAs($this->user);
         $this->leftadminGroup($this->user, $this->group);
@@ -161,7 +161,7 @@ class AdminTest extends TestCase
         ]);
     }
 
-    public function test_cannot_edit_chat_group_after_admin_left(): void
+    public function test_cannot_edit_chat_group_after_left_admin(): void
     {
         $this->actingAs($this->user);
         $this->leftadminGroup($this->user, $this->group);
@@ -243,7 +243,7 @@ class AdminTest extends TestCase
         ]);
     }
 
-    public function test_cannot_invite_after_admin_left(): void
+    public function test_cannot_invite_after_left_admin(): void
     {
         $this->actingAs($this->user);
         $this->leftadminGroup($this->user, $this->group);
@@ -347,7 +347,7 @@ class AdminTest extends TestCase
         ]);
     }
 
-    public function test_cannot_remove_user_after_admin_left(): void
+    public function test_cannot_remove_user_after_left_admin(): void
     {
         $this->actingAs($this->user);
         $this->leftadminGroup($this->user, $this->group);
@@ -462,7 +462,7 @@ class AdminTest extends TestCase
         ]);
     }
 
-    public function test_cannot_resend_after_admin_left(): void
+    public function test_cannot_resend_after_left_admin(): void
     {
         $this->actingAs($this->user);
         $this->leftadminGroup($this->user, $this->group);
