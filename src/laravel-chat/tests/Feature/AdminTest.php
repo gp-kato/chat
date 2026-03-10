@@ -128,8 +128,6 @@ class AdminTest extends TestCase
         $this->adminGroup($this->user, $otherGroup);
         $this->actingAs($this->user);
 
-        $inviteUser = User::factory()->create();
-
         $response = $this->put(route('groups.update', $this->group->id), [
             'name' => 'name',
             'description' => 'description',
