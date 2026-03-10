@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'ChatRoom')
+@section('title', $group->name . ' - ChatRoom')
 
 @section('content')
     <div class="container">
