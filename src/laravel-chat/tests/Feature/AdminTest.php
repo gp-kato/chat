@@ -133,7 +133,7 @@ class AdminTest extends TestCase
             'description' => 'description',
         ]);
 
-        $response->assertStatus(403);
+        $response->assertForbidden();
 
         $this->assertDatabaseMissing('groups', [
             'id' => $this->group->id,
@@ -152,7 +152,7 @@ class AdminTest extends TestCase
             'description' => 'description',
         ]);
 
-        $response->assertStatus(403);
+        $response->assertForbidden();
 
         $this->assertDatabaseMissing('groups', [
             'id' => $this->group->id,
@@ -171,7 +171,7 @@ class AdminTest extends TestCase
             'description' => 'description',
         ]);
 
-        $response->assertStatus(403);
+        $response->assertForbidden();
 
         $this->assertDatabaseMissing('groups', [
             'id' => $this->group->id,
