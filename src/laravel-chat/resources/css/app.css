@@ -18,7 +18,7 @@ input {
 }
 textarea {
     border: 1px solid;
-    width: 80%;
+    width: 100%;
 }
 .btn-primary {
     border: 1px solid;
@@ -34,7 +34,7 @@ td {
 .message {
     position: sticky; bottom: 0; width: 100%;
     background-color: #fff;
-    padding: 20px;
+    padding: 20px 0px;
 }
 .alert-danger {
     color: #ff0000;

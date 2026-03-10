@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'EditngGroup')
+@section('title', $group->name . ' - EditingGroup')
 
 @section('content')
     <div class="content wrapper">
