@@ -40,7 +40,7 @@ class MessageTest extends TestCase
         ]);
     }
 
-    public function test_chat_screen_can_be_rendered_with_join_group(): void
+    public function test_chat_screen_can_be_rendered_when_joined_group(): void
     {
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
@@ -50,7 +50,7 @@ class MessageTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_can_writing_message_with_join_group(): void
+    public function test_can_write_message_when_joined_group(): void
     {
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
@@ -72,14 +72,14 @@ class MessageTest extends TestCase
         ]);
     }
 
-    public function test_chat_screen_can_not_rendered_without_login(): void
+    public function test_chat_screen_cannot_be_rendered_without_login(): void
     {
         $response = $this->get(route('groups.messages.show', $this->group->id));
 
         $response->assertRedirect(route('login'));
     }
 
-    public function test_can_not_write_message_without_login(): void
+    public function test_cannot_write_message_without_login(): void
     {
         $formData = [
             'content' => 'content',
@@ -92,7 +92,7 @@ class MessageTest extends TestCase
         $this->assertDatabaseMissing('messages', $formData);
     }
 
-    public function test_writing_message_fails_when_content_is_missing(): void
+    public function test_write_message_fails_when_content_is_missing(): void
     {
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
@@ -108,7 +108,7 @@ class MessageTest extends TestCase
         $this->assertDatabaseMissing('messages');
     }
 
-    public function test_writing_message_fails_when_content_exceeds_max_length(): void
+    public function test_write_message_fails_when_content_exceeds_max_length(): void
     {
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
@@ -146,7 +146,7 @@ class MessageTest extends TestCase
         ]);
     }
 
-    public function test_chat_screen_cannot_be_rendered_without_join_group(): void
+    public function test_chat_screen_cannot_be_rendered_without_joining_group(): void
     {
         $this->actingAs($this->user);
 
@@ -155,7 +155,7 @@ class MessageTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function test_cannot_writing_message_without_join_group(): void
+    public function test_cannot_write_message_without_joining_group(): void
     {
         $this->actingAs($this->user);
 
@@ -275,7 +275,7 @@ class MessageTest extends TestCase
         $response->assertJsonValidationErrors(['before_id']);
     }
 
-    public function test_can_not_fetch_without_login(): void
+    public function test_cannot_fetch_without_login(): void
     {
         Message::factory()->count(50)->create([
             'group_id' => $this->group->id,
@@ -288,7 +288,7 @@ class MessageTest extends TestCase
         $response->assertStatus(401);
     }
 
-    public function test_can_not_fetch_with_0message()
+    public function test_cannot_fetch_with_messages_when_no_messages_exist()
     {
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
@@ -305,7 +305,7 @@ class MessageTest extends TestCase
         $this->assertEmpty($response->json('html'));
     }
 
-    public function test_chat_screen_cannot_be_rendered_with_left(): void
+    public function test_chat_screen_cannot_be_rendered_after_leaving_group(): void
     {
         $this->actingAs($this->user);
         $this->joinGroupAsLeft($this->user, $this->group);
@@ -315,7 +315,7 @@ class MessageTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function test_cannot_writing_message_with_left(): void
+    public function test_cannot_write_message_after_leaving_group(): void
     {
         $this->actingAs($this->user);
         $this->joinGroupAsLeft($this->user, $this->group);
@@ -332,7 +332,7 @@ class MessageTest extends TestCase
         $this->assertDatabaseMissing('messages', $formData);
     }
 
-    public function test_cannot_fetch_with_left(): void
+    public function test_cannot_fetch_after_leaving_group(): void
     {
         $this->actingAs($this->user);
         $this->joinGroupAsLeft($this->user, $this->group);

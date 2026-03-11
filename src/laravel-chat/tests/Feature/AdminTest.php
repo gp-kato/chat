@@ -51,7 +51,7 @@ class AdminTest extends TestCase
         ]);
     }
 
-    public function test_edit_screen_can_be_rendered_with_admin(): void
+    public function test_edit_screen_can_be_rendered_when_admin(): void
     {
         $this->actingAs($this->user);
         $this->adminGroup($this->user, $this->group);
@@ -61,7 +61,7 @@ class AdminTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_edit_screen_cannot_rendered_without_admin(): void
+    public function test_edit_screen_cannot_be_rendered_without_admin(): void
     {
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
@@ -71,7 +71,7 @@ class AdminTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function test_edit_screen_cannot_rendered_without_member(): void
+    public function test_edit_screen_cannot_be_rendered_without_member(): void
     {
         $this->actingAs($this->user);
 
@@ -80,7 +80,7 @@ class AdminTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function test_edit_screen_cannot_rendered_with_other_admin(): void
+    public function test_edit_screen_cannot_be_rendered_with_other_admin(): void
     {
         $otherGroup = Group::factory()->create();
         $this->adminGroup($this->user, $otherGroup);
@@ -91,7 +91,7 @@ class AdminTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function test_edit_screen_cannot_rendered_with_leftadmin(): void
+    public function test_edit_screen_cannot_be_rendered_after_left_admin(): void
     {
         $this->actingAs($this->user);
         $this->leftadminGroup($this->user, $this->group);
@@ -101,7 +101,7 @@ class AdminTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function test_editing_chatgroup(): void
+    public function test_can_edit_chat_group_when_admin(): void
     {
         $this->actingAs($this->user);
         $this->adminGroup($this->user, $this->group);
@@ -122,20 +122,18 @@ class AdminTest extends TestCase
         ]);
     }
 
-    public function test_cannot_be_editing_chatgroup_with_other_admin(): void
+    public function test_cannot_edit_chat_group_with_other_admin(): void
     {
         $otherGroup = Group::factory()->create();
         $this->adminGroup($this->user, $otherGroup);
         $this->actingAs($this->user);
-
-        $inviteUser = User::factory()->create();
 
         $response = $this->put(route('groups.update', $this->group->id), [
             'name' => 'name',
             'description' => 'description',
         ]);
 
-        $response->assertStatus(403);
+        $response->assertForbidden();
 
         $this->assertDatabaseMissing('groups', [
             'id' => $this->group->id,
@@ -144,7 +142,7 @@ class AdminTest extends TestCase
         ]);
     }
 
-    public function test_cannot_be_editing_chatgroup_without_admin(): void
+    public function test_cannot_edit_chat_group_without_admin(): void
     {
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
@@ -154,7 +152,7 @@ class AdminTest extends TestCase
             'description' => 'description',
         ]);
 
-        $response->assertStatus(403);
+        $response->assertForbidden();
 
         $this->assertDatabaseMissing('groups', [
             'id' => $this->group->id,
@@ -163,7 +161,7 @@ class AdminTest extends TestCase
         ]);
     }
 
-    public function test_cannot_be_editing_chatgroup_with_leftadmin(): void
+    public function test_cannot_edit_chat_group_after_left_admin(): void
     {
         $this->actingAs($this->user);
         $this->leftadminGroup($this->user, $this->group);
@@ -173,7 +171,7 @@ class AdminTest extends TestCase
             'description' => 'description',
         ]);
 
-        $response->assertStatus(403);
+        $response->assertForbidden();
 
         $this->assertDatabaseMissing('groups', [
             'id' => $this->group->id,
@@ -182,7 +180,7 @@ class AdminTest extends TestCase
         ]);
     }
 
-    public function test_can_be_invitation_with_admin(): void
+    public function test_can_invite_when_admin(): void
     {
         $this->actingAs($this->user);
         $this->adminGroup($this->user, $this->group);
@@ -206,7 +204,7 @@ class AdminTest extends TestCase
         ]);
     }
 
-    public function test_cannot_be_invitation_with_other_admin(): void
+    public function test_cannot_invite_with_other_admin(): void
     {
         $otherGroup = Group::factory()->create();
         $this->adminGroup($this->user, $otherGroup);
@@ -226,7 +224,7 @@ class AdminTest extends TestCase
         ]);
     }
 
-    public function test_cannot_be_invitation_without_admin(): void
+    public function test_cannot_invite_without_admin(): void
     {
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
@@ -245,7 +243,7 @@ class AdminTest extends TestCase
         ]);
     }
 
-    public function test_cannot_be_invitation_with_leftadmin(): void
+    public function test_cannot_invite_after_left_admin(): void
     {
         $this->actingAs($this->user);
         $this->leftadminGroup($this->user, $this->group);
@@ -264,7 +262,7 @@ class AdminTest extends TestCase
         ]);
     }
 
-    public function test_can_be_remove_user_with_admin(): void
+    public function test_can_remove_user_when_admin(): void
     {
         $this->actingAs($this->user);
         $this->adminGroup($this->user, $this->group);
@@ -293,7 +291,7 @@ class AdminTest extends TestCase
         ]);
     }
 
-    public function test_cannot_be_remove_user_with_other_admin(): void
+    public function test_cannot_remove_user_with_other_admin(): void
     {
         $otherGroup = Group::factory()->create();
         $this->adminGroup($this->user, $otherGroup);
@@ -321,7 +319,7 @@ class AdminTest extends TestCase
         ]);
     }
 
-    public function test_cannot_be_remove_user_without_admin(): void
+    public function test_cannot_remove_user_without_admin(): void
     {
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
@@ -349,7 +347,7 @@ class AdminTest extends TestCase
         ]);
     }
 
-    public function test_cannot_be_remove_user_with_leftadmin(): void
+    public function test_cannot_remove_user_after_left_admin(): void
     {
         $this->actingAs($this->user);
         $this->leftadminGroup($this->user, $this->group);
@@ -377,15 +375,10 @@ class AdminTest extends TestCase
         ]);
     }
 
-    public function test_can_be_resend_with_admin(): void
+    public function test_can_resend_when_admin(): void
     {
         $this->actingAs($this->user);
         $this->adminGroup($this->user, $this->group);
-
-        $memberUser = User::factory()->create();
-        $this->group->users()->attach($memberUser->id, [
-            'joined_at' => null,
-        ]);
 
         $invitation = Invitation::create([
             'group_id'      => $this->group->id,
@@ -412,17 +405,12 @@ class AdminTest extends TestCase
         ]);
     }
 
-    public function test_cannot_be_resend_with_other_admin(): void
+    public function test_cannot_resend_with_other_admin(): void
     {
         $otherGroup = Group::factory()->create();
         $this->adminGroup($this->user, $otherGroup);
         $this->actingAs($this->user);
 
-        $memberUser = User::factory()->create();
-        $this->group->users()->attach($memberUser->id, [
-            'joined_at' => null,
-        ]);
-
         $invitation = Invitation::create([
             'group_id'      => $this->group->id,
             'inviter_id'    => $this->user->id,
@@ -446,16 +434,11 @@ class AdminTest extends TestCase
         ]);
     }
 
-    public function test_cannot_be_resend_without_admin(): void
+    public function test_cannot_resend_without_admin(): void
     {
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
 
-        $memberUser = User::factory()->create();
-        $this->group->users()->attach($memberUser->id, [
-            'joined_at' => null,
-        ]);
-
         $invitation = Invitation::create([
             'group_id'      => $this->group->id,
             'inviter_id'    => $this->user->id,
@@ -479,15 +462,10 @@ class AdminTest extends TestCase
         ]);
     }
 
-    public function test_cannot_be_resend_with_leftadmin(): void
+    public function test_cannot_resend_after_left_admin(): void
     {
         $this->actingAs($this->user);
         $this->leftadminGroup($this->user, $this->group);
-
-        $memberUser = User::factory()->create();
-        $this->group->users()->attach($memberUser->id, [
-            'joined_at' => null,
-        ]);
 
         $invitation = Invitation::create([
             'group_id'      => $this->group->id,

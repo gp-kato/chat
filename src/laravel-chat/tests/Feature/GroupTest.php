@@ -34,7 +34,7 @@ class GroupTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_adding_chatgroup(): void
+    public function test_add_chat_group(): void
     {
         $this->actingAs($this->user);
 
@@ -53,29 +53,29 @@ class GroupTest extends TestCase
         ]);
     }
 
-    public function test_group_screen_can_not_rendered_without_login(): void
+    public function test_group_screen_cannot_be_rendered_without_login(): void
     {
         $response = $this->get(route('groups.index'));
 
         $response->assertRedirect(route('login'));
     }
 
-    public function test_can_not_adding_chat_without_login(): void
+    public function test_cannot_add_chat_without_login(): void
     {
         $formData = [
             'name' => 'name',
             'description' => 'description',
         ];
-    
+
         $response = $this->post(route('groups.add'), $formData);
-    
+
         $response->assertRedirect(route('login'));
-    
+
         // フォームの内容に一致するデータがDBに存在しないことを確認
         $this->assertDatabaseMissing('groups', $formData);
     }
 
-    public function test_group_adding_fails_when_name_is_missing(): void
+    public function test_add_group_fails_when_name_is_missing(): void
     {
         $this->actingAs($this->user);
 
@@ -92,7 +92,7 @@ class GroupTest extends TestCase
         $this->assertDatabaseMissing('groups', ['description' => 'description']);
     }
 
-    public function test_group_adding_fails_when_description_is_missing(): void
+    public function test_add_group_fails_when_description_is_missing(): void
     {
         $this->actingAs($this->user);
 
@@ -109,7 +109,7 @@ class GroupTest extends TestCase
         $this->assertDatabaseMissing('groups', ['name' => 'name']);
     }
 
-    public function test_group_adding_fails_when_name_exceeds_max_length(): void
+    public function test_add_group_fails_when_name_exceeds_max_length(): void
     {
         $this->actingAs($this->user);
 
@@ -126,7 +126,7 @@ class GroupTest extends TestCase
         $this->assertDatabaseMissing('groups', ['description' => 'description']);
     }
 
-    public function test_group_adding_fails_when_description_exceeds_max_length(): void
+    public function test_add_group_fails_when_description_exceeds_max_length(): void
     {
         $this->actingAs($this->user);
 
@@ -143,29 +143,29 @@ class GroupTest extends TestCase
         $this->assertDatabaseMissing('groups', ['name' => 'name']);
     }
 
-    public function test_group_adding_succeeds_with_max_length(): void
+    public function test_add_group_succeeds_with_max_length(): void
     {
         $this->actingAs($this->user);
-    
+
         $validName = str_repeat('a', 10);
         $validDescription = str_repeat('b', 40);
-    
+
         $response = $this->post(route('groups.add'), [
             'name' => $validName,
             'description' => $validDescription,
         ]);
-    
+
         $this->assertAuthenticated();
         $response->assertSessionHasNoErrors();
         $response->assertRedirect(route('groups.index', absolute: false));
-    
+
         $this->assertDatabaseHas('groups', [
             'name' => $validName,
             'description' => $validDescription,
         ]);
     }
 
-    public function test_join_chatgroup(): void
+    public function test_join_chat_group(): void
     {
         $this->actingAs($this->user);
         $inviter = User::factory()->create();
@@ -190,7 +190,7 @@ class GroupTest extends TestCase
         ]);
     }
 
-    public function test_can_not_rejoin_chatgroup_with_joined_group(): void
+    public function test_cannot_rejoin_chat_group_when_already_joined(): void
     {
         $this->actingAs($this->user);
         $this->group->users()->attach($this->user->id);
@@ -222,7 +222,7 @@ class GroupTest extends TestCase
         ->count());
     }
 
-    public function test_can_leave_chatgroup(): void
+    public function test_can_leave_chat_group(): void
     {
         $this->actingAs($this->user);
         $this->group->users()->attach($this->user->id);
@@ -237,7 +237,7 @@ class GroupTest extends TestCase
         ]);
     }
 
-    public function test_can_leave_chatgroup_with_not_join(): void
+    public function test_cannot_leave_chat_group_when_not_joined(): void
     {
         $this->actingAs($this->user);
 
@@ -247,7 +247,7 @@ class GroupTest extends TestCase
         $response->assertSessionHas('info', 'グループに参加していません');
     }
 
-    public function test_can_rejoin_with_left(): void
+    public function test_can_rejoin_chat_group_after_leaving(): void
     {
         $this->actingAs($this->user);
         $this->group->users()->syncWithoutDetaching($this->user->id, [
