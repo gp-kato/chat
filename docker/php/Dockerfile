@@ -5,12 +5,16 @@ COPY php.ini /usr/local/etc/php/
 # コマンドの実行-> RUN [実行するコマンド]
 # apt-get update：パッケージリストの更新
 RUN apt-get update \
-    # apt-get update：パッケージのインストール
+    # apt-get install：パッケージのインストール
+    && apt-get install -y \
     # zlib1g-dev：Zlib形式（gzipとPKZIPで使われているdeflate圧縮法）のデータ圧縮に使用するためのライブラリ
+    && zlib1g-dev \
     # mariadb-client：MariaDB（MySQLの派生）を使用するためのライブラリ
+    && mariadb-client \
     # vim：vimのテキストエディタを使用するためのライブラリ
+    && vim \
     # libzip-dev：zipを使用するためのライブラリ
-    && apt-get install -y zlib1g-dev mariadb-client vim libzip-dev \
+    && libzip-dev \
     # docker-php-ext-install：標準PHPの拡張パッケージリストのインストール（今回は zipとpdo_mysqlパッケージ）
     && docker-php-ext-install zip pdo_mysql
 RUN docker-php-ext-install pcntl \
@@ -31,11 +35,11 @@ RUN php -r "unlink('composer-setup.php');"
 RUN mv composer.phar /usr/local/bin/composer
 # コンテナの環境変数設定-> ENV [設定内容]
 # composerのスーパーユーザー設定：「1」でrootユーザーに指定
-ENV COMPOSER_ALLOW_SUPERUSER 1
+ENV COMPOSER_ALLOW_SUPERUSER=1
 # composerのホームディレクトリ設定：composerを指定
-ENV COMPOSER_HOME /composer
+ENV COMPOSER_HOME=/composer
 # composerのルートPath設定：/composer/vendor/binを指定
-ENV PATH $PATH:/composer/vendor/bin
+ENV PATH=$PATH:/composer/vendor/bin
 # 作業ディレクトリの設定-> WORKDIR [Paht]
 WORKDIR /var/www
 # Laravelパッケージのインストールを実行する
