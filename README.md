@@ -67,3 +67,11 @@ docker compose exec php sh -c "cd laravel-chat && php artisan db:seed"
 docker compose exec node sh -c "cd laravel-chat && npm install"
 # フロントエンドビルド（Vite）
 docker compose exec node sh -c "cd laravel-chat && npm run dev"
+
+### 起動後のアクセス先
+# このアプリ
+http://localhost/
+# phpMyAdmin
+http://localhost:8080
+# MailHog
+http://localhost:8025
