@@ -5,16 +5,12 @@ COPY php.ini /usr/local/etc/php/
 # コマンドの実行-> RUN [実行するコマンド]
 # apt-get update：パッケージリストの更新
 RUN apt-get update \
-    # apt-get install：パッケージのインストール
-    && apt-get install -y \
+    # apt-get update：パッケージのインストール
     # zlib1g-dev：Zlib形式（gzipとPKZIPで使われているdeflate圧縮法）のデータ圧縮に使用するためのライブラリ
-    && zlib1g-dev \
     # mariadb-client：MariaDB（MySQLの派生）を使用するためのライブラリ
-    && mariadb-client \
     # vim：vimのテキストエディタを使用するためのライブラリ
-    && vim \
     # libzip-dev：zipを使用するためのライブラリ
-    && libzip-dev \
+    && apt-get install -y zlib1g-dev mariadb-client vim libzip-dev \
     # docker-php-ext-install：標準PHPの拡張パッケージリストのインストール（今回は zipとpdo_mysqlパッケージ）
     && docker-php-ext-install zip pdo_mysql
 RUN docker-php-ext-install pcntl \
