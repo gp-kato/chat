@@ -1,5 +1,5 @@
 # Dockerimageの指定 -> FROM [イメージ名]:[タグ名]
-FROM php:8.4-fpm
+FROM php:8.4-fpm-bookworm
 # ファイルのコピー -> COPY [イメージ内にコピーしたいファイルのパスやURLなど] [コピー先のイメージのパス]
 COPY php.ini /usr/local/etc/php/
 # コマンドの実行-> RUN [実行するコマンド]
@@ -31,11 +31,11 @@ RUN php -r "unlink('composer-setup.php');"
 RUN mv composer.phar /usr/local/bin/composer
 # コンテナの環境変数設定-> ENV [設定内容]
 # composerのスーパーユーザー設定：「1」でrootユーザーに指定
-ENV COMPOSER_ALLOW_SUPERUSER 1
+ENV COMPOSER_ALLOW_SUPERUSER=1
 # composerのホームディレクトリ設定：composerを指定
-ENV COMPOSER_HOME /composer
+ENV COMPOSER_HOME=/composer
 # composerのルートPath設定：/composer/vendor/binを指定
-ENV PATH $PATH:/composer/vendor/bin
+ENV PATH=$PATH:/composer/vendor/bin
 # 作業ディレクトリの設定-> WORKDIR [Paht]
 WORKDIR /var/www
 # Laravelパッケージのインストールを実行する
