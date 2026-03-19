@@ -1,5 +1,5 @@
 # Dockerimageの指定 -> FROM [イメージ名]:[タグ名]
-FROM php:8.4-fpm
+FROM php:8.4-fpm-bookworm
 # ファイルのコピー -> COPY [イメージ内にコピーしたいファイルのパスやURLなど] [コピー先のイメージのパス]
 COPY php.ini /usr/local/etc/php/
 # コマンドの実行-> RUN [実行するコマンド]
