@@ -90,4 +90,12 @@ class MemberController extends Controller
         ]);
         return redirect()->back()->with('success', 'グループから退会させました');
     }
+
+    public function transfer(Group $group, User $user) {
+        $this->authorize('admin', $group);
+        $group->users()->updateExistingPivot($user->id, [
+            'role' => 'admin',
+        ]);
+        return redirect()->back()->with('success', '管理権を与えました');
+    }
 }

@@ -33,6 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::post('/', [MemberController::class, 'join'])->name('join');
                 Route::delete('/me', [MemberController::class, 'leave'])->name('leave');
                 Route::delete('/{user}', [MemberController::class, 'remove'])->name('remove');
+                Route::post('/transfer', [MemberController::class, 'transfer'])->name('transfer');
             });
 
             // 招待管理
