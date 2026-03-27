@@ -17,7 +17,7 @@ class GroupController extends Controller
 
     public function index() {
         $user = Auth::user();
-        $groups = Group::withExists(['users as is_joined' => function ($query) use ($user) {
+        $groups = Group::whereNull('archived_at')->withExists(['users as is_joined' => function ($query) use ($user) {
             $query->where('users.id', $user->id)
             ->whereNull('left_at')
             ->whereNotNull('joined_at');
@@ -37,6 +37,13 @@ class GroupController extends Controller
         ]);
 
         $group->users()->attach(Auth::id(), ['role' => 'admin', 'joined_at' => now()]);
+
+        return redirect()->route('groups.index');
+    }
+
+    public function archive(Group $group) {
+        $group->archived_at = now();
+        $group->save();
 
         return redirect()->route('groups.index');
     }

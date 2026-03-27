@@ -18,7 +18,7 @@
                     <tr>
                         <th>チャット名</th>
                         <th>説明</th>
-                        <th>操作</th>
+                        <th colspan="2">操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -28,7 +28,7 @@
                                 <a href="{{ route('groups.messages.show', [$group->id]) }}">{{ $group->name }}</a>
                             </td>
                             <td>{{ $group->description }}</td>
-                            <td>
+                            <td colspan="2">
                                 @if ($group->is_joined)
                                     <form action="{{ route('groups.members.leave', $group->id) }}" method="POST" style="display:inline;">
                                         @csrf
@@ -37,6 +37,13 @@
                                     </form>
                                 @else
                                     <p>ー</p>
+                                @endif
+                                @if(is_null($group->archived_at))
+                                    <form action="{{ route('groups.archive', $group->id) }}" method="POST">
+                                        @csrf
+                                        @method('PUT')
+                                        <button type="submit" class="btn btn-warning">アーカイブ</button>
+                                    </form>
                                 @endif
                             </td>
                         </tr>
