@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Gate;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Invitation;
@@ -52,6 +53,7 @@ class GroupController extends Controller
             'group'           => $group,
             'removableUsers'  => $group->removableUsers($activeUsers),
             'invitations'     => Invitation::activeForGroup($group)->get(),
+            'isnotAdmin'         => Gate::allows('member', $group),
             'searchResults'   => $query
             ? User::searchNotJoined($query, $activeUsers->pluck('id'))->get()
             : collect(),

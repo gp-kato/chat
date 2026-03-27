@@ -54,6 +54,13 @@ class Group extends Model
         ->exists();
     }
 
+    public function isnotAdmin(User $user) {
+        return $this->activeMemberQuery($user)
+        ->wherePivot('role', 'member')
+        ->wherePivotNotNull('joined_at')
+        ->exists();
+    }
+
     public function activeUsers() {
         return $this->users()->wherePivot('left_at', null)->get();
     }
