@@ -51,7 +51,7 @@
                                         <form action="{{ route('groups.members.transfer', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" style="display:inline;">
                                             @csrf
                                             @method('PUT')
-                                            <button type="submit" class="btn btn-danger">管理権を譲渡</button>
+                                            <button type="submit" class="btn btn-danger">管理権を付与</button>
                                         </form>
                                     @endif
                                 </td>
