@@ -47,9 +47,10 @@
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger">退会</button>
                                     </form>
-                                    @if($isnotAdmin)
+                                    @if($user->pivot->role !== 'admin')
                                         <form action="{{ route('groups.members.transfer', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" style="display:inline;">
                                             @csrf
+                                            @method('PUT')
                                             <button type="submit" class="btn btn-danger">管理権を譲渡</button>
                                         </form>
                                     @endif
