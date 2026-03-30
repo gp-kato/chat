@@ -53,7 +53,6 @@ class GroupController extends Controller
             'group'           => $group,
             'removableUsers'  => $group->removableUsers($activeUsers),
             'invitations'     => Invitation::activeForGroup($group)->get(),
-            'isnotAdmin'         => Gate::allows('member', $group),
             'searchResults'   => $query
             ? User::searchNotJoined($query, $activeUsers->pluck('id'))->get()
             : collect(),
