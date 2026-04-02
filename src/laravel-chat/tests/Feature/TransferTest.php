@@ -56,7 +56,7 @@ class TransferTest extends TestCase
         $this->adminGroup($this->user, $this->group);
 
         $memberUser = User::factory()->create();
-        $this->group->users()->attach($memberUser->id, );
+        $this->joinGroup($memberUser, $this->group);
 
         $response = $this->put(
             route('groups.members.transfer', [
@@ -82,7 +82,7 @@ class TransferTest extends TestCase
         $this->joinGroup($this->user, $this->group);
 
         $memberUser = User::factory()->create();
-        $this->group->users()->attach($memberUser->id, );
+        $this->joinGroup($memberUser, $this->group);
 
         $response = $this->put(
             route('groups.members.transfer', [
@@ -105,7 +105,7 @@ class TransferTest extends TestCase
         $this->actingAs($this->user);
 
         $memberUser = User::factory()->create();
-        $this->group->users()->attach($memberUser->id, );
+        $this->joinGroup($memberUser, $this->group);
 
         $response = $this->put(
             route('groups.members.transfer', [
@@ -130,7 +130,7 @@ class TransferTest extends TestCase
         $this->actingAs($this->user);
 
         $memberUser = User::factory()->create();
-        $this->group->users()->attach($memberUser->id, );
+        $this->joinGroup($memberUser, $this->group);
 
         $response = $this->put(
             route('groups.members.transfer', [
@@ -154,7 +154,7 @@ class TransferTest extends TestCase
         $this->leftadminGroup($this->user, $this->group);
 
         $memberUser = User::factory()->create();
-        $this->group->users()->attach($memberUser->id, );
+        $this->joinGroup($memberUser, $this->group);
 
         $response = $this->put(
             route('groups.members.transfer', [
