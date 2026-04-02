@@ -38,13 +38,6 @@
                                 @else
                                     <p>ー</p>
                                 @endif
-                                @if(is_null($group->archived_at))
-                                    <form action="{{ route('groups.archive', $group->id) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
-                                        <button type="submit" class="btn btn-warning">アーカイブ</button>
-                                    </form>
-                                @endif
                             </td>
                         </tr>
                     @endforeach

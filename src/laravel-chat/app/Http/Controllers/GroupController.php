@@ -42,6 +42,8 @@ class GroupController extends Controller
     }
 
     public function archive(Group $group) {
+        $this->authorize('admin', $group);
+
         $group->archived_at = now();
         $group->save();
 
