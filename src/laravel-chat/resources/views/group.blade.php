@@ -20,6 +20,10 @@
             <a href="{{ route('groups.index', ['filter' => 'not_joined']) }}" style="{{ $filter === 'not_joined' ? 'font-weight:bold;' : '' }}">
                 未参加
             </a>
+
+            <a href="{{ route('groups.index') }}" style="{{ empty($filter) ? 'font-weight:bold;' : '' }}">
+                全体
+            </a>
             <table>
                 <thead>
                     <tr>
