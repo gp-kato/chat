@@ -100,7 +100,7 @@ class TransferTest extends TestCase
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
             'user_id'  => $memberUser->id,
-            'role'       => 'mmember',
+            'role'       => 'admin',
         ]);
 
         $this->assertFalse(
@@ -127,7 +127,7 @@ class TransferTest extends TestCase
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
             'user_id'  => $memberUser->id,
-            'role'       => 'mmember',
+            'role'       => 'admin',
         ]);
 
         $this->assertFalse(
@@ -156,7 +156,7 @@ class TransferTest extends TestCase
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
             'user_id'  => $memberUser->id,
-            'role'       => 'mmember',
+            'role'       => 'admin',
         ]);
 
         $this->assertFalse(
@@ -184,7 +184,7 @@ class TransferTest extends TestCase
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
             'user_id'  => $memberUser->id,
-            'role'       => 'mmember',
+            'role'       => 'admin',
         ]);
 
         $this->assertFalse(
