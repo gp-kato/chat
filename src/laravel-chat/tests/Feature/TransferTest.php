@@ -74,6 +74,10 @@ class TransferTest extends TestCase
             'user_id'  => $memberUser->id,
             'role'       => 'admin',
         ]);
+
+        $this->assertTrue(
+            $this->group->isAdmin($memberUser),
+        );
     }
 
     public function test_cannot_transfer_admin_rights_without_admin(): void
@@ -98,6 +102,10 @@ class TransferTest extends TestCase
             'user_id'  => $memberUser->id,
             'role'       => 'mmember',
         ]);
+
+        $this->assertFalse(
+            $this->group->isAdmin($memberUser),
+        );
     }
 
     public function test_cannot_transfer_admin_rights_without_member(): void
@@ -121,6 +129,10 @@ class TransferTest extends TestCase
             'user_id'  => $memberUser->id,
             'role'       => 'mmember',
         ]);
+
+        $this->assertFalse(
+            $this->group->isAdmin($memberUser),
+        );
     }
 
     public function test_cannot_transfer_admin_rights_with_other_admin(): void
@@ -146,6 +158,10 @@ class TransferTest extends TestCase
             'user_id'  => $memberUser->id,
             'role'       => 'mmember',
         ]);
+
+        $this->assertFalse(
+            $this->group->isAdmin($memberUser),
+        );
     }
 
     public function test_cannot_transfer_admin_rights_after_left_admin(): void
@@ -170,5 +186,9 @@ class TransferTest extends TestCase
             'user_id'  => $memberUser->id,
             'role'       => 'mmember',
         ]);
+
+        $this->assertFalse(
+            $this->group->isAdmin($memberUser),
+        );
     }
 }
