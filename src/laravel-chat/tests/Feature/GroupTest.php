@@ -25,6 +25,14 @@ class GroupTest extends TestCase
         Carbon::setTestNow('2025-04-15 19:00:00');
     }
 
+    private function joinGroup(User $user, Group $group): void
+    {
+        $group->users()->attach($user->id, [
+            'joined_at' => now(),
+            'left_at' => null,
+        ]);
+    }
+
     public function test_group_screen_can_be_rendered(): void
     {
         $this->actingAs($this->user);
@@ -282,5 +290,35 @@ class GroupTest extends TestCase
         ->where('user_id', $this->user->id)
         ->where('group_id', $this->group->id)
         ->count());
+    }
+
+    public function test_group_screen_filters_by_joined_status(): void
+    {
+        $this->actingAs($this->user);
+        $joinedGroup = Group::factory()->create(['name' => 'Alpha Group']);
+        $notJoinedGroup = Group::factory()->create(['name' => 'Beta Group']);
+        $this->joinGroup($this->user, $joinedGroup);
+
+        $response = $this->get(route('groups.index', ['filter' => 'joined']));
+
+        $response->assertStatus(200);
+
+        $response->assertSeeText($joinedGroup->name);
+        $response->assertDontSeeText($notJoinedGroup->name);
+    }
+
+    public function test_group_screen_filters_by_not_joined_status(): void
+    {
+        $this->actingAs($this->user);
+        $joinedGroup = Group::factory()->create(['name' => 'Alpha Group']);
+        $notJoinedGroup = Group::factory()->create(['name' => 'Beta Group']);
+        $this->joinGroup($this->user, $joinedGroup);
+
+        $response = $this->get(route('groups.index', ['filter' => 'not_joined']));
+
+        $response->assertStatus(200);
+
+        $response->assertDontSeeText($joinedGroup->name);
+        $response->assertSeeText($notJoinedGroup->name);
     }
 }
