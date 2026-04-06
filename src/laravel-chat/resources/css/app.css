@@ -101,3 +101,6 @@ td {
     visibility: visible;
     animation: fadein 0.5s, fadeout 0.5s 2.5s;
 }
+.btn-warning {
+    margin: 40px auto;
+}
