@@ -31,7 +31,8 @@
                     <form action="{{ route('groups.archive', $group->id) }}" method="POST">
                         @csrf
                         @method('PUT')
-                        <button type="submit" class="btn btn-warning bg-red-500 px-4 py-2">グループをアーカイブ</button>
+                        <button type="submit" class="btn btn-warning bg-red-500 px-4 py-2"
+                        onclick="return confirm('本当にこのグループをアーカイブしますか？');">グループをアーカイブ</button>
                     </form>
                 @endif
                 <hr>
