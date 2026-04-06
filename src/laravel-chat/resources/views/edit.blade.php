@@ -32,7 +32,7 @@
                     <thead>
                         <tr>
                             <th>ユーザー</th>
-                            <th>操作</th>
+                            <th colspan="2">操作</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -41,12 +41,19 @@
                                 <td>
                                     <p>{{ $user->name }}</p>
                                 </td>
-                                <td>
+                                <td colspan="2">
                                     <form action="{{ route('groups.members.remove', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger">退会</button>
                                     </form>
+                                    @if($user->pivot->role !== 'admin')
+                                        <form action="{{ route('groups.members.transfer', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            @method('PUT')
+                                            <button type="submit" class="btn btn-danger">管理権を付与</button>
+                                        </form>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
