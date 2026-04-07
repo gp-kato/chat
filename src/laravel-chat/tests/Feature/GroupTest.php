@@ -321,4 +321,19 @@ class GroupTest extends TestCase
         $response->assertDontSeeText($joinedGroup->name);
         $response->assertSeeText($notJoinedGroup->name);
     }
+
+    public function test_group_screen_shows_all_groups_when_no_filter(): void
+    {
+        $this->actingAs($this->user);
+        $joinedGroup = Group::factory()->create(['name' => 'Alpha Group']);
+        $notJoinedGroup = Group::factory()->create(['name' => 'Beta Group']);
+        $this->joinGroup($this->user, $joinedGroup);
+
+        $response = $this->get(route('groups.index'));
+
+        $response->assertStatus(200);
+
+        $response->assertSeeText($joinedGroup->name);
+        $response->assertSeeText($notJoinedGroup->name);
+    }
 }
