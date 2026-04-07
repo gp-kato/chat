@@ -101,3 +101,8 @@ td {
     visibility: visible;
     animation: fadein 0.5s, fadeout 0.5s 2.5s;
 }
+a.active {
+    font-weight: bold;
+    pointer-events: none;
+    cursor: default;
+}
