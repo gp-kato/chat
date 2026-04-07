@@ -84,6 +84,7 @@ class ArchiveTest extends TestCase
         $response->assertForbidden();
 
         $this->assertDatabaseHas('groups', [
+            'id' => $this->group->id,
             'archived_at' => null,
         ]);
     }
@@ -97,6 +98,7 @@ class ArchiveTest extends TestCase
         $response->assertForbidden();
 
         $this->assertDatabaseHas('groups', [
+            'id' => $this->group->id,
             'archived_at' => null,
         ]);
     }
@@ -112,6 +114,7 @@ class ArchiveTest extends TestCase
         $response->assertForbidden();
 
         $this->assertDatabaseHas('groups', [
+            'id' => $this->group->id,
             'archived_at' => null,
         ]);
     }
@@ -128,6 +131,7 @@ class ArchiveTest extends TestCase
         $response->assertForbidden();
 
         $this->assertDatabaseHas('groups', [
+            'id' => $this->group->id,
             'archived_at' => null,
         ]);
     }
