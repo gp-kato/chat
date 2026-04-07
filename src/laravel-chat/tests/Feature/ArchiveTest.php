@@ -126,8 +126,6 @@ class ArchiveTest extends TestCase
 
         $response = $this->put(route('groups.archive', $this->group->id));
 
-        $response = $this->put(route('groups.archive', $this->group->id));
-
         $response->assertForbidden();
 
         $this->assertDatabaseHas('groups', [
