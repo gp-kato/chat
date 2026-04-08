@@ -16,14 +16,34 @@ class GroupController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index() {
+    public function index(Request $request) {
         $user = Auth::user();
-        $groups = Group::withExists(['users as is_joined' => function ($query) use ($user) {
+        $filter = $request->query('filter');
+
+        $query = Group::query();
+
+        if ($filter === 'joined') {
+            $query->whereHas('users', function ($q) use ($user) {
+                $q->where('users.id', $user->id)
+                    ->whereNull('left_at')
+                    ->whereNotNull('joined_at');
+            });
+        }
+
+        if ($filter === 'not_joined') {
+            $query->whereDoesntHave('users', function ($q) use ($user) {
+                $q->where('users.id', $user->id)
+                    ->whereNull('left_at')
+                    ->whereNotNull('joined_at');
+            });
+        }
+
+        $groups = $query->withExists(['users as is_joined' => function ($query) use ($user) {
             $query->where('users.id', $user->id)
             ->whereNull('left_at')
             ->whereNotNull('joined_at');
         }])->get();
-        return view('group', compact('groups'));
+        return view('group', compact('groups', 'filter'));
     }
 
     public function add(Request $request) {
