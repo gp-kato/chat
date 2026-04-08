@@ -18,6 +18,9 @@ class GroupController extends Controller
 
     public function index(Request $request) {
         $user = Auth::user();
+<<<<<<< HEAD
+        $groups = Group::whereNull('archived_at')->withExists(['users as is_joined' => function ($query) use ($user) {
+=======
         $filter = $request->query('filter');
 
         $query = Group::query();
@@ -39,6 +42,7 @@ class GroupController extends Controller
         }
 
         $groups = $query->withExists(['users as is_joined' => function ($query) use ($user) {
+>>>>>>> master
             $query->where('users.id', $user->id)
             ->whereNull('left_at')
             ->whereNotNull('joined_at');
@@ -58,6 +62,15 @@ class GroupController extends Controller
         ]);
 
         $group->users()->attach(Auth::id(), ['role' => 'admin', 'joined_at' => now()]);
+
+        return redirect()->route('groups.index');
+    }
+
+    public function archive(Group $group) {
+        $this->authorize('admin', $group);
+
+        $group->archived_at = now();
+        $group->save();
 
         return redirect()->route('groups.index');
     }

@@ -16,6 +16,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('groups')->name('groups.')->group(function () {
         Route::get('/', [GroupController::class, 'index'])->name('index');
         Route::post('/', [GroupController::class, 'add'])->name('add');
+        Route::put('{group}/archive', [GroupController::class, 'archive'])->name('archive');
         Route::put('/{group}/edit', [GroupController::class, 'update'])->name('update');
         Route::get('/{group}/edit', [GroupController::class, 'edit'])->name('edit');
 

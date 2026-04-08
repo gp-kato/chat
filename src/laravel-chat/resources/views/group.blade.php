@@ -32,7 +32,7 @@
                     <tr>
                         <th>チャット名</th>
                         <th>説明</th>
-                        <th>操作</th>
+                        <th colspan="2">操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -42,7 +42,7 @@
                                 <a href="{{ route('groups.messages.show', [$group->id]) }}">{{ $group->name }}</a>
                             </td>
                             <td>{{ $group->description }}</td>
-                            <td>
+                            <td colspan="2">
                                 @if ($group->is_joined)
                                     <form action="{{ route('groups.members.leave', $group->id) }}" method="POST" style="display:inline;">
                                         @csrf
