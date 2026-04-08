@@ -13,6 +13,20 @@
         @endforeach
         <h1>Group Chat</h1>
         <div id="messages" class="chat-list">
+            <a href="{{ route('groups.index', ['filter' => 'joined']) }}"
+                class="{{ $filter === 'joined' ? 'active' : '' }}">
+                参加中
+            </a>
+
+            <a href="{{ route('groups.index', ['filter' => 'not_joined']) }}"
+                class="{{ $filter === 'not_joined' ? 'active' : '' }}">
+                未参加
+            </a>
+
+            <a href="{{ route('groups.index') }}"
+                class="{{ empty($filter) ? 'active' : '' }}">
+                全体
+            </a>
             <table>
                 <thead>
                     <tr>
