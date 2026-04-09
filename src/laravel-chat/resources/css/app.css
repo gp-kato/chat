@@ -101,13 +101,8 @@ td {
     visibility: visible;
     animation: fadein 0.5s, fadeout 0.5s 2.5s;
 }
-<<<<<<< HEAD
-.btn-warning {
-    margin: 40px auto;
-=======
 a.active {
     font-weight: bold;
     pointer-events: none;
     cursor: default;
->>>>>>> master
 }
