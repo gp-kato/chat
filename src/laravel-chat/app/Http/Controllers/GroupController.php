@@ -18,12 +18,14 @@ class GroupController extends Controller
 
     public function index(Request $request) {
         $user = Auth::user();
-<<<<<<< HEAD
-        $groups = Group::whereNull('archived_at')->withExists(['users as is_joined' => function ($query) use ($user) {
-=======
         $filter = $request->query('filter');
 
-        $query = Group::query();
+        $query = Group::query()->whereNull('archived_at')
+            ->withExists(['users as is_joined' => function ($q) use ($user) {
+                $q->where('users.id', $user->id)
+                    ->whereNull('left_at')
+                    ->whereNotNull('joined_at');
+            }]);
 
         if ($filter === 'joined') {
             $query->whereHas('users', function ($q) use ($user) {
@@ -41,15 +43,10 @@ class GroupController extends Controller
             });
         }
 
-        $groups = $query->withExists(['users as is_joined' => function ($query) use ($user) {
->>>>>>> master
-            $query->where('users.id', $user->id)
-            ->whereNull('left_at')
-            ->whereNotNull('joined_at');
-        }])->get();
+        $groups = $query->get();
+
         return view('group', compact('groups', 'filter'));
     }
-
     public function add(Request $request) {
         $request->validate([
             'name' => 'required|string|max:10',
