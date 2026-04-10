@@ -106,3 +106,6 @@ a.active {
     pointer-events: none;
     cursor: default;
 }
+.btn-warning {
+    margin: 40px auto;
+}
