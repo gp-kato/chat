@@ -49,7 +49,7 @@ class MemberController extends Controller
             return back()->with('info', 'グループに参加していません');
         }
         try {
-            $service->remove($group, $user);
+            $service->leave($group, $user);
 
             return back()->with('success', 'グループから退会しました');
 
@@ -67,7 +67,7 @@ class MemberController extends Controller
         }
         $this->authorize('admin', $group);
         try {
-            $service->leave($group, $user);
+            $service->remove($group, $user);
 
             return back()->with('success', 'グループから退会させました');
         } catch (\App\Exceptions\Domain\LastAdminException $e) {
