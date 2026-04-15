@@ -13,18 +13,6 @@ class GroupMemberService
         private GroupAdminService $adminService
     ) {}
 
-    public function demote(Group $group, User $actor, User $target): void
-    {
-        DB::transaction(function () use ($group, $target) {
-
-            $this->adminService->ensureNotLastAdmin($group, $target);
-
-            $group->users()->updateExistingPivot($target->id, [
-                'role' => 'member',
-            ]);
-        });
-    }
-
     public function leave(Group $group, User $user): void
     {
         DB::transaction(function () use ($group, $user) {
