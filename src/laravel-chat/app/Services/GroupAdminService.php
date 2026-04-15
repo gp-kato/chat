@@ -11,7 +11,7 @@ class GroupAdminService
     public function ensureNotLastAdmin(Group $group, User $target): void
     {
         // 対象がadminでなければチェック不要
-        if (!$this->isAdmin($group, $target)) {
+        if (!$group->isAdmin($target)) {
             return;
         }
 
@@ -30,13 +30,5 @@ class GroupAdminService
             ->wherePivotNotNull('joined_at')
             ->lockForUpdate()
             ->count();
-    }
-
-    public function isAdmin(Group $group, User $user): bool
-    {
-        return $group->users()
-            ->where('users.id', $user->id)
-            ->wherePivot('role', 'admin')
-            ->exists();
     }
 }
