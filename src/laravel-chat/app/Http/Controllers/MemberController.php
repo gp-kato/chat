@@ -98,4 +98,41 @@ class MemberController extends Controller
         ]);
         return redirect()->back()->with('success', '管理権を与えました');
     }
+
+    public function demote(Group $group) {
+        $this->authorize('admin', $group);
+        $user = Auth::user();
+
+        try {
+            $result = DB::transaction(function () use ($group, $user) {
+                if ($group->isAdmin($user)) {
+                    $adminCount = $group->users()
+                        ->wherePivot('left_at', null)
+                        ->wherePivot('role', 'admin')
+                        ->wherePivotNotNull('joined_at') // 参加済みの確認
+                        ->lockForUpdate() // 占有ロック
+                        ->count();
+                    if ($adminCount <= 1) {
+                        return ['success' => false, 'reason' => 'last_admin'];
+                    }
+                }
+                // 降格処理
+                $group->users()->updateExistingPivot($user->id, [
+                    'role' => 'member',
+                ]);
+                return ['success' => true];
+            });
+            // トランザクション完了後に結果のHTTPレスポンスを返す
+            if ($result['success']) {
+                return redirect()->route('groups.index')->with('success', '管理者から降格しました');
+            } else {
+                if ($result['reason'] === 'last_admin') {
+                    return redirect()->back()->with('error', '管理者が1人しかいないため、降格できません。');
+                }
+                return redirect()->back()->with('error', '降格処理に失敗しました');
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', '降格処理中にエラーが発生しました');
+        }
+    }
 }
