@@ -36,4 +36,10 @@ class GroupMemberService
             ]);
         });
     }
+
+    public function remove(Group $group, User $user) {
+        $group->users()->updateExistingPivot($user->id, [
+            'left_at' => now(),
+        ]);
+    }
 }

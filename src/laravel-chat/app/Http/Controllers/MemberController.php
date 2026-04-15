@@ -49,7 +49,7 @@ class MemberController extends Controller
             return back()->with('info', 'グループに参加していません');
         }
         try {
-            $service->leave($group, $user);
+            $service->remove($group, $user);
 
             return back()->with('success', 'グループから退会しました');
 
@@ -61,15 +61,20 @@ class MemberController extends Controller
         }
     }
 
-    public function remove(Group $group, User $user) {
+    public function remove(Group $group, User $user, GroupMemberService $service) {
         if (!$group->isActiveMember($user)) {
             return redirect()->back()->with('error', 'このユーザーは既に退会済みです');
         }
         $this->authorize('admin', $group);
-        $group->users()->updateExistingPivot($user->id, [
-            'left_at' => now(),
-        ]);
-        return redirect()->back()->with('success', 'グループから退会させました');
+        try {
+            $service->leave($group, $user);
+
+            return back()->with('success', 'グループから退会させました');
+        } catch (\App\Exceptions\Domain\LastAdminException $e) {
+            return back()->with('error', '管理者が1人しかいないため、退会できません。');
+        } catch (\Throwable $e) {
+            return back()->with('error', '退会処理中にエラーが発生しました');
+        }
     }
 
     public function transfer(Group $group, User $user) {
