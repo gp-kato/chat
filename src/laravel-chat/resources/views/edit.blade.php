@@ -130,6 +130,12 @@
                         @endforeach
                     </tbody>
                 </table>
+                <form action="{{ route('groups.members.demote', $group->id) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <button type="submit" class="btn btn-warning bg-blue-500 px-4 py-2"
+                    onclick="return confirm('本当にこのグループの管理者をやめますか？');">管理者を降格</button>
+                </form>
             </div>
         </ul>
     </div>
