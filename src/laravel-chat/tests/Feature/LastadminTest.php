@@ -41,6 +41,31 @@ class LastadminTest extends TestCase
 
         $response = $this->delete(route('groups.members.leave', $this->group->id));
 
+        $this->assertAuthenticated();
+        $response->assertRedirect();
+        $response->assertSessionHas('error', '管理者が1人しかいないため、退会できません。');
+
+        $this->assertDatabaseHas('group_user', [
+            'group_id' => $this->group->id,
+            'user_id'  => $this->user->id,
+            'role'     => 'admin',
+            'left_at'  => null,
+        ]);
+    }
+
+    public function test_cannot_remove_admin(): void
+    {
+        $this->actingAs($this->user);
+        $this->adminGroup($this->user, $this->group);
+
+        $response = $this->delete(
+            route('groups.members.remove', [
+                'group' => $this->group->id,
+                'user'  => $this->user->id,
+            ])
+        );
+
+        $this->assertAuthenticated();
         $response->assertRedirect();
         $response->assertSessionHas('error', '管理者が1人しかいないため、退会できません。');
 
