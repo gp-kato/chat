@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Models\User;
 use App\Models\Group;
+use App\Services\GroupMemberService;
 use Illuminate\Support\Facades\DB;
 
 class MemberController extends Controller
@@ -42,53 +43,38 @@ class MemberController extends Controller
         return redirect()->route('groups.index')->with('success', 'グループに参加しました');
     }
 
-    public function leave(Group $group) {
+    public function leave(Group $group, GroupMemberService $service) {
         $user = Auth::user();
         if (!$group->isActiveMember($user)) {
-            return redirect()->back()->with('info', 'グループに参加していません');
+            return back()->with('info', 'グループに参加していません');
         }
         try {
-            $result = DB::transaction(function () use ($group, $user) {
-                if ($group->isAdmin($user)) {
-                    $adminCount = $group->users()
-                        ->wherePivot('left_at', null)
-                        ->wherePivot('role', 'admin')
-                        ->wherePivotNotNull('joined_at') // 参加済みの確認
-                        ->lockForUpdate() // 占有ロック
-                        ->count();
-                    if ($adminCount <= 1) {
-                        return ['success' => false, 'reason' => 'last_admin'];
-                    }
-                }
-                // 退会処理
-                $group->users()->updateExistingPivot($user->id, [
-                    'left_at' => now(),
-                ]);
-                return ['success' => true];
-            });
-            // トランザクション完了後に結果のHTTPレスポンスを返す
-            if ($result['success']) {
-                return redirect()->back()->with('success', 'グループから退会しました');
-            } else {
-                if ($result['reason'] === 'last_admin') {
-                    return redirect()->back()->with('error', '管理者が1人しかいないため、退会できません。');
-                }
-                return redirect()->back()->with('error', '退会処理に失敗しました');
-            }
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', '退会処理中にエラーが発生しました');
+            $service->leave($group, $user);
+
+            return back()->with('success', 'グループから退会しました');
+
+        } catch (\App\Exceptions\Domain\LastAdminException $e) {
+            return back()->with('error', '管理者が1人しかいないため、退会できません。');
+
+        } catch (\Throwable $e) {
+            return back()->with('error', '退会処理中にエラーが発生しました');
         }
     }
 
-    public function remove(Group $group, User $user) {
+    public function remove(Group $group, User $user, GroupMemberService $service) {
         if (!$group->isActiveMember($user)) {
             return redirect()->back()->with('error', 'このユーザーは既に退会済みです');
         }
         $this->authorize('admin', $group);
-        $group->users()->updateExistingPivot($user->id, [
-            'left_at' => now(),
-        ]);
-        return redirect()->back()->with('success', 'グループから退会させました');
+        try {
+            $service->remove($group, $user);
+
+            return back()->with('success', 'グループから退会させました');
+        } catch (\App\Exceptions\Domain\LastAdminException $e) {
+            return back()->with('error', '管理者が1人しかいないため、退会できません。');
+        } catch (\Throwable $e) {
+            return back()->with('error', '退会処理中にエラーが発生しました');
+        }
     }
 
     public function transfer(Group $group, User $user) {
