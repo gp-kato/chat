@@ -34,4 +34,34 @@ class ensureNotLastAdminTest extends TestCase
             'role' => 'admin',
         ]);
     }
+
+    public function test_last_admin_cannot_leave(): void
+    {
+        $this->actingAs($this->user);
+        $this->adminGroup($this->user, $this->group);
+
+        $service = app(GroupMemberService::class);
+
+        $this->expectException(LastAdminException::class);
+
+        $service->leave($this->group, $this->user);
+    }
+
+    public function test_admin_can_leave_if_multiple_admins(): void
+    {
+        $this->actingAs($this->user);
+        $this->adminGroup($this->user, $this->group);
+
+        $anotheradmin = User::factory()->create();
+        $this->adminGroup($anotheradmin, $this->group);
+
+        $service = app(GroupMemberService::class);
+
+        $service->leave($this->group, $this->user);
+
+        $this->assertDatabaseHas('group_user', [
+            'user_id' => $this->user->id,
+            'left_at' => now(),
+        ]);
+    }
 }
