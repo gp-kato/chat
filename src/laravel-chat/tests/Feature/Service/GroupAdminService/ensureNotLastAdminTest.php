@@ -85,7 +85,7 @@ class ensureNotLastAdminTest extends TestCase
     public function test_pass_when_multiple_admins(): void
     {
         $group = $this->group;
-        $admin1 = $this->user;
+        $admin = $this->user;
 
         $this->actingAs($this->user);
         $this->adminGroup($this->user, $this->group);
@@ -93,13 +93,11 @@ class ensureNotLastAdminTest extends TestCase
         $anotheradmin = User::factory()->create();
         $this->adminGroup($anotheradmin, $this->group);
 
-        $admin2 = $anotheradmin;
-
         $service = app(\App\Services\GroupAdminService::class);
 
         // 例外が出ないこと
-        DB::transaction(function () use ($service, $group, $admin1) {
-            $service->ensureNotLastAdmin($group, $admin1);
+        DB::transaction(function () use ($service, $group, $admin) {
+            $service->ensureNotLastAdmin($group, $admin);
         });
 
         $this->assertTrue(true);
