@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Service\GroupAdminService;
+namespace Tests\Feature\Service\GroupGroupMemberService;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -11,7 +11,7 @@ use App\Models\Group;
 use App\Services\GroupMemberService;
 use App\Exceptions\Domain\LastAdminException;
 
-class ensureNotLastAdminTest extends TestCase
+class LeaveTest extends TestCase
 {
     use RefreshDatabase;
 
