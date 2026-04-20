@@ -110,6 +110,8 @@ class ensureNotLastAdminTest extends TestCase
         $this->actingAs($this->user);
         $this->leftadminGroup($this->user, $this->group);
 
+        $group = $this->group;
+
         $activeadmin = User::factory()->create();
         $this->adminGroup($activeadmin, $this->group);
 
@@ -117,6 +119,8 @@ class ensureNotLastAdminTest extends TestCase
 
         $this->expectException(\App\Exceptions\Domain\LastAdminException::class);
 
-        $service->ensureNotLastAdmin($this->group, $activeadmin);
+        DB::transaction(function () use ($service, $group, $activeadmin) {
+            $service->ensureNotLastAdmin($group, $activeadmin);
+        });
     }
 }
