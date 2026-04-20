@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Service\GroupGroupMemberService;
+namespace Tests\Feature\Service\GroupMemberService;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
