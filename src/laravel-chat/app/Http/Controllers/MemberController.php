@@ -72,7 +72,9 @@ class MemberController extends Controller
 
         $this->authorize('admin', $group);
         try {
-            $service->remove($group, $user);
+            DB::transaction(function () use ($group, $user, $service) {
+                $service->remove($group, $user);
+            });
 
             return back()->with('success', 'グループから退会させました');
         } catch (\App\Exceptions\Domain\LastAdminException $e) {
