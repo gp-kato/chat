@@ -65,6 +65,11 @@ class MemberController extends Controller
         if (!$group->isActiveMember($user)) {
             return redirect()->back()->with('error', 'このユーザーは既に退会済みです');
         }
+
+        if ($group->isAdmin($user)) {
+            return redirect()->back()->with('error', '管理者同士では退会出来ません');
+        }
+
         $this->authorize('admin', $group);
         try {
             $service->remove($group, $user);
