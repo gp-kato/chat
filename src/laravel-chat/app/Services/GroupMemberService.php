@@ -26,6 +26,10 @@ class GroupMemberService
     }
 
     public function remove(Group $group, User $user) {
+        if ($group->isAdmin($user)) {
+            throw new \DomainException('管理者同士では退会出来ません');
+        }
+
         DB::transaction(function () use ($group, $user) {
             $this->adminService->ensureNotLastAdmin($group, $user);
 

@@ -66,10 +66,6 @@ class MemberController extends Controller
             return redirect()->back()->with('error', 'このユーザーは既に退会済みです');
         }
 
-        if ($group->isAdmin($user)) {
-            return redirect()->back()->with('error', '管理者同士では退会出来ません');
-        }
-
         $this->authorize('admin', $group);
         try {
             DB::transaction(function () use ($group, $user, $service) {
@@ -79,6 +75,8 @@ class MemberController extends Controller
             return back()->with('success', 'グループから退会させました');
         } catch (\App\Exceptions\Domain\LastAdminException $e) {
             return back()->with('error', '管理者が1人しかいないため、退会できません。');
+        } catch (\DomainException $e) {
+            return back()->with('error', $e->getMessage());
         } catch (\Throwable $e) {
             return back()->with('error', '退会処理中にエラーが発生しました');
         }
