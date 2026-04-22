@@ -35,6 +35,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::delete('/me', [MemberController::class, 'leave'])->name('leave');
                 Route::delete('/{user}', [MemberController::class, 'remove'])->name('remove');
                 Route::put('/{user}/transfer', [MemberController::class, 'transfer'])->name('transfer');
+                Route::put('/demote', [MemberController::class, 'demote'])->name('demote');
             });
 
             // 招待管理

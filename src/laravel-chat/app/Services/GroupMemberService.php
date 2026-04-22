@@ -34,4 +34,14 @@ class GroupMemberService
             ]);
         });
     }
+
+    public function demote(Group $group, User $user) {
+        DB::transaction(function () use ($group, $user) {
+            $this->adminService->ensureNotLastAdmin($group, $user);
+
+            $group->users()->updateExistingPivot($user->id, [
+                'role' => 'member',
+            ]);
+        });
+    }
 }

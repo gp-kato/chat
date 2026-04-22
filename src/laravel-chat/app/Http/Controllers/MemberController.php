@@ -84,4 +84,19 @@ class MemberController extends Controller
         ]);
         return redirect()->back()->with('success', '管理権を与えました');
     }
+
+    public function demote(Group $group, GroupMemberService $service) {
+        $this->authorize('admin', $group);
+        $user = Auth::user();
+
+        try {
+            $service->demote($group, $user);
+
+            return redirect()->route('groups.index')->with('success', '管理者から降格しました');
+        } catch (\App\Exceptions\Domain\LastAdminException $e) {
+            return redirect()->back()->with('error', '管理者が1人しかいないため、降格できません。');
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', '降格処理中にエラーが発生しました');
+        }
+    }
 }
