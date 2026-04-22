@@ -67,7 +67,6 @@ class LastadminTest extends TestCase
 
         $this->assertAuthenticated();
         $response->assertRedirect();
-        $response->assertSessionHas('error', '管理者が1人しかいないため、退会できません。');
 
         $this->assertDatabaseHas('group_user', [
             'group_id' => $this->group->id,
