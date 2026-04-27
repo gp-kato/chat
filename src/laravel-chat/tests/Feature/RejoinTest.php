@@ -60,6 +60,7 @@ class RejoinTest extends TestCase
             'user_id' => $this->user->id,
             'group_id' => $this->group->id,
             'role' => 'member',
+            'left_at' => null,
         ]);
 
         $this->assertEquals(1, DB::table('group_user')
