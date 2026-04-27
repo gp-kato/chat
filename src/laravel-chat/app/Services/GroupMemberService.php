@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Group;
 use App\Models\User;
 use App\Services\GroupAdminService;
+use App\Exceptions\Domain\LastAdminException;
 use Illuminate\Support\Facades\DB;
 
 class GroupMemberService
@@ -25,15 +26,15 @@ class GroupMemberService
         });
     }
 
-    public function remove(Group $group, User $user) {
-        if ($group->isAdmin($user)) {
-            throw new \DomainException('管理者同士では退会出来ません');
+    public function remove(Group $group, User $actor, User $target): void{
+        if ($group->isAdmin($actor) && $group->isAdmin($target)) {
+            throw new \App\Exceptions\Domain\LastAdminException('管理者同士では退会出来ません');
         }
 
-        DB::transaction(function () use ($group, $user) {
-            $this->adminService->ensureNotLastAdmin($group, $user);
+        DB::transaction(function () use ($group, $target) {
+            $this->adminService->ensureNotLastAdmin($group, $target);
 
-            $group->users()->updateExistingPivot($user->id, [
+            $group->users()->updateExistingPivot($target->id, [
                 'left_at' => now(),
             ]);
         });

@@ -69,7 +69,7 @@ class MemberController extends Controller
         $this->authorize('admin', $group);
         try {
             DB::transaction(function () use ($group, $user, $service) {
-                $service->remove($group, $user);
+                $service->remove($group, Auth::user(), $user);
             });
 
             return back()->with('success', 'グループから退会させました');
