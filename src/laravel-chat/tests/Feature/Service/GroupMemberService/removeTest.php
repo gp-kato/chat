@@ -72,4 +72,19 @@ class RemoveTest extends TestCase
             'left_at' => now(),
         ]);
     }
+
+    public function test_cannot_remove_admin(): void
+    {
+        $this->actingAs($this->user);
+        $this->adminGroup($this->user, $this->group);
+
+        $target = User::factory()->create();
+        $this->adminGroup($target, $this->group);
+
+        $service = app(GroupMemberService::class);
+
+        $this->expectException(LastAdminException::class);
+
+        $service->remove($this->group, $this->user, $target);
+    }
 }
