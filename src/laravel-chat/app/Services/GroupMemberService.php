@@ -26,8 +26,8 @@ class GroupMemberService
         });
     }
 
-    public function remove(Group $group, User $actor, User $target): void{
-        if ($group->isAdmin($actor) && $group->isAdmin($target)) {
+    public function remove(Group $group, User $target): void{
+        if ($group->isAdmin($target)) {
             throw new \App\Exceptions\Domain\LastAdminException('管理者同士では退会出来ません');
         }
 

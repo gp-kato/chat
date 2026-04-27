@@ -52,7 +52,7 @@ class RemoveTest extends TestCase
 
         $this->expectException(LastAdminException::class);
 
-        $service->remove($this->group, $this->user, $this->user);
+        $service->remove($this->group, $this->user);
     }
 
     public function test_admin_can_remove_member(): void
@@ -65,7 +65,7 @@ class RemoveTest extends TestCase
 
         $service = app(GroupMemberService::class);
 
-        $service->remove($this->group, $this->user, $target);
+        $service->remove($this->group, $target);
 
         $this->assertDatabaseHas('group_user', [
             'user_id' => $target->id,
@@ -85,6 +85,6 @@ class RemoveTest extends TestCase
 
         $this->expectException(LastAdminException::class);
 
-        $service->remove($this->group, $this->user, $target);
+        $service->remove($this->group, $target);
     }
 }
