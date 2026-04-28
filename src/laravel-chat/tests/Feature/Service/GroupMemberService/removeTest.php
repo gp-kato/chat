@@ -50,7 +50,7 @@ class RemoveTest extends TestCase
 
         $service = app(GroupMemberService::class);
 
-        $this->expectException(LastAdminException::class);
+        $this->expectException(\DomainException::class);
 
         $service->remove($this->group, $this->user);
     }
@@ -83,7 +83,7 @@ class RemoveTest extends TestCase
 
         $service = app(GroupMemberService::class);
 
-        $this->expectException(LastAdminException::class);
+        $this->expectException(\DomainException::class);
 
         $service->remove($this->group, $target);
     }

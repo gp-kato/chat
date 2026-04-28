@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\Group;
 use App\Models\User;
 use App\Services\GroupAdminService;
-use App\Exceptions\Domain\LastAdminException;
 use Illuminate\Support\Facades\DB;
 
 class GroupMemberService
@@ -28,7 +27,7 @@ class GroupMemberService
 
     public function remove(Group $group, User $target): void{
         if ($group->isAdmin($target)) {
-            throw new \App\Exceptions\Domain\LastAdminException('管理者同士では退会出来ません');
+            throw new \DomainException('管理者同士では退会出来ません');
         }
 
         DB::transaction(function () use ($group, $target) {
