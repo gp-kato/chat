@@ -36,7 +36,8 @@ class MemberController extends Controller
             $group->users()->syncWithoutDetaching([
                 $user->id => [
                     'joined_at' => now(),
-                    'left_at' => null
+                    'left_at' => null,
+                    'role' => 'member'
                 ]
             ]);
         });
