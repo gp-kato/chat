@@ -44,6 +44,25 @@ class MemberController extends Controller
         return redirect()->route('groups.index')->with('success', 'グループに参加しました');
     }
 
+    public function application(Group $group) {
+        $this->authorize('admin', $group);
+
+        $user = Auth::user();
+
+        if ($group->isJoinedBy($user)) {
+            return redirect()->back()->with('info', '既にグループに参加しています');
+        }
+
+        DB::transaction(function () use ($group, $user) {
+            $group->users()->syncWithoutDetaching([
+                $user->id => [
+                    'role' => 'applicant'
+                ]
+            ]);
+        });
+        return redirect()->route('groups.index')->with('success', 'グループに参加しました申請を送りました');
+    }
+
     public function leave(Group $group, GroupMemberService $service) {
         $user = Auth::user();
         if (!$group->isActiveMember($user)) {

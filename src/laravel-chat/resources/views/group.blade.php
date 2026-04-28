@@ -50,7 +50,10 @@
                                         <button type="submit" class="btn btn-danger">退会</button>
                                     </form>
                                 @else
-                                    <p>ー</p>
+                                    <form action="{{ route('groups.members.application', $group->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        <button type="submit" class="btn btn-primary">参加申請</button>
+                                    </form>
                                 @endif
                             </td>
                         </tr>
