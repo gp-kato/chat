@@ -25,11 +25,15 @@ class GroupMemberService
         });
     }
 
-    public function remove(Group $group, User $user) {
-        DB::transaction(function () use ($group, $user) {
-            $this->adminService->ensureNotLastAdmin($group, $user);
+    public function remove(Group $group, User $target): void{
+        if ($group->isAdmin($target)) {
+            throw new \DomainException('管理者同士では退会出来ません');
+        }
 
-            $group->users()->updateExistingPivot($user->id, [
+        DB::transaction(function () use ($group, $target) {
+            $this->adminService->ensureNotLastAdmin($group, $target);
+
+            $group->users()->updateExistingPivot($target->id, [
                 'left_at' => now(),
             ]);
         });

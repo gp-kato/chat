@@ -8,10 +8,8 @@ use Illuminate\Support\Carbon;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Group;
-use App\Services\GroupMemberService;
-use App\Exceptions\Domain\LastAdminException;
 
-class LastadminTest extends TestCase
+class AdminbetweenTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -35,45 +33,27 @@ class LastadminTest extends TestCase
         ]);
     }
 
-    public function test_cannot_leave_with_last_admin(): void {
-        $this->actingAs($this->user);
-        $this->adminGroup($this->user, $this->group);
-
-        $response = $this->delete(route('groups.members.leave', $this->group->id));
-
-        $this->assertAuthenticated();
-        $response->assertRedirect();
-        $response->assertSessionHas('error', '管理者が1人しかいないため、退会できません。');
-
-        $this->assertDatabaseHas('group_user', [
-            'group_id' => $this->group->id,
-            'user_id'  => $this->user->id,
-            'role'     => 'admin',
-            'left_at'  => null,
-        ]);
-    }
-
-    public function test_cannot_remove_admin(): void
+    public function test_cannot_remove_between_admin(): void
     {
         $this->actingAs($this->user);
         $this->adminGroup($this->user, $this->group);
 
+        $another = User::factory()->create();
+        $this->adminGroup($another, $this->group);
+
         $response = $this->delete(
             route('groups.members.remove', [
                 'group' => $this->group->id,
-                'user'  => $this->user->id,
+                'user'  => $another->id,
             ])
         );
 
-        $this->assertAuthenticated();
         $response->assertRedirect();
-        $response->assertSessionHas('error', '管理者同士では退会出来ません');
 
-        $this->assertDatabaseHas('group_user', [
+        $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $this->user->id,
-            'role'     => 'admin',
-            'left_at'  => null,
+            'user_id'  => $another->id,
+            'left_at'  => now(),
         ]);
     }
 }

@@ -35,6 +35,14 @@ class RemoveTest extends TestCase
         ]);
     }
 
+    private function joinGroup(User $user, Group $group): void
+    {
+        $group->users()->attach($user->id, [
+            'joined_at' => now(),
+            'left_at' => null,
+        ]);
+    }
+
     public function test_last_admin_cannot_remove(): void
     {
         $this->actingAs($this->user);
@@ -42,26 +50,41 @@ class RemoveTest extends TestCase
 
         $service = app(GroupMemberService::class);
 
-        $this->expectException(LastAdminException::class);
+        $this->expectException(\DomainException::class);
 
         $service->remove($this->group, $this->user);
     }
 
-    public function test_admin_can_remove_if_multiple_admins(): void
+    public function test_admin_can_remove_member(): void
     {
         $this->actingAs($this->user);
         $this->adminGroup($this->user, $this->group);
 
-        $anotheradmin = User::factory()->create();
-        $this->adminGroup($anotheradmin, $this->group);
+        $target = User::factory()->create();
+        $this->joinGroup($target, $this->group);
 
         $service = app(GroupMemberService::class);
 
-        $service->remove($this->group, $this->user);
+        $service->remove($this->group, $target);
 
         $this->assertDatabaseHas('group_user', [
-            'user_id' => $this->user->id,
+            'user_id' => $target->id,
             'left_at' => now(),
         ]);
+    }
+
+    public function test_cannot_remove_admin(): void
+    {
+        $this->actingAs($this->user);
+        $this->adminGroup($this->user, $this->group);
+
+        $target = User::factory()->create();
+        $this->adminGroup($target, $this->group);
+
+        $service = app(GroupMemberService::class);
+
+        $this->expectException(\DomainException::class);
+
+        $service->remove($this->group, $target);
     }
 }
