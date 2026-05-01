@@ -45,8 +45,6 @@ class MemberController extends Controller
     }
 
     public function application(Group $group) {
-        $this->authorize('admin', $group);
-
         $user = Auth::user();
 
         if ($group->isJoinedBy($user)) {
