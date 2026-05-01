@@ -58,7 +58,7 @@ class MemberController extends Controller
                 ]
             ]);
         });
-        return redirect()->route('groups.index')->with('success', 'グループに参加しました申請を送りました');
+        return redirect()->route('groups.index')->with('success', 'グループに参加申請を送りました');
     }
 
     public function leave(Group $group, GroupMemberService $service) {
