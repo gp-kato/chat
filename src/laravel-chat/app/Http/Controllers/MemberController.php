@@ -85,13 +85,18 @@ class MemberController extends Controller
         if (!$group->isActiveMember($user)) {
             return redirect()->back()->with('error', 'このユーザーは既に退会済みです');
         }
+
         $this->authorize('admin', $group);
         try {
-            $service->remove($group, $user);
+            DB::transaction(function () use ($group, $user, $service) {
+                $service->remove($group, $user);
+            });
 
             return back()->with('success', 'グループから退会させました');
         } catch (\App\Exceptions\Domain\LastAdminException $e) {
             return back()->with('error', '管理者が1人しかいないため、退会できません。');
+        } catch (\DomainException $e) {
+            return back()->with('error', $e->getMessage());
         } catch (\Throwable $e) {
             return back()->with('error', '退会処理中にエラーが発生しました');
         }
