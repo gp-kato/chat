@@ -63,4 +63,10 @@ class Group extends Model
             fn ($user) => $user->pivot->role === 'member'
         )->values();
     }
+
+    public function applicant($activeUsers) {
+        return $activeUsers->filter(
+            fn ($user) => $user->pivot->role === 'applicant'
+        )->values();
+    }
 }

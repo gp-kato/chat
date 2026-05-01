@@ -65,6 +65,14 @@
                                 </td>
                             </tr>
                         @endforeach
+                        @foreach($applicants as $user)
+                            <tr>
+                                <td>
+                                    <p>{{ $user->name }} (申請者)</p>
+                                    <p>{{ $user->email }}</p>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
                 <br>
