@@ -49,6 +49,10 @@
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger">退会</button>
                                     </form>
+                                @elseif ($group->is_applying)
+                                    <button type="button" class="btn btn-secondary" disabled>
+                                        申請中
+                                    </button>
                                 @else
                                     <form action="{{ route('groups.members.application', $group->id) }}" method="POST" style="display:inline;">
                                         @csrf

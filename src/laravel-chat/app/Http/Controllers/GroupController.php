@@ -25,7 +25,12 @@ class GroupController extends Controller
                 $q->where('users.id', $user->id)
                     ->whereNull('left_at')
                     ->whereNotNull('joined_at');
-            }]);
+            },
+
+            'users as is_applying' => function ($q) use ($user) {
+                $q->where('users.id', $user->id)
+                    ->where('role', 'applicant');
+            },]);
 
         if ($filter === 'joined') {
             $query->whereHas('users', function ($q) use ($user) {
