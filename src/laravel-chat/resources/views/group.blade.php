@@ -50,9 +50,12 @@
                                         <button type="submit" class="btn btn-danger">退会</button>
                                     </form>
                                 @elseif ($group->is_applying)
-                                    <button type="button" class="btn btn-secondary" disabled>
-                                        申請中
-                                    </button>
+                                    <p><span class="text-muted">申請中/</span></p>
+                                    <form action="{{ route('groups.members.cancelApplication', $group->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-secondary">申請取消</button>
+                                    </form>
                                 @else
                                     <form action="{{ route('groups.members.application', $group->id) }}" method="POST" style="display:inline;">
                                         @csrf

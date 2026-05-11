@@ -64,9 +64,7 @@ class Group extends Model
         )->values();
     }
 
-    public function applicant($activeUsers) {
-        return $activeUsers->filter(
-            fn ($user) => $user->pivot->role === 'applicant'
-        )->values();
+    public function applicant(User $user) {
+        return $this->users()->wherePivot('role', 'applicant');
     }
 }
