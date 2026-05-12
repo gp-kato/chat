@@ -61,8 +61,8 @@ class MemberController extends Controller
         return redirect()->route('groups.index')->with('success', 'グループに参加申請を送りました');
     }
 
-    public function cancelApplication(Group $group, GroupMemberService $service, User $user) {
-        $service->cancelApplication($group, $user);
+    public function cancelApplication(Group $group, GroupMemberService $service) {
+        $service->cancelApplication($group, Auth::user());
 
         return redirect()->route('groups.index')->with('success', 'グループへの参加申請をキャンセルしました');
     }

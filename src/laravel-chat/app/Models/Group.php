@@ -64,7 +64,11 @@ class Group extends Model
         )->values();
     }
 
-    public function applicant(User $user) {
-        return $this->users()->wherePivot('role', 'applicant');
+    public function applicant(User $user): bool
+    {
+        return $this->users()
+        ->where('users.id', $user->id)
+        ->wherePivot('role', 'applicant')
+        ->exists();
     }
 }
