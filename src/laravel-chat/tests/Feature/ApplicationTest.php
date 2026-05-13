@@ -22,6 +22,13 @@ class ApplicationTest extends TestCase
         $this->group = Group::factory()->create(); // 1回だけグループを作成
     }
 
+    private function applicant(User $user, Group $group): void
+    {
+        $group->users()->attach($user->id, [
+            'role' => 'applicant',
+        ]);
+    }
+
     public function test_application_to_the_join_group(): void
     {
         $this->actingAs($this->user);
@@ -33,6 +40,22 @@ class ApplicationTest extends TestCase
         $response->assertRedirect(route('groups.index', absolute: false));
 
         $this->assertDatabaseHas('group_user', [
+            'role' => 'applicant',
+        ]);
+    }
+
+    public function test_application_cancel(): void
+    {
+        $this->actingAs($this->user);
+        $this->applicant($this->user, $this->group);
+
+        $response = $this->delete(route('groups.members.cancelApplication', $this->group));
+
+        $this->assertAuthenticated();
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect(route('groups.index', absolute: false));
+
+        $this->assertDatabaseMissing('group_user', [
             'role' => 'applicant',
         ]);
     }
