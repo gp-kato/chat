@@ -71,4 +71,10 @@ class Group extends Model
         ->wherePivot('role', 'applicant')
         ->exists();
     }
+
+    public function applicants() {
+        return $this->users()
+            ->wherePivot('role', 'applicant')
+            ->get();
+    }
 }
