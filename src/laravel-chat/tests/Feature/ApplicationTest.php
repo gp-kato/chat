@@ -29,6 +29,15 @@ class ApplicationTest extends TestCase
         ]);
     }
 
+    private function leftadminGroup(User $user, Group $group): void
+    {
+        $group->users()->attach($user->id, [
+            'joined_at' => '2025-04-07 08:30:17',
+            'left_at' => now(),
+            'role' => 'admin',
+        ]);
+    }
+
     public function test_application_to_the_join_group(): void
     {
         $this->actingAs($this->user);
@@ -41,6 +50,23 @@ class ApplicationTest extends TestCase
 
         $this->assertDatabaseHas('group_user', [
             'role' => 'applicant',
+        ]);
+    }
+
+    public function test_application_to_the_join_group_when_leftuser(): void
+    {
+        $this->actingAs($this->user);
+        $this->leftadminGroup($this->user, $this->group);
+
+        $response = $this->post(route('groups.members.application', $this->group));
+
+        $this->assertAuthenticated();
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect(route('groups.index', absolute: false));
+
+        $this->assertDatabaseHas('group_user', [
+            'role' => 'applicant',
+            'left_at' => null,
         ]);
     }
 

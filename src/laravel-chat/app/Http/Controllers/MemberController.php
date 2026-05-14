@@ -54,7 +54,8 @@ class MemberController extends Controller
         DB::transaction(function () use ($group, $user) {
             $group->users()->syncWithoutDetaching([
                 $user->id => [
-                    'role' => 'applicant'
+                    'role' => 'applicant',
+                    'left_at' => null,
                 ]
             ]);
         });
