@@ -24,12 +24,13 @@
                         @method('PUT')
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium mb-1">
+                                <label for="name" class="block text-sm font-medium mb-1">
                                     グループ名
                                 </label>
 
                                 <input type="text"
                                     name="name"
+                                    id="name"
                                     value="{{ old('name', $group->name) }}"
                                     class="w-full border rounded-lg px-3 py-2"
                                     required
@@ -37,12 +38,13 @@
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium mb-1">
+                                <label for="description" class="block text-sm font-medium mb-1">
                                     説明文
                                 </label>
 
                                 <textarea
                                     name="description"
+                                    id="description"
                                     class="w-full border rounded-lg px-3 py-2 h-32"
                                     required
                                 >{{ old('description', $group->description) }}</textarea>
