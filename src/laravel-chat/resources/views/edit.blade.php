@@ -32,6 +32,7 @@
                                     name="name"
                                     value="{{ old('name', $group->name) }}"
                                     class="w-full border rounded-lg px-3 py-2"
+                                    required
                                 >
                             </div>
 
@@ -43,6 +44,7 @@
                                 <textarea
                                     name="description"
                                     class="w-full border rounded-lg px-3 py-2 h-32"
+                                    required
                                 >{{ old('description', $group->description) }}</textarea>
                             </div>
 
