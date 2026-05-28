@@ -101,15 +101,15 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="bg-white rounded-xl shadow border p-6">
+                <div id="search" class="bg-white rounded-xl shadow border p-6">
                     <h1  class="text-3xl font-bold">ユーザーを招待</h1>
-                    <form method="GET" action="{{ route('groups.edit', ['group' => $group->id]) }}" class="mb-4">
+                    <form method="GET" action="{{ route('groups.edit', ['group' => $group->id]) }}#search" class="mb-4">
                         <input type="text" name="query" placeholder="名前またはメールアドレス" value="{{ request('query') }}" class="border p-2 rounded">
                         <button type="submit" class="bg-gray-200 px-4 py-2 rounded">検索</button>
                     </form>
                     @if(request('query'))
                         @if($searchResults->isNotEmpty())
-                            <form method="POST" action="{{ route('groups.invitations.invite', ['group' => $group->id]) }}">
+                            <form method="POST" action="{{ route('groups.invitations.invite', ['group' => $group->id]) }}#invitations">
                                 @csrf
                                 <table class="table-auto w-full">
                                     <thead class="bg-gray-100">
@@ -136,7 +136,7 @@
                         @endif
                     @endif
                 </div>
-                <div class="bg-white rounded-xl shadow border p-6">
+                <div id="invitations" class="bg-white rounded-xl shadow border p-6">
                     <h1  class="text-3xl font-bold">招待管理</h1>
                     <table class="w-full border-collapse">
                         <thead class="bg-gray-100">
@@ -157,7 +157,7 @@
                                         （{{ $invitation->expires_at->format('Y-m-d') }}）
                                     </td>
                                     <td class="p-3">
-                                        <form method="POST" action="{{ route('groups.invitations.resend', ['group' => $group->id, 'invitation' => $invitation->id]) }}">
+                                        <form method="POST" action="{{ route('groups.invitations.resend', ['group' => $group->id, 'invitation' => $invitation->id]) }}#invitations">
                                             @csrf
                                             <button type="submit">再送</button>
                                         </form>
