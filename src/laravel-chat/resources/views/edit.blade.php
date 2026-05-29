@@ -5,14 +5,27 @@
 @section('content')
     <div class="content wrapper">
         <ul>
-            @foreach (['success', 'error'] as $msg)
-                @if (session($msg))
-                    <div class="alert alert-{{ $msg }}">
-                        {{ session($msg) }}
-                    </div>
-                @endif
-            @endforeach
-           <div class="p-6 space-y-8">
+            @if (session('success'))
+                <div
+                    x-data="{ show: true }"
+                    x-show="show"
+                    x-init="setTimeout(() => show = false, 3000)"
+                    x-transition
+                    class="fixed top-5 right-5 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg z-50"
+                >{{ session('success') }}
+                </div>
+            @endif
+            @if (session('error'))
+                <div
+                    x-data="{ show: true }"
+                    x-show="show"
+                    x-init="setTimeout(() => show = false, 5000)"
+                    x-transition
+                    class="fixed top-5 right-5 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg z-50"
+                >{{ session('error') }}
+                </div>
+            @endif
+            <div class="p-6 space-y-8">
                 <h1 class="text-3xl font-bold">{{ $group->name }}の編集</h1>
                 <div class="bg-white rounded-xl shadow border p-6">
                     <h1 class="text-3xl font-bold">グループ基本情報</h1>
