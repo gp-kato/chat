@@ -189,6 +189,7 @@
                         onclick="return confirm('本当にこのグループの管理者をやめますか？');">管理者を降格</button>
                     </form>
                 </div>
+                <a href="{{ route('groups.messages.show', [$group->id]) }}">Back To Chat</a>
             </div>
         </ul>
     </div>
