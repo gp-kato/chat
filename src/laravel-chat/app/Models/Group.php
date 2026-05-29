@@ -17,9 +17,7 @@ class Group extends Model
     private function activeMemberQuery(User $user) {
         return $this->users()
         ->where('user_id', $user->id)
-        ->wherePivotNull('left_at')
-        ->wherePivot('joined_at', '!=', null)
-        ->wherePivot('role', '!=', 'applicant');
+        ->wherePivotNull('left_at');
     }
 
     public function messages() {
