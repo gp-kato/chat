@@ -38,6 +38,14 @@ class ApplicationTest extends TestCase
         ]);
     }
 
+    private function joinGroup(User $user, Group $group): void
+    {
+        $group->users()->attach($user->id, [
+            'joined_at' => now(),
+            'left_at' => null,
+        ]);
+    }
+
     public function test_application_to_the_join_group(): void
     {
         $this->actingAs($this->user);
@@ -67,6 +75,7 @@ class ApplicationTest extends TestCase
         $this->assertDatabaseHas('group_user', [
             'role' => 'applicant',
             'left_at' => null,
+            'joined_at' => null,
         ]);
     }
 
@@ -84,5 +93,16 @@ class ApplicationTest extends TestCase
         $this->assertDatabaseMissing('group_user', [
             'role' => 'applicant',
         ]);
+    }
+
+    public function test_member_cannot_apply(): void
+    {
+        $this->actingAs($this->user);
+        $this->joinGroup($this->user, $this->group);
+
+        $response = $this->post(route('groups.members.application', $this->group));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('info', '既にグループに参加しています');
     }
 }
