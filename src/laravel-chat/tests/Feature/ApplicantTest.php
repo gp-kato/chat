@@ -29,6 +29,18 @@ class ApplicantTest extends TestCase
         ]);
     }
 
+    public function test_applicant_is_not_in_activemembers(): void
+    {
+        $this->actingAs($this->user);
+        $this->applicant($this->user, $this->group);
+
+        $activeMembers = $this->group->isActiveMember($this->user);
+
+        $this->assertFalse(
+            $activeMembers
+        );
+    }
+
     public function test_applicant_is_not_in_activeusers(): void
     {
         $this->actingAs($this->user);
