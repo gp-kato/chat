@@ -95,6 +95,17 @@ class ApplicationTest extends TestCase
         ]);
     }
 
+    public function test_cannot_cancel_application(): void
+    {
+        $this->actingAs($this->user);
+
+        $response = $this->delete(route('groups.members.cancelApplication', $this->group));
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('groups.index', absolute: false));
+        $response->assertSessionHas('error', 'グループに参加申請していません');
+    }
+
     public function test_member_cannot_apply(): void
     {
         $this->actingAs($this->user);

@@ -64,8 +64,13 @@ class MemberController extends Controller
     }
 
     public function cancelApplication(Group $group, GroupMemberService $service) {
-        $service->cancelApplication($group, Auth::user());
-
+        try {
+            $service->cancelApplication($group, Auth::user());
+        } catch (\DomainException $e) {
+            return redirect()->route('groups.index')->with('error', $e->getMessage());
+        } catch (\Throwable $e) {
+            return redirect()->route('groups.index')->with('error', '参加申請のキャンセル中にエラーが発生しました');
+        }
         return redirect()->route('groups.index')->with('success', 'グループへの参加申請をキャンセルしました');
     }
 
