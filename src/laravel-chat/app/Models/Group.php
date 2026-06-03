@@ -69,7 +69,7 @@ class Group extends Model
         )->values();
     }
 
-    public function applicant(User $user): bool
+    public function isApplicant(User $user): bool
     {
         return $this->users()
         ->where('users.id', $user->id)

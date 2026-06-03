@@ -50,7 +50,7 @@ class GroupMemberService
     }
 
     public function cancelApplication(Group $group, User $user) {
-        if (!$group->applicant($user)) {
+        if (!$group->isApplicant($user)) {
             throw new \DomainException('グループに参加申請していません');
         }
 
