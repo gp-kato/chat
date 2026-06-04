@@ -32,6 +32,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             // メンバー管理
             Route::prefix('members')->name('members.')->group(function () {
                 Route::post('/', [MemberController::class, 'join'])->name('join');
+                Route::post('/application', [MemberController::class, 'application'])->name('application');
+                Route::delete('/cancel', [MemberController::class, 'cancelApplication'])->name('cancelApplication');
                 Route::delete('/me', [MemberController::class, 'leave'])->name('leave');
                 Route::delete('/{user}', [MemberController::class, 'remove'])->name('remove');
                 Route::put('/{user}/transfer', [MemberController::class, 'transfer'])->name('transfer');

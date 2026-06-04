@@ -111,6 +111,7 @@
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger">退会</button>
                                         </form>
+<<<<<<< HEAD
                                         @if($user->pivot->role !== 'admin')
                                             <form action="{{ route('groups.members.transfer', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" class="inline">
                                                 @csrf
@@ -136,6 +137,41 @@
                                 @csrf
                                 <table class="table-auto w-full">
                                     <thead class="bg-gray-100">
+=======
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                        @foreach($applicants as $user)
+                            <tr>
+                                <td>
+                                    <p>{{ $user->name }} (申請者)</p>
+                                    <p>{{ $user->email }}</p>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                <br>
+                <form method="GET" action="{{ route('groups.edit', ['group' => $group->id]) }}" class="mb-4">
+                    <input type="text" name="query" placeholder="名前またはメールアドレス" value="{{ request('query') }}" class="border p-2 rounded">
+                    <button type="submit" class="bg-gray-200 px-4 py-2 rounded">検索</button>
+                </form>
+                @if(request('query'))
+                    @if($searchResults->isNotEmpty())
+                        <form method="POST" action="{{ route('groups.invitations.invite', ['group' => $group->id]) }}">
+                            @csrf
+                            <table class="table-auto w-full">
+                                <thead>
+                                    <tr>
+                                        <th>選択</th>
+                                        <th>名前</th>
+                                        <th>メールアドレス</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($searchResults as $user)
+>>>>>>> master
                                         <tr>
                                             <th class="p-3">選択</th>
                                             <th class="p-3">名前</th>

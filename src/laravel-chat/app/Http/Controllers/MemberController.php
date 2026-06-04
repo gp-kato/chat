@@ -44,6 +44,36 @@ class MemberController extends Controller
         return redirect()->route('groups.index')->with('success', 'グループに参加しました');
     }
 
+    public function application(Group $group) {
+        $user = Auth::user();
+
+        if ($group->isJoinedBy($user)) {
+            return redirect()->back()->with('info', '既にグループに参加しています');
+        }
+
+        DB::transaction(function () use ($group, $user) {
+            $group->users()->syncWithoutDetaching([
+                $user->id => [
+                    'role' => 'applicant',
+                    'joined_at' => null,
+                    'left_at' => null,
+                ]
+            ]);
+        });
+        return redirect()->route('groups.index')->with('success', 'グループに参加申請を送りました');
+    }
+
+    public function cancelApplication(Group $group, GroupMemberService $service) {
+        try {
+            $service->cancelApplication($group, Auth::user());
+        } catch (\DomainException $e) {
+            return redirect()->route('groups.index')->with('error', $e->getMessage());
+        } catch (\Throwable $e) {
+            return redirect()->route('groups.index')->with('error', '参加申請のキャンセル中にエラーが発生しました');
+        }
+        return redirect()->route('groups.index')->with('success', 'グループへの参加申請をキャンセルしました');
+    }
+
     public function leave(Group $group, GroupMemberService $service) {
         $user = Auth::user();
         if (!$group->isActiveMember($user)) {
