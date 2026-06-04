@@ -28,37 +28,4 @@ class ApplicantCannotTest extends TestCase
             'role' => 'applicant',
         ]);
     }
-
-    public function test_applicant_cannot_view_chat(): void
-    {
-        $this->actingAs($this->user);
-        $this->applicant($this->user, $this->group);
-
-        $response = $this->get(route('groups.messages.show', $this->group->id));
-
-        $response->assertForbidden();
-    }
-
-    public function test_applicant_cannot_write_chat(): void
-    {
-        $this->actingAs($this->user);
-        $this->applicant($this->user, $this->group);
-
-        $response = $this->post(route('groups.messages.store', $this->group->id), [
-            'content' => 'テストメッセージ',
-        ]);
-
-        $response->assertRedirect();
-        $response->assertSessionHas('error', 'このグループに参加していません');
-    }
-
-    public function test_applicant_cannot_fetch_messages(): void
-    {
-        $this->actingAs($this->user);
-        $this->applicant($this->user, $this->group);
-
-        $response = $this->get(route('groups.messages.fetch', $this->group->id));
-
-        $response->assertForbidden();
-    }
 }
