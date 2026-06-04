@@ -18,7 +18,8 @@ class Group extends Model
         return $this->users()
         ->where('user_id', $user->id)
         ->wherePivot('role', '!=', 'applicant')
-        ->wherePivotNull('left_at');
+        ->wherePivotNull('left_at')
+        ->wherePivotNotNull('joined_at');
     }
 
     public function messages() {
