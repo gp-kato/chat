@@ -25,6 +25,16 @@
                 >{{ session('error') }}
                 </div>
             @endif
+            @if (session('info'))
+                <div
+                    x-data="{ show: true }"
+                    x-show="show"
+                    x-init="setTimeout(() => show = false, 3000)"
+                    x-transition
+                    class="fixed top-5 right-5 bg-blue-500 text-white px-6 py-4 rounded-lg shadow-lg z-50"
+                >{{ session('info') }}
+                </div>
+            @endif
             <div class="p-6 space-y-8">
                 <h1 class="text-3xl font-bold">{{ $group->name }}の編集</h1>
                 <div class="bg-white rounded-xl shadow border p-6">
