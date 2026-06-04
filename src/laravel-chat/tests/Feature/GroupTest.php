@@ -233,7 +233,7 @@ class GroupTest extends TestCase
     public function test_can_leave_chat_group(): void
     {
         $this->actingAs($this->user);
-        $this->group->users()->attach($this->user->id);
+        $this->joinGroup($this->user, $this->group);
 
         $response = $this->delete(route('groups.members.leave', $this->group->id));
 
