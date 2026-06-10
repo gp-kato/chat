@@ -14,12 +14,16 @@ class Group extends Model
         'description',
     ];
 
-    private function activeMemberQuery(User $user) {
+    private function activeUsersQuery(){
         return $this->users()
-        ->where('user_id', $user->id)
         ->wherePivot('role', '!=', 'applicant')
         ->wherePivotNull('left_at')
         ->wherePivotNotNull('joined_at');
+    }
+
+    private function activeMemberQuery(User $user) {
+        return $this->activeUsersQuery()
+        ->where('users.id', $user->id);
     }
 
     public function messages() {
@@ -37,13 +41,6 @@ class Group extends Model
         return $this->hasMany(Invitation::class);
     }
 
-    public function isJoinedBy(User $user)
-    {
-        return $this->activeMemberQuery($user)
-        ->wherePivotNotNull('joined_at')
-        ->exists();
-    }
-
     public function isActiveMember(User $user)
     {
         return $this->activeMemberQuery($user)->exists();
@@ -52,16 +49,11 @@ class Group extends Model
     public function isAdmin(User $user) {
         return $this->activeMemberQuery($user)
         ->wherePivot('role', 'admin')
-        ->wherePivotNotNull('joined_at')
         ->exists();
     }
 
     public function activeUsers() {
-        return $this->users()
-        ->wherePivot('left_at', null)
-        ->wherePivot('joined_at', '!=', null)
-        ->wherePivot('role', '!=', 'applicant')
-        ->get();
+        return $this->activeUsersQuery()->get();
     }
 
     public function removableUsers($activeUsers) {

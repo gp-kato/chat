@@ -21,7 +21,7 @@ class GroupPolicy
      */
     public function view(User $user, Group $group): bool
     {
-        return $group->isJoinedBy($user);
+        return $group->activeUsers()->contains($user);
     }
 
     public function admin(User $user, Group $group): bool
