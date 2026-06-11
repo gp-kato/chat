@@ -64,7 +64,7 @@ class MessageController extends Controller
 
         $beforeId = $validated['before_id'] ?? null;
 
-        if (!$group->activeUsers()->contains($user)) {
+        if (!$group->isActiveMember($user)) {
             abort(403, 'You are not a member of this group.');
         }
 
