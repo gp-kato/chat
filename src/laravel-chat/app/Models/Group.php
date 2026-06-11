@@ -14,7 +14,7 @@ class Group extends Model
         'description',
     ];
 
-    private function activeUsersQuery(){
+    public function activeUsersQuery(){
         return $this->users()
         ->wherePivot('role', '!=', 'applicant')
         ->wherePivotNull('left_at')

@@ -24,11 +24,8 @@ class GroupAdminService
 
     public function adminCount(Group $group): int
     {
-        return $group->users()
+        return $group->activeUsersQuery()
             ->wherePivot('role', 'admin')
-            ->wherePivotNull('left_at')
-            ->wherePivotNotNull('joined_at')
-            ->lockForUpdate()
             ->count();
     }
 }
