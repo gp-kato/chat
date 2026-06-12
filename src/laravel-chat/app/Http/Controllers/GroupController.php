@@ -20,27 +20,23 @@ class GroupController extends Controller
         $user = Auth::user();
         $filter = $request->query('filter');
 
-        $activeMember = function ($q) use ($user) {
-            $q->where('users.id', $user->id)
-                ->whereNull('left_at')
-                ->whereNotNull('joined_at');
-        };
-
         $query = Group::query()
             ->whereNull('archived_at')
             ->withExists([
-                'users as is_joined' => $activeMember,
-                'users as is_applying' => function ($q) use ($user) {
-                    $q->where('users.id', $user->id)
-                    ->where('role', 'applicant');
+                'activeUsersQuery as is_joined' => function ($q) use ($user) {
+                    $q->where('users.id', $user->id);
                 },
             ]);
         if ($filter === 'joined') {
-            $query->whereHas('users', $activeMember);
+            $query->whereHas('activeUsersQuery', function ($q) use ($user) {
+                $q->where('users.id', $user->id);
+            });
         }
 
         if ($filter === 'not_joined') {
-            $query->whereDoesntHave('users', $activeMember);
+            $query->whereDoesntHave('activeUsersQuery', function ($q) use ($user) {
+                $q->where('users.id', $user->id);
+            });
         }
 
         $groups = $query->get();
