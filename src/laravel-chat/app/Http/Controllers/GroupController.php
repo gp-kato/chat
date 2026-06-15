@@ -26,6 +26,10 @@ class GroupController extends Controller
                 'activeUsersQuery as is_joined' => function ($q) use ($user) {
                     $q->where('users.id', $user->id);
                 },
+
+                'users as is_applying' => function ($q) use ($user) {
+                    $q->where('users.id', $user->id);
+                },
             ]);
         if ($filter === 'joined') {
             $query->whereHas('activeUsersQuery', function ($q) use ($user) {
