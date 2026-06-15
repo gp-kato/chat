@@ -26,6 +26,7 @@ class GroupAdminService
     {
         return $group->activeUsersQuery()
             ->wherePivot('role', 'admin')
+            ->lockForUpdate()
             ->count();
     }
 }
