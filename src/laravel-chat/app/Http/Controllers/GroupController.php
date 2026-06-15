@@ -28,7 +28,8 @@ class GroupController extends Controller
                 },
 
                 'users as is_applying' => function ($q) use ($user) {
-                    $q->where('users.id', $user->id);
+                    $q->where('users.id', $user->id)
+                      ->where('role', 'applicant');
                 },
             ]);
         if ($filter === 'joined') {
