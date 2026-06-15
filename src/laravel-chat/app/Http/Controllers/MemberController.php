@@ -18,7 +18,7 @@ class MemberController extends Controller
         $group = Group::findOrFail($groupId);
         $user = Auth::user();
 
-        if ($group->activeUsers()->contains($user)) {
+        if ($group->isActiveMember($user)) {
             return redirect()->back()->with('info', 'すでにグループに参加しています');
         }
         $invitation = $group->invitations()
@@ -47,7 +47,7 @@ class MemberController extends Controller
     public function application(Group $group) {
         $user = Auth::user();
 
-        if ($group->activeUsers()->contains($user)) {
+        if ($group->isActiveMember($user) || $group->isApplicant($user)) {
             return redirect()->back()->with('info', '既にグループに参加しています');
         }
 

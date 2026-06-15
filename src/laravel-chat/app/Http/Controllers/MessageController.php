@@ -34,7 +34,7 @@ class MessageController extends Controller
     public function store(Request $request, Group $group) {
         $user = Auth::user();
 
-        if (!$group->activeUsers()->contains($user)) {
+        if (!$group->isActiveMember($user)) {
             return redirect()->route('groups.index')->with('error', 'このグループに参加していません');
         }
 
