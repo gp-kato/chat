@@ -189,6 +189,17 @@ class ApplicationTest extends TestCase
         $response->assertDontSeeText('参加申請');
     }
 
+    public function test_leftuser_displaying_application_to_join(): void
+    {
+        $this->actingAs($this->user);
+        $this->leftadminGroup($this->user, $this->group);
+
+        $response = $this->get(route('groups.index'));
+
+        $response->assertSeeText('参加申請');
+        $response->assertDontSeeText('申請中');
+    }
+
     public function test_applicant_can_cancel_application(): void
     {
         $this->actingAs($this->user);
