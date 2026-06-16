@@ -34,7 +34,7 @@ class MessageController extends Controller
     public function store(Request $request, Group $group) {
         $user = Auth::user();
 
-        if (!$group->isJoinedBy($user)) {
+        if (!$group->isActiveMember($user)) {
             return redirect()->route('groups.index')->with('error', 'このグループに参加していません');
         }
 
@@ -64,7 +64,7 @@ class MessageController extends Controller
 
         $beforeId = $validated['before_id'] ?? null;
 
-        if (!$group->isJoinedBy($user)) {
+        if (!$group->isActiveMember($user)) {
             abort(403, 'You are not a member of this group.');
         }
 
