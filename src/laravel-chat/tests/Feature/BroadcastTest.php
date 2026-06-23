@@ -37,8 +37,9 @@ class BroadcastTest extends TestCase
 
     private function leftUser(User $user, Group $group): void
     {
-        $group->users()->updateExistingPivot($user->id, [
-            'left_at' => now(),
+        $group->users()->attach($user->id, [
+            'joined_at' => now()->subDays(2),
+            'left_at'   => now()->subDay(),
         ]);
     }
 
