@@ -64,7 +64,7 @@ class BroadcastTest extends TestCase
     public function test_user_cannot_broadcast_to_group_channel_if_left()
     {
         $this->actingAs($this->user);
-        $this->applicant($this->user, $this->group);
+        $this->leftUser($this->user, $this->group);
 
         $this->assertFalse(
             $this->group->fresh()->isActiveMember($this->user)
@@ -74,7 +74,7 @@ class BroadcastTest extends TestCase
     public function test_user_cannot_broadcast_to_group_channel_if_applicant()
     {
         $this->actingAs($this->user);
-        $this->leftUser($this->user, $this->group);
+        $this->applicant($this->user, $this->group);
 
         $this->assertFalse(
             $this->group->fresh()->isActiveMember($this->user)
