@@ -113,9 +113,9 @@ class BroadcastTest extends TestCase
         );
         $response->assertForbidden();
 
-        $this->assertFalse(
-            $this->group->fresh()->isActiveMember($this->user)
-        );
+        $callback = Broadcast::getChannels()->get('group.{groupId}');
+        $this->assertIsCallable($callback);
+        $this->assertFalse($callback($this->user, $this->group->id));
     }
 
     public function test_applicant_cannot_access_api_and_broadcast()
@@ -128,8 +128,8 @@ class BroadcastTest extends TestCase
         );
         $response->assertForbidden();
 
-        $this->assertFalse(
-            $this->group->fresh()->isActiveMember($this->user)
-        );
+        $callback = Broadcast::getChannels()->get('group.{groupId}');
+        $this->assertIsCallable($callback);
+        $this->assertFalse($callback($this->user, $this->group->id));
     }
 }
