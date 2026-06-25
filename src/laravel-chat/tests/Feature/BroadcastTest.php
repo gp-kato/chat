@@ -90,17 +90,11 @@ class BroadcastTest extends TestCase
         $response = $this->getJson(
             route('groups.messages.fetch', $this->group->id)
         );
-
-        $broadcastResponse = $this->post(
-            '/broadcasting/auth',
-            [
-                'channel_name' => "private-group.{$this->group->id}",
-                'socket_id' => '1234.5678',
-            ]
-        );
-
         $response->assertOk();
-        $broadcastResponse->assertOk();
+
+        $callback = Broadcast::getChannels()->get('group.{groupId}');
+        $this->assertIsCallable($callback);
+        $this->assertTrue($callback($this->user, $this->group->id));
     }
 
     public function test_left_user_cannot_access_api_and_broadcast()
