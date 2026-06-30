@@ -56,4 +56,12 @@ class GroupMemberService
 
         $group->users()->detach($user->id);
     }
+
+    public function reject(Group $group, User $target) {
+        if (!$group->isApplicant($target)) {
+            throw new \DomainException('グループに参加申請していません');
+        }
+
+        $group->users()->detach($target->id);
+    }
 }

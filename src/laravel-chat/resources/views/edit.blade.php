@@ -127,6 +127,20 @@
                                         <p>{{ $user->name }} (申請者)</p>
                                         <p>{{ $user->email }}</p>
                                     </td>
+                                    @if($user->pivot->role == 'applicant')
+                                        <td>
+                                            <form action="{{ route('groups.members.approval', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" class="inline">
+                                                @csrf
+                                                @method('PUT')
+                                                <button type="submit" class="btn btn-danger">申請を承認</button>
+                                            </form>
+                                            <form action="{{ route('groups.members.reject', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger">申請を拒否</button>
+                                            </form>
+                                        </td>
+                                    @endif
                                 </tr>
                             @endforeach
                         </tbody>

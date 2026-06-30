@@ -135,4 +135,33 @@ class MemberController extends Controller
             return redirect()->back()->with('error', '降格処理中にエラーが発生しました');
         }
     }
+
+    public function approval(Group $group, User $user) {
+        $this->authorize('admin', $group);
+        $group->users()->updateExistingPivot($user->id, [
+            'joined_at' => now(),
+            'left_at' => null,
+            'role' => 'member',
+        ]);
+        return redirect()->back()->with('success', '申請を承認しました');
+    }
+
+    public function reject(Group $group, User $user, GroupMemberService $service) {
+        if (!$group->isApplicant($user)) {
+            return redirect()->back()->with('error', 'このユーザーは申請していません');
+        }
+
+        $this->authorize('admin', $group);
+        try {
+            DB::transaction(function () use ($group, $user, $service) {
+                $service->reject($group, $user);
+            });
+
+            return back()->with('success', '申請を拒否しました');
+        } catch (\DomainException $e) {
+            return back()->with('error', $e->getMessage());
+        } catch (\Throwable $e) {
+            return back()->with('error', '拒否処理中にエラーが発生しました');
+        }
+    }
 }
