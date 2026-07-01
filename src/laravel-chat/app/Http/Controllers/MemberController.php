@@ -137,11 +137,11 @@ class MemberController extends Controller
     }
 
     public function approval(Group $group, User $user) {
+        $this->authorize('admin', $group);
         if (!$group->isApplicant($user)) {
             return redirect()->back()->with('error', 'このユーザーは申請していません');
         }
 
-        $this->authorize('admin', $group);
         $group->users()->updateExistingPivot($user->id, [
             'joined_at' => now(),
             'left_at' => null,
@@ -151,11 +151,11 @@ class MemberController extends Controller
     }
 
     public function reject(Group $group, User $user, GroupMemberService $service) {
+        $this->authorize('admin', $group);
         if (!$group->isApplicant($user)) {
             return redirect()->back()->with('error', 'このユーザーは申請していません');
         }
 
-        $this->authorize('admin', $group);
         try {
             DB::transaction(function () use ($group, $user, $service) {
                 $service->reject($group, $user);
