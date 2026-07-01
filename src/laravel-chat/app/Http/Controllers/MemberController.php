@@ -137,6 +137,10 @@ class MemberController extends Controller
     }
 
     public function approval(Group $group, User $user) {
+        if (!$group->isApplicant($user)) {
+            return redirect()->back()->with('error', 'このユーザーは申請していません');
+        }
+
         $this->authorize('admin', $group);
         $group->users()->updateExistingPivot($user->id, [
             'joined_at' => now(),
