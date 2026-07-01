@@ -39,7 +39,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::put('/{user}/transfer', [MemberController::class, 'transfer'])->name('transfer');
                 Route::put('/demote', [MemberController::class, 'demote'])->name('demote');
                 Route::put('/{user}/approval', [MemberController::class, 'approval'])->name('approval');
-                Route::delete('/{user}/rejct', [MemberController::class, 'reject'])->name('reject');
+                Route::delete('/{user}/reject', [MemberController::class, 'reject'])->name('reject');
             });
 
             // 招待管理
