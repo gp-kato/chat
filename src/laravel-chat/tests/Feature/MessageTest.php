@@ -2,18 +2,19 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Group;
 use App\Models\Message;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Tests\TestCase;
 
 class MessageTest extends TestCase
 {
     use RefreshDatabase;
 
     private ?User $user = null;
+
     private ?Group $group = null;
 
     protected function setUp(): void
@@ -36,7 +37,7 @@ class MessageTest extends TestCase
     {
         $group->users()->attach($user->id, [
             'joined_at' => now()->subDays(2),
-            'left_at'   => now()->subDay(),
+            'left_at' => now()->subDay(),
         ]);
     }
 
@@ -62,7 +63,7 @@ class MessageTest extends TestCase
         $this->assertAuthenticated();
         $response->assertSessionHasNoErrors();
         $response->assertStatus(201)->assertJson([
-            'message'  =>  'メッセージを送信しました',
+            'message' => 'メッセージを送信しました',
         ]);
 
         $this->assertDatabaseHas('messages', [
@@ -138,7 +139,7 @@ class MessageTest extends TestCase
         $this->assertAuthenticated();
         $response->assertSessionHasNoErrors();
         $response->assertStatus(201)->assertJson([
-            'message'  =>  'メッセージを送信しました',
+            'message' => 'メッセージを送信しました',
         ]);
 
         $this->assertDatabaseHas('messages', [
@@ -268,7 +269,6 @@ class MessageTest extends TestCase
                 'before_id' => 'invalid',
             ])
         );
-
 
         $response->assertStatus(422);
 

@@ -2,18 +2,18 @@
 
 namespace Tests\Feature;
 
+use App\Models\Group;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
-use App\Models\User;
-use App\Models\Group;
 
 class AdminbetweenTest extends TestCase
 {
     use RefreshDatabase;
 
     private ?User $user = null;
+
     private ?Group $group = null;
 
     protected function setUp(): void
@@ -44,7 +44,7 @@ class AdminbetweenTest extends TestCase
         $response = $this->delete(
             route('groups.members.remove', [
                 'group' => $this->group->id,
-                'user'  => $another->id,
+                'user' => $another->id,
             ])
         );
 
@@ -52,8 +52,8 @@ class AdminbetweenTest extends TestCase
 
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $another->id,
-            'left_at'  => now(),
+            'user_id' => $another->id,
+            'left_at' => now(),
         ]);
     }
 }

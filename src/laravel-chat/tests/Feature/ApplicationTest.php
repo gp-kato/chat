@@ -2,18 +2,18 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Carbon;
-use Tests\TestCase;
 use App\Models\Group;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
+use Tests\TestCase;
 
 class ApplicationTest extends TestCase
 {
     use RefreshDatabase;
 
     private ?User $user = null;
+
     private ?Group $group = null;
 
     protected function setUp(): void
@@ -155,16 +155,16 @@ class ApplicationTest extends TestCase
 
         $response = $this->post(
             route('groups.invitations.invite', $this->group),
-            ['user_id' => $inviteUser->id,]
+            ['user_id' => $inviteUser->id]
         );
 
         $response->assertSessionHasNoErrors();
         $response->assertStatus(302);
 
         $this->assertDatabaseHas('invitations', [
-            'group_id'       => $this->group->id,
-            'inviter_id'     => $this->user->id,
-            'accepted_at'    => null,
+            'group_id' => $this->group->id,
+            'inviter_id' => $this->user->id,
+            'accepted_at' => null,
         ]);
     }
 
@@ -262,7 +262,7 @@ class ApplicationTest extends TestCase
         $response = $this->put(
             route('groups.members.approval', [
                 'group' => $this->group->id,
-                'user'  => $applicant->id,
+                'user' => $applicant->id,
             ])
         );
 
@@ -272,9 +272,9 @@ class ApplicationTest extends TestCase
 
         $this->assertDatabaseHas('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $applicant->id,
+            'user_id' => $applicant->id,
             'joined_at' => now(),
-            'left_at'  => null,
+            'left_at' => null,
             'role' => 'member',
         ]);
     }
@@ -289,7 +289,7 @@ class ApplicationTest extends TestCase
         $response = $this->put(
             route('groups.members.approval', [
                 'group' => $this->group->id,
-                'user'  => $nonapplicant->id,
+                'user' => $nonapplicant->id,
             ])
         );
 
@@ -298,9 +298,9 @@ class ApplicationTest extends TestCase
 
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $nonapplicant->id,
+            'user_id' => $nonapplicant->id,
             'joined_at' => now(),
-            'left_at'  => null,
+            'left_at' => null,
             'role' => 'member',
         ]);
     }
@@ -316,7 +316,7 @@ class ApplicationTest extends TestCase
         $response = $this->put(
             route('groups.members.approval', [
                 'group' => $this->group->id,
-                'user'  => $anotheradmin->id,
+                'user' => $anotheradmin->id,
             ])
         );
 
@@ -325,15 +325,15 @@ class ApplicationTest extends TestCase
 
         $this->assertDatabaseHas('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $anotheradmin->id,
+            'user_id' => $anotheradmin->id,
             'role' => 'admin',
         ]);
 
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $anotheradmin->id,
+            'user_id' => $anotheradmin->id,
             'joined_at' => now(),
-            'left_at'  => null,
+            'left_at' => null,
             'role' => 'member',
         ]);
     }
@@ -349,7 +349,7 @@ class ApplicationTest extends TestCase
         $response = $this->put(
             route('groups.members.approval', [
                 'group' => $this->group->id,
-                'user'  => $leftuser->id,
+                'user' => $leftuser->id,
             ])
         );
 
@@ -358,15 +358,15 @@ class ApplicationTest extends TestCase
 
         $this->assertDatabaseHas('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $leftuser->id,
+            'user_id' => $leftuser->id,
             'left_at' => now(),
         ]);
 
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $leftuser->id,
+            'user_id' => $leftuser->id,
             'joined_at' => now(),
-            'left_at'  => null,
+            'left_at' => null,
             'role' => 'member',
         ]);
     }
@@ -382,7 +382,7 @@ class ApplicationTest extends TestCase
         $response = $this->put(
             route('groups.members.approval', [
                 'group' => $this->group->id,
-                'user'  => $applicant->id,
+                'user' => $applicant->id,
             ])
         );
 
@@ -391,16 +391,16 @@ class ApplicationTest extends TestCase
 
         $this->assertDatabaseHas('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $applicant->id,
+            'user_id' => $applicant->id,
             'role' => 'applicant',
             'joined_at' => null,
         ]);
 
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $applicant->id,
+            'user_id' => $applicant->id,
             'joined_at' => now(),
-            'left_at'  => null,
+            'left_at' => null,
             'role' => 'member',
         ]);
     }
@@ -416,7 +416,7 @@ class ApplicationTest extends TestCase
         $response = $this->delete(
             route('groups.members.reject', [
                 'group' => $this->group->id,
-                'user'  => $applicant->id,
+                'user' => $applicant->id,
             ])
         );
 
@@ -425,7 +425,7 @@ class ApplicationTest extends TestCase
 
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $applicant->id,
+            'user_id' => $applicant->id,
         ]);
     }
 
@@ -439,7 +439,7 @@ class ApplicationTest extends TestCase
         $response = $this->delete(
             route('groups.members.reject', [
                 'group' => $this->group->id,
-                'user'  => $nonapplicant->id,
+                'user' => $nonapplicant->id,
             ])
         );
 
@@ -448,7 +448,7 @@ class ApplicationTest extends TestCase
 
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $nonapplicant->id,
+            'user_id' => $nonapplicant->id,
         ]);
     }
 
@@ -463,17 +463,16 @@ class ApplicationTest extends TestCase
         $response = $this->delete(
             route('groups.members.reject', [
                 'group' => $this->group->id,
-                'user'  => $anotheradmin->id,
+                'user' => $anotheradmin->id,
             ])
         );
 
         $this->assertAuthenticated();
         $response->assertRedirect();
 
-
         $this->assertDatabaseHas('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $anotheradmin->id,
+            'user_id' => $anotheradmin->id,
             'role' => 'admin',
         ]);
     }
@@ -489,17 +488,16 @@ class ApplicationTest extends TestCase
         $response = $this->delete(
             route('groups.members.reject', [
                 'group' => $this->group->id,
-                'user'  => $joinimember->id,
+                'user' => $joinimember->id,
             ])
         );
 
         $this->assertAuthenticated();
         $response->assertRedirect();
 
-
         $this->assertDatabaseHas('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $joinimember->id,
+            'user_id' => $joinimember->id,
             'role' => 'member',
         ]);
     }
@@ -515,7 +513,7 @@ class ApplicationTest extends TestCase
         $response = $this->delete(
             route('groups.members.reject', [
                 'group' => $this->group->id,
-                'user'  => $leftuser->id,
+                'user' => $leftuser->id,
             ])
         );
 
@@ -539,7 +537,7 @@ class ApplicationTest extends TestCase
         $response = $this->delete(
             route('groups.members.reject', [
                 'group' => $this->group->id,
-                'user'  => $applicant->id,
+                'user' => $applicant->id,
             ])
         );
 
@@ -548,7 +546,7 @@ class ApplicationTest extends TestCase
 
         $this->assertDatabaseHas('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $applicant->id,
+            'user_id' => $applicant->id,
             'role' => 'applicant',
         ]);
     }

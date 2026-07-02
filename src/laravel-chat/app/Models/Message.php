@@ -15,15 +15,18 @@ class Message extends Model
         'content',
     ];
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function group() {
+    public function group()
+    {
         return $this->belongsTo(Group::class);
     }
 
-    public function scopeLatestForGroup($query, Group $group, int $limit) {
+    public function scopeLatestForGroup($query, Group $group, int $limit)
+    {
         return $query
             ->where('group_id', $group->id)
             ->with('user')

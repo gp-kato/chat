@@ -2,10 +2,9 @@
 
 namespace Tests\Feature\Model\User;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class SearchTest extends TestCase
 {
@@ -39,13 +38,13 @@ class SearchTest extends TestCase
     {
         // name にのみヒットするユーザー
         $matchedUser = User::factory()->create([
-            'name'  => 'AlphaUser',
+            'name' => 'AlphaUser',
             'email' => 'no-match@example.com',
         ]);
 
         // 除外ユーザー（どちらにもヒットしない）
         $excludedUser = User::factory()->create([
-            'name'  => 'BetaUser',
+            'name' => 'BetaUser',
             'email' => 'excluded@example.com',
         ]);
 
@@ -59,13 +58,13 @@ class SearchTest extends TestCase
     {
         // email にのみヒットするユーザー
         $matchedUser = User::factory()->create([
-            'name'  => 'NoMatchUser',
+            'name' => 'NoMatchUser',
             'email' => 'unique-email@example.com',
         ]);
 
         // 除外ユーザー
         $excludedUser = User::factory()->create([
-            'name'  => 'ExcludedUser',
+            'name' => 'ExcludedUser',
             'email' => 'excluded@example.com',
         ]);
 

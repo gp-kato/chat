@@ -46,24 +46,26 @@ class User extends Authenticatable
         ];
     }
 
-    public function messages() {
+    public function messages()
+    {
         return $this->hasMany(Message::class);
     }
 
     public function groups()
     {
         return $this->belongsToMany(Group::class, 'group_user')
-                    ->withPivot('joined_at', 'left_at', 'role')
-                    ->withTimestamps();
+            ->withPivot('joined_at', 'left_at', 'role')
+            ->withTimestamps();
     }
 
-    public function scopeSearchNotJoined($query, string $keyword, $excludedIds) {
+    public function scopeSearchNotJoined($query, string $keyword, $excludedIds)
+    {
         $escaped = addcslashes($keyword, '%_\\');
 
         return $query
             ->where(function ($q) use ($escaped) {
                 $q->where('name', 'like', "%{$escaped}%")
-                  ->orWhere('email', 'like', "%{$escaped}%");
+                    ->orWhere('email', 'like', "%{$escaped}%");
             })
             ->whereNotIn('id', $excludedIds);
     }
