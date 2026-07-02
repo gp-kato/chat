@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Group;
 use App\Models\User;
-use App\Services\GroupAdminService;
 use Illuminate\Support\Facades\DB;
 
 class GroupMemberService
@@ -25,7 +24,8 @@ class GroupMemberService
         });
     }
 
-    public function remove(Group $group, User $target): void{
+    public function remove(Group $group, User $target): void
+    {
         if ($group->isAdmin($target)) {
             throw new \DomainException('管理者同士では退会出来ません');
         }
@@ -39,7 +39,8 @@ class GroupMemberService
         });
     }
 
-    public function demote(Group $group, User $user) {
+    public function demote(Group $group, User $user)
+    {
         DB::transaction(function () use ($group, $user) {
             $this->adminService->ensureNotLastAdmin($group, $user);
 
@@ -49,16 +50,18 @@ class GroupMemberService
         });
     }
 
-    public function cancelApplication(Group $group, User $user) {
-        if (!$group->isApplicant($user)) {
+    public function cancelApplication(Group $group, User $user)
+    {
+        if (! $group->isApplicant($user)) {
             throw new \DomainException('グループに参加申請していません');
         }
 
         $group->users()->detach($user->id);
     }
 
-    public function reject(Group $group, User $target) {
-        if (!$group->isApplicant($target)) {
+    public function reject(Group $group, User $target)
+    {
+        if (! $group->isApplicant($target)) {
             throw new \DomainException('グループに参加申請していません');
         }
 

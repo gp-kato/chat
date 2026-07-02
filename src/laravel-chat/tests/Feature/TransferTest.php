@@ -2,18 +2,18 @@
 
 namespace Tests\Feature;
 
+use App\Models\Group;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
-use App\Models\User;
-use App\Models\Group;
 
 class TransferTest extends TestCase
 {
     use RefreshDatabase;
 
     private ?User $user = null;
+
     private ?Group $group = null;
 
     protected function setUp(): void
@@ -61,7 +61,7 @@ class TransferTest extends TestCase
         $response = $this->put(
             route('groups.members.transfer', [
                 'group' => $this->group->id,
-                'user'  => $memberUser->id,
+                'user' => $memberUser->id,
             ])
         );
 
@@ -71,8 +71,8 @@ class TransferTest extends TestCase
 
         $this->assertDatabaseHas('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $memberUser->id,
-            'role'       => 'admin',
+            'user_id' => $memberUser->id,
+            'role' => 'admin',
         ]);
 
         $this->assertTrue(
@@ -91,7 +91,7 @@ class TransferTest extends TestCase
         $response = $this->put(
             route('groups.members.transfer', [
                 'group' => $this->group->id,
-                'user'  => $memberUser->id,
+                'user' => $memberUser->id,
             ])
         );
 
@@ -99,8 +99,8 @@ class TransferTest extends TestCase
 
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $memberUser->id,
-            'role'       => 'admin',
+            'user_id' => $memberUser->id,
+            'role' => 'admin',
         ]);
 
         $this->assertFalse(
@@ -118,7 +118,7 @@ class TransferTest extends TestCase
         $response = $this->put(
             route('groups.members.transfer', [
                 'group' => $this->group->id,
-                'user'  => $memberUser->id,
+                'user' => $memberUser->id,
             ])
         );
 
@@ -126,8 +126,8 @@ class TransferTest extends TestCase
 
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $memberUser->id,
-            'role'       => 'admin',
+            'user_id' => $memberUser->id,
+            'role' => 'admin',
         ]);
 
         $this->assertFalse(
@@ -147,7 +147,7 @@ class TransferTest extends TestCase
         $response = $this->put(
             route('groups.members.transfer', [
                 'group' => $this->group->id,
-                'user'  => $memberUser->id,
+                'user' => $memberUser->id,
             ])
         );
 
@@ -155,8 +155,8 @@ class TransferTest extends TestCase
 
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $memberUser->id,
-            'role'       => 'admin',
+            'user_id' => $memberUser->id,
+            'role' => 'admin',
         ]);
 
         $this->assertFalse(
@@ -175,7 +175,7 @@ class TransferTest extends TestCase
         $response = $this->put(
             route('groups.members.transfer', [
                 'group' => $this->group->id,
-                'user'  => $memberUser->id,
+                'user' => $memberUser->id,
             ])
         );
 
@@ -183,8 +183,8 @@ class TransferTest extends TestCase
 
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $memberUser->id,
-            'role'       => 'admin',
+            'user_id' => $memberUser->id,
+            'role' => 'admin',
         ]);
 
         $this->assertFalse(

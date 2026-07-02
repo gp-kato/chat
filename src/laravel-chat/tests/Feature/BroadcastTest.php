@@ -2,20 +2,19 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Broadcast;
-use Illuminate\Support\Carbon;
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Group;
-use App\Models\Message;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Broadcast;
+use Tests\TestCase;
 
 class BroadcastTest extends TestCase
 {
     use RefreshDatabase;
 
     private ?User $user = null;
+
     private ?Group $group = null;
 
     protected function setUp(): void
@@ -39,7 +38,7 @@ class BroadcastTest extends TestCase
     {
         $group->users()->attach($user->id, [
             'joined_at' => now()->subDays(2),
-            'left_at'   => now()->subDay(),
+            'left_at' => now()->subDay(),
         ]);
     }
 

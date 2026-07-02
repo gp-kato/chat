@@ -2,21 +2,19 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Carbon;
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Group;
 use App\Models\Invitation;
-use App\Services\GroupMemberService;
-use App\Exceptions\Domain\LastAdminException;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
+use Tests\TestCase;
 
 class AdminTest extends TestCase
 {
     use RefreshDatabase;
 
     private ?User $user = null;
+
     private ?Group $group = null;
 
     protected function setUp(): void
@@ -193,16 +191,16 @@ class AdminTest extends TestCase
 
         $response = $this->post(
             route('groups.invitations.invite', $this->group),
-            ['user_id' => $inviteUser->id,]
+            ['user_id' => $inviteUser->id]
         );
 
         $response->assertSessionHasNoErrors();
         $response->assertStatus(302);
 
         $this->assertDatabaseHas('invitations', [
-            'group_id'       => $this->group->id,
-            'inviter_id'     => $this->user->id,
-            'accepted_at'    => null,
+            'group_id' => $this->group->id,
+            'inviter_id' => $this->user->id,
+            'accepted_at' => null,
         ]);
     }
 
@@ -216,13 +214,13 @@ class AdminTest extends TestCase
 
         $response = $this->post(
             route('groups.invitations.invite', $this->group),
-            ['user_id' => $inviteUser->id,]
+            ['user_id' => $inviteUser->id]
         );
 
         $response->assertForbidden();
 
         $this->assertDatabaseMissing('invitations', [
-            'group_id'       => $this->group->id,
+            'group_id' => $this->group->id,
         ]);
     }
 
@@ -235,13 +233,13 @@ class AdminTest extends TestCase
 
         $response = $this->post(
             route('groups.invitations.invite', $this->group),
-            ['user_id' => $inviteUser->id,]
+            ['user_id' => $inviteUser->id]
         );
 
         $response->assertForbidden();
 
         $this->assertDatabaseMissing('invitations', [
-            'group_id'       => $this->group->id,
+            'group_id' => $this->group->id,
         ]);
     }
 
@@ -254,13 +252,13 @@ class AdminTest extends TestCase
 
         $response = $this->post(
             route('groups.invitations.invite', $this->group),
-            ['user_id' => $inviteUser->id,]
+            ['user_id' => $inviteUser->id]
         );
 
         $response->assertForbidden();
 
         $this->assertDatabaseMissing('invitations', [
-            'group_id'       => $this->group->id,
+            'group_id' => $this->group->id,
         ]);
     }
 
@@ -278,7 +276,7 @@ class AdminTest extends TestCase
         $response = $this->delete(
             route('groups.members.remove', [
                 'group' => $this->group->id,
-                'user'  => $memberUser->id,
+                'user' => $memberUser->id,
             ])
         );
 
@@ -288,8 +286,8 @@ class AdminTest extends TestCase
 
         $this->assertDatabaseHas('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $memberUser->id,
-            'left_at'  => now(),
+            'user_id' => $memberUser->id,
+            'left_at' => now(),
         ]);
     }
 
@@ -308,7 +306,7 @@ class AdminTest extends TestCase
         $response = $this->delete(
             route('groups.members.remove', [
                 'group' => $this->group->id,
-                'user'  => $memberUser->id,
+                'user' => $memberUser->id,
             ])
         );
 
@@ -316,8 +314,8 @@ class AdminTest extends TestCase
 
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $memberUser->id,
-            'left_at'  => now(),
+            'user_id' => $memberUser->id,
+            'left_at' => now(),
         ]);
     }
 
@@ -336,7 +334,7 @@ class AdminTest extends TestCase
         $response = $this->delete(
             route('groups.members.remove', [
                 'group' => $this->group->id,
-                'user'  => $memberUser->id,
+                'user' => $memberUser->id,
             ])
         );
 
@@ -344,8 +342,8 @@ class AdminTest extends TestCase
 
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $memberUser->id,
-            'left_at'  => now(),
+            'user_id' => $memberUser->id,
+            'left_at' => now(),
         ]);
     }
 
@@ -364,7 +362,7 @@ class AdminTest extends TestCase
         $response = $this->delete(
             route('groups.members.remove', [
                 'group' => $this->group->id,
-                'user'  => $memberUser->id,
+                'user' => $memberUser->id,
             ])
         );
 
@@ -372,8 +370,8 @@ class AdminTest extends TestCase
 
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $memberUser->id,
-            'left_at'  => now(),
+            'user_id' => $memberUser->id,
+            'left_at' => now(),
         ]);
     }
 
@@ -383,10 +381,10 @@ class AdminTest extends TestCase
         $this->adminGroup($this->user, $this->group);
 
         $invitation = Invitation::create([
-            'group_id'      => $this->group->id,
-            'inviter_id'    => $this->user->id,
+            'group_id' => $this->group->id,
+            'inviter_id' => $this->user->id,
             'invitee_email' => 'invitee@example.com',
-            'token'         => \Illuminate\Support\Str::uuid(),
+            'token' => \Illuminate\Support\Str::uuid(),
             'created_at' => '2025-04-07 08:30:17',
             'expires_at' => '2025-05-07 08:30:17',
         ]);
@@ -394,7 +392,7 @@ class AdminTest extends TestCase
         $response = $this->post(
             route('groups.invitations.resend', [
                 'group' => $this->group->id,
-                'invitation' => $invitation->id
+                'invitation' => $invitation->id,
             ])
         );
 
@@ -414,10 +412,10 @@ class AdminTest extends TestCase
         $this->actingAs($this->user);
 
         $invitation = Invitation::create([
-            'group_id'      => $this->group->id,
-            'inviter_id'    => $this->user->id,
+            'group_id' => $this->group->id,
+            'inviter_id' => $this->user->id,
             'invitee_email' => 'invitee@example.com',
-            'token'         => \Illuminate\Support\Str::uuid(),
+            'token' => \Illuminate\Support\Str::uuid(),
             'created_at' => '2025-04-07 08:30:17',
             'expires_at' => '2025-05-07 08:30:17',
         ]);
@@ -425,7 +423,7 @@ class AdminTest extends TestCase
         $response = $this->post(
             route('groups.invitations.resend', [
                 'group' => $this->group->id,
-                'invitation' => $invitation->id
+                'invitation' => $invitation->id,
             ])
         );
 
@@ -442,10 +440,10 @@ class AdminTest extends TestCase
         $this->joinGroup($this->user, $this->group);
 
         $invitation = Invitation::create([
-            'group_id'      => $this->group->id,
-            'inviter_id'    => $this->user->id,
+            'group_id' => $this->group->id,
+            'inviter_id' => $this->user->id,
             'invitee_email' => 'invitee@example.com',
-            'token'         => \Illuminate\Support\Str::uuid(),
+            'token' => \Illuminate\Support\Str::uuid(),
             'created_at' => '2025-04-07 08:30:17',
             'expires_at' => '2025-05-07 08:30:17',
         ]);
@@ -453,7 +451,7 @@ class AdminTest extends TestCase
         $response = $this->post(
             route('groups.invitations.resend', [
                 'group' => $this->group->id,
-                'invitation' => $invitation->id
+                'invitation' => $invitation->id,
             ])
         );
 
@@ -470,10 +468,10 @@ class AdminTest extends TestCase
         $this->leftadminGroup($this->user, $this->group);
 
         $invitation = Invitation::create([
-            'group_id'      => $this->group->id,
-            'inviter_id'    => $this->user->id,
+            'group_id' => $this->group->id,
+            'inviter_id' => $this->user->id,
             'invitee_email' => 'invitee@example.com',
-            'token'         => \Illuminate\Support\Str::uuid(),
+            'token' => \Illuminate\Support\Str::uuid(),
             'created_at' => '2025-04-07 08:30:17',
             'expires_at' => '2025-05-07 08:30:17',
         ]);
@@ -481,7 +479,7 @@ class AdminTest extends TestCase
         $response = $this->post(
             route('groups.invitations.resend', [
                 'group' => $this->group->id,
-                'invitation' => $invitation->id
+                'invitation' => $invitation->id,
             ])
         );
 

@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use App\Models\User;
 use App\Models\Group;
+use App\Models\User;
 use App\Services\GroupMemberService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class MemberController extends Controller
 {
     use AuthorizesRequests;
 
-    public function join($groupId, $token) {
+    public function join($groupId, $token)
+    {
         $group = Group::findOrFail($groupId);
         $user = Auth::user();
 
@@ -27,7 +27,7 @@ class MemberController extends Controller
             ->where('expires_at', '>', now())
             ->whereNull('accepted_at')
             ->first();
-        if (!$invitation) {
+        if (! $invitation) {
             return redirect()->route('groups.index')->with('error', '無効な招待リンクです');
         }
         DB::transaction(function () use ($group, $user, $invitation) {
@@ -37,14 +37,16 @@ class MemberController extends Controller
                 $user->id => [
                     'joined_at' => now(),
                     'left_at' => null,
-                    'role' => 'member'
-                ]
+                    'role' => 'member',
+                ],
             ]);
         });
+
         return redirect()->route('groups.index')->with('success', 'グループに参加しました');
     }
 
-    public function application(Group $group) {
+    public function application(Group $group)
+    {
         $user = Auth::user();
 
         if ($group->isActiveMember($user) || $group->isApplicant($user)) {
@@ -57,13 +59,15 @@ class MemberController extends Controller
                     'role' => 'applicant',
                     'joined_at' => null,
                     'left_at' => null,
-                ]
+                ],
             ]);
         });
+
         return redirect()->route('groups.index')->with('success', 'グループに参加申請を送りました');
     }
 
-    public function cancelApplication(Group $group, GroupMemberService $service) {
+    public function cancelApplication(Group $group, GroupMemberService $service)
+    {
         try {
             $service->cancelApplication($group, Auth::user());
         } catch (\DomainException $e) {
@@ -71,12 +75,14 @@ class MemberController extends Controller
         } catch (\Throwable $e) {
             return redirect()->route('groups.index')->with('error', '参加申請のキャンセル中にエラーが発生しました');
         }
+
         return redirect()->route('groups.index')->with('success', 'グループへの参加申請をキャンセルしました');
     }
 
-    public function leave(Group $group, GroupMemberService $service) {
+    public function leave(Group $group, GroupMemberService $service)
+    {
         $user = Auth::user();
-        if (!$group->isActiveMember($user)) {
+        if (! $group->isActiveMember($user)) {
             return back()->with('info', 'グループに参加していません');
         }
         try {
@@ -92,8 +98,9 @@ class MemberController extends Controller
         }
     }
 
-    public function remove(Group $group, User $user, GroupMemberService $service) {
-        if (!$group->isActiveMember($user)) {
+    public function remove(Group $group, User $user, GroupMemberService $service)
+    {
+        if (! $group->isActiveMember($user)) {
             return redirect()->back()->with('error', 'このユーザーは既に退会済みです');
         }
 
@@ -113,15 +120,18 @@ class MemberController extends Controller
         }
     }
 
-    public function transfer(Group $group, User $user) {
+    public function transfer(Group $group, User $user)
+    {
         $this->authorize('admin', $group);
         $group->users()->updateExistingPivot($user->id, [
             'role' => 'admin',
         ]);
+
         return redirect()->back()->with('success', '管理権を与えました');
     }
 
-    public function demote(Group $group, GroupMemberService $service) {
+    public function demote(Group $group, GroupMemberService $service)
+    {
         $this->authorize('admin', $group);
         $user = Auth::user();
 
@@ -136,9 +146,10 @@ class MemberController extends Controller
         }
     }
 
-    public function approval(Group $group, User $user) {
+    public function approval(Group $group, User $user)
+    {
         $this->authorize('admin', $group);
-        if (!$group->isApplicant($user)) {
+        if (! $group->isApplicant($user)) {
             return redirect()->back()->with('error', 'このユーザーは申請していません');
         }
 
@@ -147,12 +158,14 @@ class MemberController extends Controller
             'left_at' => null,
             'role' => 'member',
         ]);
+
         return redirect()->back()->with('success', '申請を承認しました');
     }
 
-    public function reject(Group $group, User $user, GroupMemberService $service) {
+    public function reject(Group $group, User $user, GroupMemberService $service)
+    {
         $this->authorize('admin', $group);
-        if (!$group->isApplicant($user)) {
+        if (! $group->isApplicant($user)) {
             return redirect()->back()->with('error', 'このユーザーは申請していません');
         }
 

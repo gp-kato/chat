@@ -2,20 +2,20 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Carbon;
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Group;
 use App\Models\Invitation;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Tests\TestCase;
 
 class RejoinTest extends TestCase
 {
     use RefreshDatabase;
 
     private ?User $user = null;
+
     private ?Group $group = null;
 
     protected function setUp(): void
@@ -44,7 +44,7 @@ class RejoinTest extends TestCase
         $token = 'dummyToken123';
         Invitation::create([
             'group_id' => $this->group->id,
-            'inviter_id'    => $inviter->id,
+            'inviter_id' => $inviter->id,
             'token' => $token,
             'invitee_email' => $this->user->email,
             'expires_at' => now()->addDay(),
@@ -64,8 +64,8 @@ class RejoinTest extends TestCase
         ]);
 
         $this->assertEquals(1, DB::table('group_user')
-        ->where('user_id', $this->user->id)
-        ->where('group_id', $this->group->id)
-        ->count());
+            ->where('user_id', $this->user->id)
+            ->where('group_id', $this->group->id)
+            ->count());
     }
 }

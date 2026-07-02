@@ -2,20 +2,18 @@
 
 namespace Tests\Feature;
 
+use App\Models\Group;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
-use App\Models\User;
-use App\Models\Group;
-use App\Services\GroupMemberService;
-use App\Exceptions\Domain\LastAdminException;
 
 class LastadminTest extends TestCase
 {
     use RefreshDatabase;
 
     private ?User $user = null;
+
     private ?Group $group = null;
 
     protected function setUp(): void
@@ -35,7 +33,8 @@ class LastadminTest extends TestCase
         ]);
     }
 
-    public function test_cannot_leave_with_last_admin(): void {
+    public function test_cannot_leave_with_last_admin(): void
+    {
         $this->actingAs($this->user);
         $this->adminGroup($this->user, $this->group);
 
@@ -47,9 +46,9 @@ class LastadminTest extends TestCase
 
         $this->assertDatabaseHas('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $this->user->id,
-            'role'     => 'admin',
-            'left_at'  => null,
+            'user_id' => $this->user->id,
+            'role' => 'admin',
+            'left_at' => null,
         ]);
     }
 
@@ -61,7 +60,7 @@ class LastadminTest extends TestCase
         $response = $this->delete(
             route('groups.members.remove', [
                 'group' => $this->group->id,
-                'user'  => $this->user->id,
+                'user' => $this->user->id,
             ])
         );
 
@@ -71,9 +70,9 @@ class LastadminTest extends TestCase
 
         $this->assertDatabaseHas('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $this->user->id,
-            'role'     => 'admin',
-            'left_at'  => null,
+            'user_id' => $this->user->id,
+            'role' => 'admin',
+            'left_at' => null,
         ]);
     }
 }

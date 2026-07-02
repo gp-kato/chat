@@ -12,7 +12,7 @@ return [
     'unique' => ':attribute は既に使用されています。',
     'confirmed' => ':attribute が確認用と一致しません。',
     'numeric' => ':attribute は数値である必要があります。',
-    
+
     'attributes' => [
         'name' => '名前',
         'email' => 'メールアドレス',

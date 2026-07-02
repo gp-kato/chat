@@ -2,18 +2,18 @@
 
 namespace Tests\Feature;
 
+use App\Models\Group;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
-use App\Models\User;
-use App\Models\Group;
 
 class DemoteTest extends TestCase
 {
     use RefreshDatabase;
 
     private ?User $user = null;
+
     private ?Group $group = null;
 
     protected function setUp(): void
@@ -70,8 +70,8 @@ class DemoteTest extends TestCase
 
         $this->assertDatabaseHas('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $this->user->id,
-            'role'       => 'member',
+            'user_id' => $this->user->id,
+            'role' => 'member',
         ]);
 
         $this->assertFalse(
@@ -95,8 +95,8 @@ class DemoteTest extends TestCase
 
         $this->assertDatabaseHas('group_user', [
             'group_id' => $this->group->id,
-            'user_id'  => $this->user->id,
-            'role'       => 'admin',
+            'user_id' => $this->user->id,
+            'role' => 'admin',
         ]);
 
         $this->assertTrue(
@@ -136,8 +136,8 @@ class DemoteTest extends TestCase
 
         $this->assertDatabaseHas('group_user', [
             'group_id' => $otherGroup->id,
-            'user_id'  => $this->user->id,
-            'role'       => 'admin',
+            'user_id' => $this->user->id,
+            'role' => 'admin',
         ]);
 
         $this->assertTrue(

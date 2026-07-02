@@ -19,19 +19,23 @@ class Invitation extends Model
         'expires_at' => 'datetime',
     ];
 
-    public function inviter() {
+    public function inviter()
+    {
         return $this->belongsTo(User::class, 'inviter_id');
     }
 
-    public function group() {
+    public function group()
+    {
         return $this->belongsTo(Group::class);
     }
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class, 'invitee_email', 'email');
     }
 
-    public function scopeActiveForGroup($query, Group $group) {
+    public function scopeActiveForGroup($query, Group $group)
+    {
         return $query
             ->where('group_id', $group->id)
             ->where('expires_at', '>', now())

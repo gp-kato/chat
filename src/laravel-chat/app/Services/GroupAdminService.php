@@ -2,23 +2,23 @@
 
 namespace App\Services;
 
+use App\Exceptions\Domain\LastAdminException;
 use App\Models\Group;
 use App\Models\User;
-use App\Exceptions\Domain\LastAdminException;
 
 class GroupAdminService
 {
     public function ensureNotLastAdmin(Group $group, User $target): void
     {
         // 対象がadminでなければチェック不要
-        if (!$group->isAdmin($target)) {
+        if (! $group->isAdmin($target)) {
             return;
         }
 
         $adminCount = $this->adminCount($group);
 
         if ($adminCount <= 1) {
-            throw new LastAdminException();
+            throw new LastAdminException;
         }
     }
 

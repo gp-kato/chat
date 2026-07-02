@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Support\Facades\Gate;
-use App\Models\User;
+use App\Http\Requests\ShowGroupRequest;
+use App\Http\Requests\UpdateGroupRequest;
 use App\Models\Group;
 use App\Models\Invitation;
-use App\Http\Requests\UpdateGroupRequest;
-use App\Http\Requests\ShowGroupRequest;
+use App\Models\User;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class GroupController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index(Request $request) {
+    public function index(Request $request)
+    {
         $user = Auth::user();
         $filter = $request->query('filter');
 
@@ -29,7 +29,7 @@ class GroupController extends Controller
 
                 'users as is_applying' => function ($q) use ($user) {
                     $q->where('users.id', $user->id)
-                      ->where('role', 'applicant');
+                        ->where('role', 'applicant');
                 },
             ]);
         if ($filter === 'joined') {
@@ -48,7 +48,9 @@ class GroupController extends Controller
 
         return view('group', compact('groups', 'filter'));
     }
-    public function add(Request $request) {
+
+    public function add(Request $request)
+    {
         $request->validate([
             'name' => 'required|string|max:10',
             'description' => 'required|string|max:40',
@@ -64,7 +66,8 @@ class GroupController extends Controller
         return redirect()->route('groups.index');
     }
 
-    public function archive(Group $group) {
+    public function archive(Group $group)
+    {
         $this->authorize('admin', $group);
 
         $group->archived_at = now();
@@ -73,7 +76,8 @@ class GroupController extends Controller
         return redirect()->route('groups.index');
     }
 
-    public function edit(ShowGroupRequest $request, Group $group) {
+    public function edit(ShowGroupRequest $request, Group $group)
+    {
         $this->authorize('admin', $group);
 
         $query = $request->validatedQuery();
@@ -81,17 +85,18 @@ class GroupController extends Controller
         $activeUsers = $group->activeUsers();
 
         return view('edit', [
-            'group'           => $group,
-            'removableUsers'  => $group->removableUsers($activeUsers),
-            'applicants'      => $group->applicants(),
-            'invitations'     => Invitation::activeForGroup($group)->get(),
-            'searchResults'   => $query
+            'group' => $group,
+            'removableUsers' => $group->removableUsers($activeUsers),
+            'applicants' => $group->applicants(),
+            'invitations' => Invitation::activeForGroup($group)->get(),
+            'searchResults' => $query
             ? User::searchNotJoined($query, $activeUsers->pluck('id'))->get()
             : collect(),
         ]);
     }
 
-    public function update(UpdateGroupRequest $request, Group $group) {
+    public function update(UpdateGroupRequest $request, Group $group)
+    {
         $request->validated();
 
         $this->authorize('admin', $group);

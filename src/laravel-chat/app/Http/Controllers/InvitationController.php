@@ -2,22 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\GroupInvitation;
+use App\Models\Group;
+use App\Models\Invitation;
+use App\Models\User;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use App\Models\Group;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use App\Models\User;
-use App\Models\Invitation;
-use App\Mail\GroupInvitation;
 
 class InvitationController extends Controller
 {
     use AuthorizesRequests;
 
-    public function invite(Request $request, Group $group) {
+    public function invite(Request $request, Group $group)
+    {
         $request->validate([
             'user_id' => 'required|exists:users,id',
         ]);
@@ -47,8 +48,9 @@ class InvitationController extends Controller
                     'token' => $token,
                     'expires_at' => now()->addDays(31),
                 ]);
-                $url = route('groups.invitations.join.token', ['token' => $token, 'group' => $group->id, ]);
+                $url = route('groups.invitations.join.token', ['token' => $token, 'group' => $group->id]);
                 Mail::to($user->email)->send(new GroupInvitation($group, $url));
+
                 return ['success' => true];
             });
             if ($result['success']) {
@@ -57,14 +59,16 @@ class InvitationController extends Controller
                 if ($result['reason'] === 'already_invited') {
                     return redirect()->back()->with('error', "{$user->name}さんには既に招待が送られています。");
                 }
+
                 return redirect()->back()->with('error', '退会処理に失敗しました');
             }
         } catch (\Exception $e) {
-            return back()->with('error', "招待に失敗しました。時間をおいて再試行してください。");
+            return back()->with('error', '招待に失敗しました。時間をおいて再試行してください。');
         }
     }
 
-    public function resend(Group $group, Invitation $invitation) {
+    public function resend(Group $group, Invitation $invitation)
+    {
         $this->authorize('admin', $group);
         if ($invitation->group_id !== $group->id) {
             return back()->with('error', 'この招待はこのグループに属していません');
@@ -76,12 +80,13 @@ class InvitationController extends Controller
             DB::transaction(function () use ($group, $invitation) {
                 $invitation->expires_at = now()->addDays(31);
                 $invitation->save();
-                $url = route('groups.invitations.join.token', ['token' => $invitation->token,'group' => $group->id,]);
+                $url = route('groups.invitations.join.token', ['token' => $invitation->token, 'group' => $group->id]);
                 Mail::to($invitation->invitee_email)->send(new GroupInvitation($group, $url));
             });
+
             return back()->with('success', "{$invitation->invitee_email} に招待を再送信しました。");
         } catch (\Exception $e) {
-            return back()->with('error', "再送に失敗しました。時間をおいて再試行してください。");
+            return back()->with('error', '再送に失敗しました。時間をおいて再試行してください。');
         }
     }
 }

@@ -2,19 +2,20 @@
 
 namespace Tests\Feature;
 
+use App\Models\Group;
+use App\Models\Invitation;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
-use App\Models\Group;
-use App\Models\User;
-use App\Models\Invitation;
-use Illuminate\Support\Carbon;
 
 class GroupTest extends TestCase
 {
     use RefreshDatabase;
 
     private ?User $user = null;
+
     private ?Group $group = null;
 
     protected function setUp(): void
@@ -180,7 +181,7 @@ class GroupTest extends TestCase
         $token = 'dummyToken123';
         Invitation::create([
             'group_id' => $this->group->id,
-            'inviter_id'    => $inviter->id,
+            'inviter_id' => $inviter->id,
             'token' => $token,
             'invitee_email' => $this->user->email,
             'expires_at' => now()->addDay(),
@@ -207,7 +208,7 @@ class GroupTest extends TestCase
         $token = 'dummyToken123';
         Invitation::create([
             'group_id' => $this->group->id,
-            'inviter_id'    => $inviter->id,
+            'inviter_id' => $inviter->id,
             'token' => $token,
             'invitee_email' => $this->user->email,
             'expires_at' => now()->addDay(),
@@ -225,9 +226,9 @@ class GroupTest extends TestCase
         ]);
 
         $this->assertEquals(1, DB::table('group_user')
-        ->where('user_id', $this->user->id)
-        ->where('group_id', $this->group->id)
-        ->count());
+            ->where('user_id', $this->user->id)
+            ->where('group_id', $this->group->id)
+            ->count());
     }
 
     public function test_can_leave_chat_group(): void
@@ -238,7 +239,7 @@ class GroupTest extends TestCase
         $response = $this->delete(route('groups.members.leave', $this->group->id));
 
         $response->assertRedirect('/');
-        $this->assertDatabaseHas('group_user',[
+        $this->assertDatabaseHas('group_user', [
             'user_id' => $this->user->id,
             'group_id' => $this->group->id,
             'left_at' => now(),
@@ -267,7 +268,7 @@ class GroupTest extends TestCase
         $token = 'dummyToken123';
         Invitation::create([
             'group_id' => $this->group->id,
-            'inviter_id'    => $inviter->id,
+            'inviter_id' => $inviter->id,
             'token' => $token,
             'invitee_email' => $this->user->email,
             'expires_at' => now()->addDay(),
@@ -287,9 +288,9 @@ class GroupTest extends TestCase
         ]);
 
         $this->assertEquals(1, DB::table('group_user')
-        ->where('user_id', $this->user->id)
-        ->where('group_id', $this->group->id)
-        ->count());
+            ->where('user_id', $this->user->id)
+            ->where('group_id', $this->group->id)
+            ->count());
     }
 
     public function test_group_screen_filters_by_joined_status(): void

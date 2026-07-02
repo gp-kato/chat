@@ -2,13 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\Group;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
-use App\Models\User;
-use App\Models\Group;
 
 use function Symfony\Component\Clock\now;
 
@@ -17,6 +16,7 @@ class ArchiveTest extends TestCase
     use RefreshDatabase;
 
     private ?User $user = null;
+
     private ?Group $group = null;
 
     protected function setUp(): void

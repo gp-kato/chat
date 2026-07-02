@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Support\Facades\Gate;
+use App\Events\MessageEvent;
 use App\Models\Group;
 use App\Models\Message;
-use App\Events\MessageEvent;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class MessageController extends Controller
 {
@@ -16,7 +16,8 @@ class MessageController extends Controller
 
     use AuthorizesRequests;
 
-    public function show(Request $request, Group $group) {
+    public function show(Request $request, Group $group)
+    {
         $this->authorize('view', $group);
 
         $messages = Message::latestForGroup($group, self::FETCH_LIMIT)
@@ -25,16 +26,17 @@ class MessageController extends Controller
             ->values();
 
         return view('chat', [
-            'group'           => $group,
-            'messages'        => $messages,
-            'isAdmin'         => Gate::allows('admin', $group),
+            'group' => $group,
+            'messages' => $messages,
+            'isAdmin' => Gate::allows('admin', $group),
         ]);
     }
 
-    public function store(Request $request, Group $group) {
+    public function store(Request $request, Group $group)
+    {
         $user = Auth::user();
 
-        if (!$group->isActiveMember($user)) {
+        if (! $group->isActiveMember($user)) {
             return redirect()->route('groups.index')->with('error', 'このグループに参加していません');
         }
 
@@ -51,11 +53,12 @@ class MessageController extends Controller
         event(new MessageEvent($message));
 
         return response()->json([
-            'message' => 'メッセージを送信しました'
+            'message' => 'メッセージを送信しました',
         ], 201);
     }
 
-    public function fetch(Request $request, Group $group) {
+    public function fetch(Request $request, Group $group)
+    {
         $user = Auth::user();
 
         $validated = $request->validate([
@@ -64,14 +67,14 @@ class MessageController extends Controller
 
         $beforeId = $validated['before_id'] ?? null;
 
-        if (!$group->isActiveMember($user)) {
+        if (! $group->isActiveMember($user)) {
             abort(403, 'You are not a member of this group.');
         }
 
         $query = $group->messages()
             ->with('user')
             ->orderBy('id', 'desc')
-        ->limit(self::FETCH_LIMIT + 1);
+            ->limit(self::FETCH_LIMIT + 1);
 
         if ($beforeId) {
             $query->where('id', '<', $beforeId);

@@ -2,20 +2,19 @@
 
 namespace Tests\Feature\Service\GroupMemberService;
 
+use App\Models\Group;
+use App\Models\User;
+use App\Services\GroupMemberService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
-use App\Models\User;
-use App\Models\Group;
-use App\Services\GroupMemberService;
-use App\Exceptions\Domain\LastAdminException;
 
 class RemoveTest extends TestCase
 {
     use RefreshDatabase;
 
     private ?User $user = null;
+
     private ?Group $group = null;
 
     protected function setUp(): void
