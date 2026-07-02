@@ -321,6 +321,12 @@ class ApplicationTest extends TestCase
         $this->assertAuthenticated();
         $response->assertRedirect();
 
+        $this->assertDatabaseHas('group_user', [
+            'group_id' => $this->group->id,
+            'user_id'  => $anotheradmin->id,
+            'role' => 'admin',
+        ]);
+
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
             'user_id'  => $anotheradmin->id,
@@ -348,6 +354,12 @@ class ApplicationTest extends TestCase
         $this->assertAuthenticated();
         $response->assertRedirect();
 
+        $this->assertDatabaseHas('group_user', [
+            'group_id' => $this->group->id,
+            'user_id'  => $leftuser->id,
+            'left_at' => now(),
+        ]);
+
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
             'user_id'  => $leftuser->id,
@@ -374,6 +386,13 @@ class ApplicationTest extends TestCase
 
         $this->assertAuthenticated();
         $response->assertForbidden();
+
+        $this->assertDatabaseHas('group_user', [
+            'group_id' => $this->group->id,
+            'user_id'  => $applicant->id,
+            'role' => 'applicant',
+            'joined_at' => null,
+        ]);
 
         $this->assertDatabaseMissing('group_user', [
             'group_id' => $this->group->id,
