@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 use App\Models\Group;
 use App\Models\User;
@@ -20,6 +21,7 @@ class ApplicationTest extends TestCase
         parent::setUp();
         $this->user = User::factory()->create(); // すべてのテストで使うユーザーを作成
         $this->group = Group::factory()->create(); // 1回だけグループを作成
+        Carbon::setTestNow('2025-04-15 19:00:00');
     }
 
     private function applicant(User $user, Group $group): void
@@ -247,5 +249,307 @@ class ApplicationTest extends TestCase
         $response = $this->get(route('groups.messages.fetch', $this->group->id));
 
         $response->assertForbidden();
+    }
+
+    public function test_can_approve_applicant(): void
+    {
+        $this->actingAs($this->user);
+        $this->adminGroup($this->user, $this->group);
+
+        $applicant = User::factory()->create();
+        $this->applicant($applicant, $this->group);
+
+        $response = $this->put(
+            route('groups.members.approval', [
+                'group' => $this->group->id,
+                'user'  => $applicant->id,
+            ])
+        );
+
+        $this->assertAuthenticated();
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect();
+
+        $this->assertDatabaseHas('group_user', [
+            'group_id' => $this->group->id,
+            'user_id'  => $applicant->id,
+            'joined_at' => now(),
+            'left_at'  => null,
+            'role' => 'member',
+        ]);
+    }
+
+    public function test_cannot_approve_nonapplicant(): void
+    {
+        $this->actingAs($this->user);
+        $this->adminGroup($this->user, $this->group);
+
+        $nonapplicant = User::factory()->create();
+
+        $response = $this->put(
+            route('groups.members.approval', [
+                'group' => $this->group->id,
+                'user'  => $nonapplicant->id,
+            ])
+        );
+
+        $this->assertAuthenticated();
+        $response->assertRedirect();
+
+        $this->assertDatabaseMissing('group_user', [
+            'group_id' => $this->group->id,
+            'user_id'  => $nonapplicant->id,
+            'joined_at' => now(),
+            'left_at'  => null,
+            'role' => 'member',
+        ]);
+    }
+
+    public function test_cannot_approve_anotheradmin(): void
+    {
+        $this->actingAs($this->user);
+        $this->adminGroup($this->user, $this->group);
+
+        $anotheradmin = User::factory()->create();
+        $this->adminGroup($anotheradmin, $this->group);
+
+        $response = $this->put(
+            route('groups.members.approval', [
+                'group' => $this->group->id,
+                'user'  => $anotheradmin->id,
+            ])
+        );
+
+        $this->assertAuthenticated();
+        $response->assertRedirect();
+
+        $this->assertDatabaseHas('group_user', [
+            'group_id' => $this->group->id,
+            'user_id'  => $anotheradmin->id,
+            'role' => 'admin',
+        ]);
+
+        $this->assertDatabaseMissing('group_user', [
+            'group_id' => $this->group->id,
+            'user_id'  => $anotheradmin->id,
+            'joined_at' => now(),
+            'left_at'  => null,
+            'role' => 'member',
+        ]);
+    }
+
+    public function test_cannot_approve_leftuser(): void
+    {
+        $this->actingAs($this->user);
+        $this->adminGroup($this->user, $this->group);
+
+        $leftuser = User::factory()->create();
+        $this->leftadminGroup($leftuser, $this->group);
+
+        $response = $this->put(
+            route('groups.members.approval', [
+                'group' => $this->group->id,
+                'user'  => $leftuser->id,
+            ])
+        );
+
+        $this->assertAuthenticated();
+        $response->assertRedirect();
+
+        $this->assertDatabaseHas('group_user', [
+            'group_id' => $this->group->id,
+            'user_id'  => $leftuser->id,
+            'left_at' => now(),
+        ]);
+
+        $this->assertDatabaseMissing('group_user', [
+            'group_id' => $this->group->id,
+            'user_id'  => $leftuser->id,
+            'joined_at' => now(),
+            'left_at'  => null,
+            'role' => 'member',
+        ]);
+    }
+
+    public function test_cannot_approve_applicant_when_admin_has_left(): void
+    {
+        $this->actingAs($this->user);
+        $this->leftadminGroup($this->user, $this->group);
+
+        $applicant = User::factory()->create();
+        $this->applicant($applicant, $this->group);
+
+        $response = $this->put(
+            route('groups.members.approval', [
+                'group' => $this->group->id,
+                'user'  => $applicant->id,
+            ])
+        );
+
+        $this->assertAuthenticated();
+        $response->assertForbidden();
+
+        $this->assertDatabaseHas('group_user', [
+            'group_id' => $this->group->id,
+            'user_id'  => $applicant->id,
+            'role' => 'applicant',
+            'joined_at' => null,
+        ]);
+
+        $this->assertDatabaseMissing('group_user', [
+            'group_id' => $this->group->id,
+            'user_id'  => $applicant->id,
+            'joined_at' => now(),
+            'left_at'  => null,
+            'role' => 'member',
+        ]);
+    }
+
+    public function test_can_reject_applicant(): void
+    {
+        $this->actingAs($this->user);
+        $this->adminGroup($this->user, $this->group);
+
+        $applicant = User::factory()->create();
+        $this->applicant($applicant, $this->group);
+
+        $response = $this->delete(
+            route('groups.members.reject', [
+                'group' => $this->group->id,
+                'user'  => $applicant->id,
+            ])
+        );
+
+        $this->assertAuthenticated();
+        $response->assertRedirect();
+
+        $this->assertDatabaseMissing('group_user', [
+            'group_id' => $this->group->id,
+            'user_id'  => $applicant->id,
+        ]);
+    }
+
+    public function test_cannot_reject_nonapplicant(): void
+    {
+        $this->actingAs($this->user);
+        $this->adminGroup($this->user, $this->group);
+
+        $nonapplicant = User::factory()->create();
+
+        $response = $this->delete(
+            route('groups.members.reject', [
+                'group' => $this->group->id,
+                'user'  => $nonapplicant->id,
+            ])
+        );
+
+        $this->assertAuthenticated();
+        $response->assertRedirect();
+
+        $this->assertDatabaseMissing('group_user', [
+            'group_id' => $this->group->id,
+            'user_id'  => $nonapplicant->id,
+        ]);
+    }
+
+    public function test_cannot_reject_anotheradmin(): void
+    {
+        $this->actingAs($this->user);
+        $this->adminGroup($this->user, $this->group);
+
+        $anotheradmin = User::factory()->create();
+        $this->adminGroup($anotheradmin, $this->group);
+
+        $response = $this->delete(
+            route('groups.members.reject', [
+                'group' => $this->group->id,
+                'user'  => $anotheradmin->id,
+            ])
+        );
+
+        $this->assertAuthenticated();
+        $response->assertRedirect();
+
+
+        $this->assertDatabaseHas('group_user', [
+            'group_id' => $this->group->id,
+            'user_id'  => $anotheradmin->id,
+            'role' => 'admin',
+        ]);
+    }
+
+    public function test_cannot_reject_joinmember(): void
+    {
+        $this->actingAs($this->user);
+        $this->adminGroup($this->user, $this->group);
+
+        $joinimember = User::factory()->create();
+        $this->joinGroup($joinimember, $this->group);
+
+        $response = $this->delete(
+            route('groups.members.reject', [
+                'group' => $this->group->id,
+                'user'  => $joinimember->id,
+            ])
+        );
+
+        $this->assertAuthenticated();
+        $response->assertRedirect();
+
+
+        $this->assertDatabaseHas('group_user', [
+            'group_id' => $this->group->id,
+            'user_id'  => $joinimember->id,
+            'role' => 'member',
+        ]);
+    }
+
+    public function test_cannot_reject_leftuser(): void
+    {
+        $this->actingAs($this->user);
+        $this->adminGroup($this->user, $this->group);
+
+        $leftuser = User::factory()->create();
+        $this->leftadminGroup($leftuser, $this->group);
+
+        $response = $this->delete(
+            route('groups.members.reject', [
+                'group' => $this->group->id,
+                'user'  => $leftuser->id,
+            ])
+        );
+
+        $this->assertAuthenticated();
+        $response->assertRedirect();
+
+        $this->assertDatabaseHas('group_user', [
+            'user_id' => $leftuser->id,
+            'left_at' => now(),
+        ]);
+    }
+
+    public function test_cannot_reject_applicant_when_admin_has_left(): void
+    {
+        $this->actingAs($this->user);
+        $this->leftadminGroup($this->user, $this->group);
+
+        $applicant = User::factory()->create();
+        $this->applicant($applicant, $this->group);
+
+        $response = $this->delete(
+            route('groups.members.reject', [
+                'group' => $this->group->id,
+                'user'  => $applicant->id,
+            ])
+        );
+
+        $this->assertAuthenticated();
+        $response->assertForbidden();
+
+        $this->assertDatabaseHas('group_user', [
+            'group_id' => $this->group->id,
+            'user_id'  => $applicant->id,
+            'role' => 'applicant',
+        ]);
     }
 }
