@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 use App\Models\Group;
 use App\Models\User;
@@ -20,6 +21,7 @@ class ApplicationTest extends TestCase
         parent::setUp();
         $this->user = User::factory()->create(); // すべてのテストで使うユーザーを作成
         $this->group = Group::factory()->create(); // 1回だけグループを作成
+        Carbon::setTestNow('2025-04-15 19:00:00');
     }
 
     private function applicant(User $user, Group $group): void
