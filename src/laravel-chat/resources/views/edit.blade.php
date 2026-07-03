@@ -134,6 +134,8 @@
                                                 @method('PUT')
                                                 <button type="submit" class="btn btn-danger">申請を承認</button>
                                             </form>
+                                        </td>
+                                        <td>
                                             <form action="{{ route('groups.members.reject', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" class="inline">
                                                 @csrf
                                                 @method('DELETE')
