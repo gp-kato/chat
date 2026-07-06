@@ -93,56 +93,71 @@
                     </form>
                 @endif
                 <div class="bg-white rounded-xl shadow border p-6">
-                    <h1  class="text-3xl font-bold">メンバー管理</h1>
-                    <table class="w-full border-collapse">
+                    <h1 class="text-3xl font-bold">メンバー管理</h1>
+                    <table class="w-full border-collapse mb-6">
                         <thead class="bg-gray-100">
                             <tr>
                                 <th class="p-3">ユーザー</th>
-                                <th class="p-3" colspan="2">操作</th>
+                                <th class="p-3">退会</th>
+                                <th class="p-3">管理権</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($removableUsers as $user)
                                 <tr>
                                     <td class="p-3"><p>{{ $user->name }}</p></td>
-                                    <td colspan="2" class="p-3">
+                                    <td class="p-3">
                                         <form action="{{ route('groups.members.remove', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" class="inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger">退会</button>
                                         </form>
+                                    </td>
+                                    <td class="p-3">
                                         @if($user->pivot->role !== 'admin')
                                             <form action="{{ route('groups.members.transfer', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" class="inline">
                                                 @csrf
                                                 @method('PUT')
                                                 <button type="submit" class="btn btn-danger">管理権を付与</button>
                                             </form>
+                                        @else
+                                            <span class="text-gray-500">管理者</span>
                                         @endif
                                     </td>
                                 </tr>
                             @endforeach
+                        </tbody>
+                    </table>
+                    <h2 class="text-2xl font-bold">参加申請一覧</h2>
+                    <table class="w-full border-collapse">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="p-3">申請者</th>
+                                <th class="p-3">承認</th>
+                                <th class="p-3">拒否</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                             @foreach($applicants as $user)
                                 <tr>
-                                    <td>
-                                        <p>{{ $user->name }} (申請者)</p>
+                                    <td class="p-3">
+                                        <p>{{ $user->name }}</p>
                                         <p>{{ $user->email }}</p>
                                     </td>
-                                    @if($user->pivot->role == 'applicant')
-                                        <td>
-                                            <form action="{{ route('groups.members.approval', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" class="inline">
-                                                @csrf
-                                                @method('PUT')
-                                                <button type="submit" class="btn btn-danger">申請を承認</button>
-                                            </form>
-                                        </td>
-                                        <td>
-                                            <form action="{{ route('groups.members.reject', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" class="inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger">申請を拒否</button>
-                                            </form>
-                                        </td>
-                                    @endif
+                                    <td class="p-3">
+                                        <form action="{{ route('groups.members.approval', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" class="inline">
+                                            @csrf
+                                            @method('PUT')
+                                            <button type="submit" class="btn btn-danger">申請を承認</button>
+                                        </form>
+                                    </td>
+                                    <td class="p-3">
+                                        <form action="{{ route('groups.members.reject', ['group' => $group->id, 'user' => $user->id]) }}" method="POST" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger">申請を拒否</button>
+                                        </form>
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
