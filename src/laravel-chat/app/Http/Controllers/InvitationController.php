@@ -6,18 +6,17 @@ use App\Mail\GroupInvitation;
 use App\Models\Group;
 use App\Models\Invitation;
 use App\Models\User;
+use App\Services\InvitationService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 
 class InvitationController extends Controller
 {
     use AuthorizesRequests;
 
-    public function invite(Request $request, Group $group)
+    public function invite(Request $request, Group $group, InvitationService $service)
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
@@ -26,30 +25,10 @@ class InvitationController extends Controller
         $user = User::find($request->user_id);
 
         $this->authorize('admin', $group);
-        if ($group->isActiveMember($user)) {
-            return back()->with('info', "{$user->name}さんは既にこのグループのメンバーです。");
-        }
+
         try {
-            $result = DB::transaction(function () use ($group, $user) {
-                $existing = Invitation::where('group_id', $group->id)
-                    ->where('invitee_email', $user->email)
-                    ->where('expires_at', '>', now())
-                    ->whereNull('accepted_at')
-                    ->lockForUpdate() // 占有ロック
-                    ->first();
-                if ($existing) {
-                    return ['success' => false, 'reason' => 'already_invited'];
-                }
-                $token = Str::random(32);
-                $invitation = Invitation::create([
-                    'group_id' => $group->id,
-                    'inviter_id' => Auth::id(),
-                    'invitee_email' => $user->email,
-                    'token' => $token,
-                    'expires_at' => now()->addDays(31),
-                ]);
-                $url = route('groups.invitations.join.token', ['token' => $token, 'group' => $group->id]);
-                Mail::to($user->email)->send(new GroupInvitation($group, $url));
+            $result = DB::transaction(function () use ($group, $user, $service) {
+                $service->invite($group, $user);
 
                 return ['success' => true];
             });
@@ -67,7 +46,7 @@ class InvitationController extends Controller
         }
     }
 
-    public function resend(Group $group, Invitation $invitation)
+    public function resend(Group $group, Invitation $invitation, InvitationService $service)
     {
         $this->authorize('admin', $group);
         if ($invitation->group_id !== $group->id) {
@@ -77,11 +56,8 @@ class InvitationController extends Controller
             return back()->with('error', 'この招待は期限切れです');
         }
         try {
-            DB::transaction(function () use ($group, $invitation) {
-                $invitation->expires_at = now()->addDays(31);
-                $invitation->save();
-                $url = route('groups.invitations.join.token', ['token' => $invitation->token, 'group' => $group->id]);
-                Mail::to($invitation->invitee_email)->send(new GroupInvitation($group, $url));
+            DB::transaction(function () use ($group, $invitation, $service) {
+                $service->resend($group, $invitation);
             });
 
             return back()->with('success', "{$invitation->invitee_email} に招待を再送信しました。");

@@ -5,8 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ShowGroupRequest;
 use App\Http\Requests\UpdateGroupRequest;
 use App\Models\Group;
-use App\Models\Invitation;
-use App\Models\User;
+use App\Services\GroupService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,53 +14,26 @@ class GroupController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index(Request $request)
+    public function index(Request $request, GroupService $service)
     {
         $user = Auth::user();
         $filter = $request->query('filter');
 
-        $query = Group::query()
-            ->whereNull('archived_at')
-            ->withExists([
-                'activeUsersQuery as is_joined' => function ($q) use ($user) {
-                    $q->where('users.id', $user->id);
-                },
-
-                'users as is_applying' => function ($q) use ($user) {
-                    $q->where('users.id', $user->id)
-                        ->where('role', 'applicant');
-                },
-            ]);
-        if ($filter === 'joined') {
-            $query->whereHas('activeUsersQuery', function ($q) use ($user) {
-                $q->where('users.id', $user->id);
-            });
-        }
-
-        if ($filter === 'not_joined') {
-            $query->whereDoesntHave('activeUsersQuery', function ($q) use ($user) {
-                $q->where('users.id', $user->id);
-            });
-        }
-
-        $groups = $query->get();
+        $groups = $service->listForUser($user, $filter);
 
         return view('group', compact('groups', 'filter'));
     }
 
-    public function add(Request $request)
+    public function add(Request $request, GroupService $service)
     {
-        $request->validate([
+        $data = $request->validate([
             'name' => 'required|string|max:10',
             'description' => 'required|string|max:40',
         ]);
 
-        $group = Group::create([
-            'name' => $request->name,
-            'description' => $request->description,
-        ]);
+        $user = Auth::user();
 
-        $group->users()->attach(Auth::id(), ['role' => 'admin', 'joined_at' => now()]);
+        $service->create($data, $user);
 
         return redirect()->route('groups.index');
     }
@@ -76,22 +48,17 @@ class GroupController extends Controller
         return redirect()->route('groups.index');
     }
 
-    public function edit(ShowGroupRequest $request, Group $group)
+    public function edit(ShowGroupRequest $request, Group $group, GroupService $service)
     {
         $this->authorize('admin', $group);
 
         $query = $request->validatedQuery();
 
-        $activeUsers = $group->activeUsers();
+        $editData = $service->prepareEditData($group, $query);
 
         return view('edit', [
             'group' => $group,
-            'removableUsers' => $group->removableUsers($activeUsers),
-            'applicants' => $group->applicants(),
-            'invitations' => Invitation::activeForGroup($group)->get(),
-            'searchResults' => $query
-            ? User::searchNotJoined($query, $activeUsers->pluck('id'))->get()
-            : collect(),
+            'editData' => $editData,
         ]);
     }
 

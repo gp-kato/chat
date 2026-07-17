@@ -103,7 +103,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($removableUsers as $user)
+                            @foreach($editData['removableUsers'] as $user)
                                 <tr>
                                     <td class="p-3"><p>{{ $user->name }}</p></td>
                                     <td class="p-3">
@@ -138,7 +138,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($applicants as $user)
+                            @foreach($editData['applicants'] as $user)
                                 <tr>
                                     <td class="p-3">
                                         <p>{{ $user->name }}</p>
@@ -210,7 +210,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($invitations as $invitation)
+                            @foreach ($editData['invitations'] as $invitation)
                                 <tr>
                                     <td class="p-3">{{ $invitation->invitee_email }}</td>
                                     <td class="p-3">{{ $invitation->inviter->name ?? '-' }}</td>

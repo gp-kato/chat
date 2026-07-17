@@ -13,7 +13,7 @@ class MemberController extends Controller
 {
     use AuthorizesRequests;
 
-    public function join($groupId, $token)
+    public function join(int $groupId, string $token, GroupMemberService $service)
     {
         $group = Group::findOrFail($groupId);
         $user = Auth::user();
@@ -27,41 +27,16 @@ class MemberController extends Controller
             ->where('expires_at', '>', now())
             ->whereNull('accepted_at')
             ->first();
-        if (! $invitation) {
-            return redirect()->route('groups.index')->with('error', '無効な招待リンクです');
-        }
-        DB::transaction(function () use ($group, $user, $invitation) {
-            $invitation->accepted_at = now();
-            $invitation->save();
-            $group->users()->syncWithoutDetaching([
-                $user->id => [
-                    'joined_at' => now(),
-                    'left_at' => null,
-                    'role' => 'member',
-                ],
-            ]);
-        });
+        $service->joinByInvitation($group, $user, $invitation);
 
         return redirect()->route('groups.index')->with('success', 'グループに参加しました');
     }
 
-    public function application(Group $group)
+    public function application(Group $group, GroupMemberService $service)
     {
         $user = Auth::user();
 
-        if ($group->isActiveMember($user) || $group->isApplicant($user)) {
-            return redirect()->back()->with('info', '既にグループに参加しています');
-        }
-
-        DB::transaction(function () use ($group, $user) {
-            $group->users()->syncWithoutDetaching([
-                $user->id => [
-                    'role' => 'applicant',
-                    'joined_at' => null,
-                    'left_at' => null,
-                ],
-            ]);
-        });
+        $service->apply($group, $user);
 
         return redirect()->route('groups.index')->with('success', 'グループに参加申請を送りました');
     }
@@ -120,12 +95,10 @@ class MemberController extends Controller
         }
     }
 
-    public function transfer(Group $group, User $user)
+    public function transfer(Group $group, User $user, GroupMemberService $service)
     {
         $this->authorize('admin', $group);
-        $group->users()->updateExistingPivot($user->id, [
-            'role' => 'admin',
-        ]);
+        $service->transferAdmin($group, $user);
 
         return redirect()->back()->with('success', '管理権を与えました');
     }
@@ -146,18 +119,14 @@ class MemberController extends Controller
         }
     }
 
-    public function approval(Group $group, User $user)
+    public function approval(Group $group, User $user, GroupMemberService $service)
     {
         $this->authorize('admin', $group);
         if (! $group->isApplicant($user)) {
             return redirect()->back()->with('error', 'このユーザーは申請していません');
         }
 
-        $group->users()->updateExistingPivot($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-            'role' => 'member',
-        ]);
+        $service->approveApplicant($group, $user);
 
         return redirect()->back()->with('success', '申請を承認しました');
     }
