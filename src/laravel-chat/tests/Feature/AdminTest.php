@@ -61,6 +61,27 @@ class AdminTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_edit_screen_can_be_rendered_with_query_param(): void
+    {
+        $this->actingAs($this->user);
+        $this->adminGroup($this->user, $this->group);
+
+        $searchUser = User::factory()->create([
+            'name' => 'Alice Example',
+            'email' => 'alice@example.com',
+        ]);
+
+        $response = $this->get(route('groups.edit', [
+            'group' => $this->group->id,
+            'query' => 'alice',
+        ]));
+
+        $response->assertStatus(200);
+        $response->assertSee('value="alice"', false);
+        $response->assertSee('Alice Example');
+        $response->assertSee($searchUser->email);
+    }
+
     public function test_edit_screen_cannot_be_rendered_without_admin(): void
     {
         $this->actingAs($this->user);
