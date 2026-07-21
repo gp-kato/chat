@@ -170,7 +170,7 @@
                         <button type="submit" class="bg-gray-200 px-4 py-2 rounded">検索</button>
                     </form>
                     @if(request('query'))
-                        @if($searchResults->isNotEmpty())
+                        @if($editData['searchResults']->isNotEmpty())
                             <form method="POST" action="{{ route('groups.invitations.invite', ['group' => $group->id]) }}#invitations">
                                 @csrf
                                 <table class="table-auto w-full">
@@ -182,7 +182,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($searchResults as $user)
+                                        @foreach($editData['searchResults'] as $user)
                                             <tr>
                                                 <td class="p-3"><input type="radio" name="user_id" value="{{ $user->id }}" required></td>
                                                 <td class="p-3">{{ $user->name }}</td>
