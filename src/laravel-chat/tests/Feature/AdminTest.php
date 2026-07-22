@@ -82,6 +82,28 @@ class AdminTest extends TestCase
         $response->assertSee($searchUser->email);
     }
 
+    public function test_edit_screen_can_be_rendered_with_query_param_no_results(): void
+    {
+        $this->actingAs($this->user);
+        $this->adminGroup($this->user, $this->group);
+
+        // グループに他のユーザーを参加させ、キーワードが存在しないクエリを使用
+        $groupMember = User::factory()->create([
+            'name' => 'Bob Member',
+            'email' => 'bob@example.com',
+        ]);
+        $this->joinGroup($groupMember, $this->group);
+
+        $response = $this->get(route('groups.edit', [
+            'group' => $this->group->id,
+            'query' => 'nonexistent',
+        ]));
+
+        $response->assertStatus(200);
+        $response->assertSee('value="nonexistent"', false);
+        $response->assertSee('検索結果が見つかりませんでした。');
+    }
+
     public function test_edit_screen_cannot_be_rendered_without_admin(): void
     {
         $this->actingAs($this->user);
