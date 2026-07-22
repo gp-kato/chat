@@ -18,7 +18,10 @@ class InvitationService
     public function invite(Group $group, User $user)
     {
         if ($group->isActiveMember($user)) {
-            return back()->with('info', "{$user->name}さんは既にこのグループのメンバーです。");
+            return [
+                'success' => false,
+                'reason' => 'already_member',
+            ];
         }
         $existing = Invitation::where('group_id', $group->id)
             ->where('invitee_email', $user->email)
