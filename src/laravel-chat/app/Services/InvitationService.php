@@ -39,7 +39,6 @@ class InvitationService
         ]);
         $url = route('groups.invitations.join.token', ['token' => $token, 'group' => $group->id]);
         Mail::to($user->email)->send(new GroupInvitation($group, $url));
-        return ['success' => true];
     }
 
     public function resend(Group $group, Invitation $invitation)

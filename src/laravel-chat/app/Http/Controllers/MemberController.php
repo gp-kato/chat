@@ -28,6 +28,17 @@ class MemberController extends Controller
             ->whereNull('accepted_at')
             ->first();
         $service->joinByInvitation($group, $user, $invitation);
+        DB::transaction(function () use ($group, $user, $invitation) {
+            $invitation->accepted_at = now();
+            $invitation->save();
+            $group->users()->syncWithoutDetaching([
+                $user->id => [
+                    'joined_at' => now(),
+                    'left_at' => null,
+                    'role' => 'member',
+                ],
+            ]);
+        });
 
         return redirect()->route('groups.index')->with('success', 'グループに参加しました');
     }
@@ -37,6 +48,16 @@ class MemberController extends Controller
         $user = Auth::user();
 
         $service->apply($group, $user);
+
+        DB::transaction(function () use ($group, $user) {
+            $group->users()->syncWithoutDetaching([
+                $user->id => [
+                    'role' => 'applicant',
+                    'joined_at' => null,
+                    'left_at' => null,
+                ],
+            ]);
+        });
 
         return redirect()->route('groups.index')->with('success', 'グループに参加申請を送りました');
     }

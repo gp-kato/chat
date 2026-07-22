@@ -18,17 +18,6 @@ class GroupMemberService
         if (! $invitation) {
             return redirect()->route('groups.index')->with('error', '無効な招待リンクです');
         }
-        DB::transaction(function () use ($group, $user, $invitation) {
-            $invitation->accepted_at = now();
-            $invitation->save();
-            $group->users()->syncWithoutDetaching([
-                $user->id => [
-                    'joined_at' => now(),
-                    'left_at' => null,
-                    'role' => 'member',
-                ],
-            ]);
-        });
     }
 
     public function apply(Group $group, User $user)
@@ -36,16 +25,6 @@ class GroupMemberService
         if ($group->isActiveMember($user) || $group->isApplicant($user)) {
             return redirect()->back()->with('info', '既にグループに参加しています');
         }
-
-        DB::transaction(function () use ($group, $user) {
-            $group->users()->syncWithoutDetaching([
-                $user->id => [
-                    'role' => 'applicant',
-                    'joined_at' => null,
-                    'left_at' => null,
-                ],
-            ]);
-        });
     }
 
     public function leave(Group $group, User $user): void
