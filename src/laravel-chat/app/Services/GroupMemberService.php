@@ -13,7 +13,7 @@ class GroupMemberService
         private GroupAdminService $adminService
     ) {}
 
-    public function joinByInvitation(Group $group, User $user, Invitation $invitation)
+    public function joinByInvitation(?Invitation $invitation)
     {
         if (! $invitation) {
             return redirect()->route('groups.index')->with('error', '無効な招待リンクです');

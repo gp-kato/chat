@@ -27,7 +27,7 @@ class MemberController extends Controller
             ->where('expires_at', '>', now())
             ->whereNull('accepted_at')
             ->first();
-        $service->joinByInvitation($group, $user, $invitation);
+        $service->joinByInvitation($invitation);
         DB::transaction(function () use ($group, $user, $invitation) {
             $invitation->accepted_at = now();
             $invitation->save();
