@@ -6,10 +6,7 @@ use App\Mail\GroupInvitation;
 use App\Models\Group;
 use App\Models\Invitation;
 use App\Models\User;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
@@ -33,7 +30,7 @@ class InvitationService
             return ['success' => false, 'reason' => 'already_invited'];
         }
         $token = Str::random(32);
-        $invitation = Invitation::create([
+        Invitation::create([
             'group_id' => $group->id,
             'inviter_id' => Auth::id(),
             'invitee_email' => $user->email,

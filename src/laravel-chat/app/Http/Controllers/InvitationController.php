@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\GroupInvitation;
 use App\Models\Group;
 use App\Models\Invitation;
 use App\Models\User;
@@ -10,7 +9,6 @@ use App\Services\InvitationService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 
 class InvitationController extends Controller
 {
