@@ -11,15 +11,15 @@ use Illuminate\Support\Facades\Gate;
 
 class MessageController extends Controller
 {
-    private const FETCH_LIMIT = 50;
-
     use AuthorizesRequests;
 
-    public function show(Group $group, MessageService $service)
+    public function show(Request $request, Group $group, MessageService $service)
     {
         $this->authorize('view', $group);
 
-        $messages = $service->getRecentMessages($group, self::FETCH_LIMIT);
+        $limit = $request->integer('limit', MessageService::FETCH_LIMIT);
+
+        $messages = $service->getRecentMessages($group, $limit);
 
         return view('chat', [
             'group' => $group,

@@ -10,11 +10,11 @@ use Illuminate\Support\Facades\Auth;
 
 class MessageService
 {
-    private const FETCH_LIMIT = 50;
+    public const FETCH_LIMIT = 50;
 
     public function getRecentMessages(Group $group, int $limit)
     {
-        $messages = Message::latestForGroup($group, self::FETCH_LIMIT)
+        $messages = Message::latestForGroup($group, $limit)
             ->get()
             ->sortBy('id')
             ->values();
