@@ -28,9 +28,7 @@ class InvitationController extends Controller
 
         try {
             $result = DB::transaction(function () use ($group, $user, $service) {
-                $service->invite($group, $user);
-
-                return ['success' => true];
+                return $service->invite($group, $user);
             });
             if ($result['success']) {
                 return back()->with('success', "{$user->name}さんを招待しました。");
