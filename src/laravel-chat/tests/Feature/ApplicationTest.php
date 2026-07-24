@@ -125,7 +125,7 @@ class ApplicationTest extends TestCase
         $response = $this->post(route('groups.members.application', $this->group));
 
         $response->assertRedirect();
-        $response->assertSessionHas('info', '既にグループに参加しています');
+        $response->assertSessionHas('info', '既にグループに参加しているか、参加申請中です');
     }
 
     public function test_applicant_is_not_in_activemembers(): void
