@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\Domain\AlreadyMemberException;
+use App\Exceptions\Domain\InvalidInvitationException;
 use App\Models\Group;
 use App\Models\User;
 use App\Services\GroupMemberService;
@@ -27,39 +29,33 @@ class MemberController extends Controller
             ->where('expires_at', '>', now())
             ->whereNull('accepted_at')
             ->first();
-        $service->joinByInvitation($invitation);
-        DB::transaction(function () use ($group, $user, $invitation) {
-            $invitation->accepted_at = now();
-            $invitation->save();
-            $group->users()->syncWithoutDetaching([
-                $user->id => [
-                    'joined_at' => now(),
-                    'left_at' => null,
-                    'role' => 'member',
-                ],
-            ]);
-        });
 
-        return redirect()->route('groups.index')->with('success', 'グループに参加しました');
+        try {
+            $service->joinByInvitation($invitation, $user);
+
+            return redirect()->route('groups.index')->with('success', 'グループに参加しました');
+        } catch (InvalidInvitationException $e) {
+            return redirect()->route('groups.index')->with('error', $e->getMessage());
+        } catch (AlreadyMemberException $e) {
+            return redirect()->back()->with('info', $e->getMessage());
+        } catch (\Throwable $e) {
+            return redirect()->route('groups.index')->with('error', '参加処理中にエラーが発生しました');
+        }
     }
 
     public function application(Group $group, GroupMemberService $service)
     {
         $user = Auth::user();
 
-        $service->apply($group, $user);
+        try {
+            $service->apply($group, $user);
 
-        DB::transaction(function () use ($group, $user) {
-            $group->users()->syncWithoutDetaching([
-                $user->id => [
-                    'role' => 'applicant',
-                    'joined_at' => null,
-                    'left_at' => null,
-                ],
-            ]);
-        });
-
-        return redirect()->route('groups.index')->with('success', 'グループに参加申請を送りました');
+            return redirect()->route('groups.index')->with('success', 'グループに参加申請を送りました');
+        } catch (AlreadyMemberException $e) {
+            return redirect()->back()->with('info', $e->getMessage());
+        } catch (\Throwable $e) {
+            return redirect()->route('groups.index')->with('error', '参加申請中にエラーが発生しました');
+        }
     }
 
     public function cancelApplication(Group $group, GroupMemberService $service)

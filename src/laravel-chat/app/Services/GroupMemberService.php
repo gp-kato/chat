@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Exceptions\Domain\AlreadyMemberException;
+use App\Exceptions\Domain\InvalidInvitationException;
 use App\Models\Group;
-use App\Models\User;
 use App\Models\Invitation;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class GroupMemberService
@@ -13,18 +15,47 @@ class GroupMemberService
         private GroupAdminService $adminService
     ) {}
 
-    public function joinByInvitation(?Invitation $invitation)
+    public function joinByInvitation(?Invitation $invitation, User $user): void
     {
         if (! $invitation) {
-            return redirect()->route('groups.index')->with('error', '無効な招待リンクです');
+            throw new InvalidInvitationException();
         }
+
+        $group = $invitation->group;
+
+        if ($group->isActiveMember($user) || $group->isApplicant($user)) {
+            throw new AlreadyMemberException('既にグループに参加しているか、参加申請中です');
+        }
+
+        DB::transaction(function () use ($group, $user, $invitation) {
+            $invitation->accepted_at = now();
+            $invitation->save();
+
+            $group->users()->syncWithoutDetaching([
+                $user->id => [
+                    'joined_at' => now(),
+                    'left_at' => null,
+                    'role' => 'member',
+                ],
+            ]);
+        });
     }
 
-    public function apply(Group $group, User $user)
+    public function apply(Group $group, User $user): void
     {
         if ($group->isActiveMember($user) || $group->isApplicant($user)) {
-            return redirect()->back()->with('info', '既にグループに参加しています');
+            throw new AlreadyMemberException('既にグループに参加しているか、参加申請中です');
         }
+
+        DB::transaction(function () use ($group, $user) {
+            $group->users()->syncWithoutDetaching([
+                $user->id => [
+                    'role' => 'applicant',
+                    'joined_at' => null,
+                    'left_at' => null,
+                ],
+            ]);
+        });
     }
 
     public function leave(Group $group, User $user): void
