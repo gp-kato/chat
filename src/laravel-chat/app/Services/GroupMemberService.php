@@ -2,7 +2,10 @@
 
 namespace App\Services;
 
+use App\Exceptions\Domain\AlreadyMemberException;
+use App\Exceptions\Domain\InvalidInvitationException;
 use App\Models\Group;
+use App\Models\Invitation;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -11,6 +14,49 @@ class GroupMemberService
     public function __construct(
         private GroupAdminService $adminService
     ) {}
+
+    public function joinByInvitation(?Invitation $invitation, User $user): void
+    {
+        if (! $invitation) {
+            throw new InvalidInvitationException();
+        }
+
+        $group = $invitation->group;
+
+        if ($group->isActiveMember($user) || $group->isApplicant($user)) {
+            throw new AlreadyMemberException('既にグループに参加しているか、参加申請中です');
+        }
+
+        DB::transaction(function () use ($group, $user, $invitation) {
+            $invitation->accepted_at = now();
+            $invitation->save();
+
+            $group->users()->syncWithoutDetaching([
+                $user->id => [
+                    'joined_at' => now(),
+                    'left_at' => null,
+                    'role' => 'member',
+                ],
+            ]);
+        });
+    }
+
+    public function apply(Group $group, User $user): void
+    {
+        if ($group->isActiveMember($user) || $group->isApplicant($user)) {
+            throw new AlreadyMemberException('既にグループに参加しているか、参加申請中です');
+        }
+
+        DB::transaction(function () use ($group, $user) {
+            $group->users()->syncWithoutDetaching([
+                $user->id => [
+                    'role' => 'applicant',
+                    'joined_at' => null,
+                    'left_at' => null,
+                ],
+            ]);
+        });
+    }
 
     public function leave(Group $group, User $user): void
     {
@@ -39,6 +85,13 @@ class GroupMemberService
         });
     }
 
+    public function transferAdmin(Group $group, User $user)
+    {
+        $group->users()->updateExistingPivot($user->id, [
+            'role' => 'admin',
+        ]);
+    }
+
     public function demote(Group $group, User $user)
     {
         DB::transaction(function () use ($group, $user) {
@@ -57,6 +110,15 @@ class GroupMemberService
         }
 
         $group->users()->detach($user->id);
+    }
+
+    public function approveApplicant(Group $group, User $user)
+    {
+        $group->users()->updateExistingPivot($user->id, [
+            'joined_at' => now(),
+            'left_at' => null,
+            'role' => 'member',
+        ]);
     }
 
     public function reject(Group $group, User $target)

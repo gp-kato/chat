@@ -103,7 +103,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($removableUsers as $user)
+                            @foreach($editData['removableUsers'] as $user)
                                 <tr>
                                     <td class="p-3"><p>{{ $user->name }}</p></td>
                                     <td class="p-3">
@@ -138,7 +138,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($applicants as $user)
+                            @foreach($editData['applicants'] as $user)
                                 <tr>
                                     <td class="p-3">
                                         <p>{{ $user->name }}</p>
@@ -170,7 +170,7 @@
                         <button type="submit" class="bg-gray-200 px-4 py-2 rounded">検索</button>
                     </form>
                     @if(request('query'))
-                        @if($searchResults->isNotEmpty())
+                        @if($editData['searchResults']->isNotEmpty())
                             <form method="POST" action="{{ route('groups.invitations.invite', ['group' => $group->id]) }}#invitations">
                                 @csrf
                                 <table class="table-auto w-full">
@@ -182,7 +182,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($searchResults as $user)
+                                        @foreach($editData['searchResults'] as $user)
                                             <tr>
                                                 <td class="p-3"><input type="radio" name="user_id" value="{{ $user->id }}" required></td>
                                                 <td class="p-3">{{ $user->name }}</td>
@@ -210,7 +210,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($invitations as $invitation)
+                            @foreach ($editData['invitations'] as $invitation)
                                 <tr>
                                     <td class="p-3">{{ $invitation->invitee_email }}</td>
                                     <td class="p-3">{{ $invitation->inviter->name ?? '-' }}</td>
