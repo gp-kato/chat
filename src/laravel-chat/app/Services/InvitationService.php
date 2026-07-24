@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 
 class InvitationService
 {
-    public function invite(Group $group, User $user)
+    public function invite(Group $group, User $user): array
     {
         if ($group->isActiveMember($user)) {
             return [
@@ -39,6 +39,7 @@ class InvitationService
         ]);
         $url = route('groups.invitations.join.token', ['token' => $token, 'group' => $group->id]);
         Mail::to($user->email)->send(new GroupInvitation($group, $url));
+        return ['success' => true];
     }
 
     public function resend(Group $group, Invitation $invitation)
