@@ -23,10 +23,6 @@ class GroupMemberService
 
         $group = $invitation->group;
 
-        if ($group->isActiveMember($user) || $group->isApplicant($user)) {
-            throw new AlreadyMemberException('既にグループに参加しているか、参加申請中です');
-        }
-
         DB::transaction(function () use ($group, $user, $invitation) {
             $invitation->accepted_at = now();
             $invitation->save();
