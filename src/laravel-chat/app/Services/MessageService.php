@@ -12,7 +12,7 @@ class MessageService
 {
     public const FETCH_LIMIT = 50;
 
-    public function getRecentMessages(Group $group, int $limit)
+    public function getRecentMessages(Group $group, int $limit = self::FETCH_LIMIT)
     {
         $messages = Message::latestForGroup($group, $limit)
             ->get()
