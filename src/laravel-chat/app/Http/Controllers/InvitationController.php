@@ -36,6 +36,8 @@ class InvitationController extends Controller
                 } elseif ($result['reason'] === 'already_member') {
                     return redirect()->back()->with('error', "{$user->name}さんは、すでにこのグループのメンバーです。");
                 }
+
+                return redirect()->back()->with('error', '招待処理に失敗しました');
             }
         } catch (\Exception $e) {
             return back()->with('error', '招待に失敗しました。時間をおいて再試行してください。');
