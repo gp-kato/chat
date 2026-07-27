@@ -13,13 +13,11 @@ class MessageController extends Controller
 {
     use AuthorizesRequests;
 
-    public const FETCH_LIMIT = 50;
-
     public function show(Request $request, Group $group, MessageService $service)
     {
         $this->authorize('view', $group);
 
-        $messages = $service->getRecentMessages($group, self::FETCH_LIMIT);
+        $messages = $service->getRecentMessages($group);
 
         return view('chat', [
             'group' => $group,
