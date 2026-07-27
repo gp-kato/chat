@@ -33,7 +33,7 @@ class InvitationController extends Controller
             } else {
                 if ($result['reason'] === 'already_invited') {
                     return redirect()->back()->with('error', "{$user->name}さんには既に招待が送られています。");
-                } elseif ($result['reason'] === 'already_meber') {
+                } elseif ($result['reason'] === 'already_member') {
                     return redirect()->back()->with('error', "{$user->name}さんは、すでにこのグループのメンバーです。");
                 }
             }

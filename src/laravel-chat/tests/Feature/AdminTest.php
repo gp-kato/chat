@@ -305,6 +305,26 @@ class AdminTest extends TestCase
         ]);
     }
 
+    public function test_cannot_invite_member(): void
+    {
+        $this->actingAs($this->user);
+        $this->adminGroup($this->user, $this->group);
+
+        $inviteUser = User::factory()->create();
+        $this->joinGroup($inviteUser, $this->group);
+
+        $response = $this->post(
+            route('groups.invitations.invite', $this->group),
+            ['user_id' => $inviteUser->id]
+        );
+
+        $response->assertRedirect();
+
+        $this->assertDatabaseMissing('invitations', [
+            'group_id' => $this->group->id,
+        ]);
+    }
+
     public function test_can_remove_user_when_admin(): void
     {
         $this->actingAs($this->user);
