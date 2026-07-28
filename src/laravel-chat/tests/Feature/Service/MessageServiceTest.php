@@ -40,9 +40,15 @@ class MessageServiceTest extends TestCase
 
         $service = app(MessageService::class);
 
-        $service->getRecentMessages($this->group, 10);
+        $message = Message::factory()->create([
+            'group_id' => $this->group->id,
+            'user_id' => $this->user->id,
+        ]);
 
-        $this->assertTrue(true);
+        $messages = $service->getRecentMessages($this->group, 10);
+
+        $this->assertCount(1, $messages);
+        $this->assertSame($message->id, $messages->first()->id);
     }
 
     public function test_can_post_message(): void
@@ -74,8 +80,9 @@ class MessageServiceTest extends TestCase
             'group_id' => $this->group->id,
         ]);
 
-        $messages = $service->fetch($this->group ,1);
+        $messages = $service->fetch($this->group, null);
 
-        $this->assertTrue(true);
+        $this->assertTrue($messages['has_more']);
+        $this->assertIsString($messages['html']);
     }
 }

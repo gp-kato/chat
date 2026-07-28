@@ -3,6 +3,7 @@
 namespace Tests\Feature\Service;
 
 use App\Models\Group;
+use App\Models\Invitation;
 use App\Models\User;
 use App\Services\GroupService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -48,9 +49,11 @@ class GroupServiceTest extends TestCase
 
         $service = app(GroupService::class);
 
-        $service->listForUser($this->user);
+        $groups = $service->listForUser($this->user);
 
-        $this->assertTrue(true);
+        $this->assertCount(1, $groups);
+        $this->assertSame($this->group->id, $groups->first()->id);
+        $this->assertTrue($groups->first()->is_joined);
     }
 
     public function test_create_group(): void
@@ -78,10 +81,46 @@ class GroupServiceTest extends TestCase
         $this->actingAs($this->user);
         $this->adminGroup($this->user, $this->group);
 
+        $member = User::factory()->create();
+        $this->group->users()->attach($member->id, [
+            'joined_at' => now(),
+            'left_at' => null,
+            'role' => 'member',
+        ]);
+
+        $applicant = User::factory()->create();
+        $this->group->users()->attach($applicant->id, [
+            'joined_at' => now(),
+            'left_at' => null,
+            'role' => 'applicant',
+        ]);
+
+        $searchableUser = User::factory()->create([
+            'name' => 'Searchable User',
+            'email' => 'searchable@example.com',
+        ]);
+
+        Invitation::create([
+            'group_id' => $this->group->id,
+            'inviter_id' => $this->user->id,
+            'invitee_email' => 'invite@example.com',
+            'token' => 'token',
+            'expires_at' => now()->addDay(),
+        ]);
+
         $service = app(GroupService::class);
 
-        $service->listForUser($this->user);
+        $result = $service->prepareEditData($this->group, 'searchable');
 
-        $this->assertTrue(true);
+        $this->assertCount(2, $result['activeUsers']);
+        $this->assertTrue($result['activeUsers']->contains(fn ($user) => $user->id === $this->user->id));
+        $this->assertTrue($result['activeUsers']->contains(fn ($user) => $user->id === $member->id));
+        $this->assertTrue($result['removableUsers']->contains(fn ($user) => $user->id === $member->id));
+        $this->assertFalse($result['removableUsers']->contains(fn ($user) => $user->id === $this->user->id));
+        $this->assertTrue($result['applicants']->contains(fn ($user) => $user->id === $applicant->id));
+        $this->assertCount(1, $result['invitations']);
+        $this->assertTrue($result['invitations']->contains(fn ($invitation) => $invitation->invitee_email === 'invite@example.com'));
+        $this->assertCount(1, $result['searchResults']);
+        $this->assertTrue($result['searchResults']->contains(fn ($user) => $user->id === $searchableUser->id));
     }
 }
