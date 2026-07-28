@@ -20,18 +20,8 @@ class MemberController extends Controller
         $group = Group::findOrFail($groupId);
         $user = Auth::user();
 
-        if ($group->isActiveMember($user)) {
-            return redirect()->back()->with('info', 'すでにグループに参加しています');
-        }
-        $invitation = $group->invitations()
-            ->where('token', $token)
-            ->where('invitee_email', $user->email)
-            ->where('expires_at', '>', now())
-            ->whereNull('accepted_at')
-            ->first();
-
         try {
-            $service->joinByInvitation($invitation, $user);
+            $service->joinByInvitation($group, $token, $user);
 
             return redirect()->route('groups.index')->with('success', 'グループに参加しました');
         } catch (InvalidInvitationException $e) {

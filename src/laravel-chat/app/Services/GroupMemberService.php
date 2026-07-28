@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Exceptions\Domain\AlreadyMemberException;
 use App\Exceptions\Domain\InvalidInvitationException;
 use App\Models\Group;
-use App\Models\Invitation;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -15,25 +14,33 @@ class GroupMemberService
         private GroupAdminService $adminService
     ) {}
 
-    public function joinByInvitation(?Invitation $invitation, User $user): void
+    public function joinByInvitation(Group $group, string $token, User $user): void
     {
-        if (! $invitation) {
-            throw new InvalidInvitationException();
-        }
+        DB::transaction(function () use ($group, $token, $user): void {
+            $now = now();
 
-        $group = $invitation->group;
+            $invitation = $group->invitations()
+                ->where('token', $token)
+                ->where('invitee_email', $user->email)
+                ->where('expires_at', '>', $now)
+                ->whereNull('accepted_at')
+                ->lockForUpdate()
+                ->first();
 
-        if ($group->isActiveMember($user)) {
-            throw new AlreadyMemberException('既にグループに参加しています');
-        }
+            if (! $invitation) {
+                throw new InvalidInvitationException();
+            }
 
-        DB::transaction(function () use ($group, $user, $invitation) {
-            $invitation->accepted_at = now();
+            if ($group->isActiveMember($user)) {
+                throw new AlreadyMemberException('既にグループに参加しています');
+            }
+
+            $invitation->accepted_at = $now;
             $invitation->save();
 
             $group->users()->syncWithoutDetaching([
                 $user->id => [
-                    'joined_at' => now(),
+                    'joined_at' => $now,
                     'left_at' => null,
                     'role' => 'member',
                 ],
