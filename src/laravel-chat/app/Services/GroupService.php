@@ -46,7 +46,7 @@ class GroupService
             'description' => $data['description'],
         ]);
 
-        $group->users()->attach(Auth::id(), ['role' => 'admin', 'joined_at' => now()]);
+        $group->users()->attach($user->id, ['role' => 'admin', 'joined_at' => now(),]);
 
         return $group;
     }
