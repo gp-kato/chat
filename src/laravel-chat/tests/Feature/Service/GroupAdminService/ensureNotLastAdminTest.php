@@ -58,10 +58,9 @@ class ensureNotLastAdminTest extends TestCase
 
         $service = app(\App\Services\GroupAdminService::class);
 
-        // 例外が出ないことを確認
         $service->ensureNotLastAdmin($this->group, $this->user);
 
-        $this->assertTrue(true); // 到達確認
+        $this->assertSame(0, $service->adminCount($this->group));
     }
 
     public function test_throw_exception_when_last_admin(): void
@@ -94,12 +93,11 @@ class ensureNotLastAdminTest extends TestCase
 
         $service = app(\App\Services\GroupAdminService::class);
 
-        // 例外が出ないこと
         DB::transaction(function () use ($service, $group, $admin) {
             $service->ensureNotLastAdmin($group, $admin);
         });
 
-        $this->assertTrue(true);
+        $this->assertSame(2, $service->adminCount($group));
     }
 
     public function test_left_admin_is_not_counted(): void
