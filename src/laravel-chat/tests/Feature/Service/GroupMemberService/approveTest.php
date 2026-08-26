@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Service\GroupMemberService;
 
-use App\Exceptions\Domain\LastAdminException;
 use App\Models\Group;
 use App\Models\User;
 use App\Services\GroupMemberService;
@@ -10,7 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
-class DemoteTest extends TestCase
+class approveTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -26,53 +25,44 @@ class DemoteTest extends TestCase
         Carbon::setTestNow('2025-04-15 19:00:00');
     }
 
-    private function adminGroup(User $user, Group $group): void
+    private function applicant(User $user, Group $group): void
     {
         $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-            'role' => 'admin',
+            'role' => 'applicant',
         ]);
     }
 
-    public function test_last_admin_cannot_demote(): void
+    public function test_approve_member_applicant(): void
     {
         $this->actingAs($this->user);
-        $this->adminGroup($this->user, $this->group);
+        $this->applicant($this->user, $this->group);
 
         $service = app(GroupMemberService::class);
 
-        try {
-            $service->demote($this->group, $this->user);
-
-            $this->fail('LastAdminException was not thrown.');
-        } catch (LastAdminException $e) {
-            // 想定どおり例外が発生
-        }
+        $service->approveApplicant($this->group, $this->user);
 
         $this->assertDatabaseHas('group_user', [
             'group_id' => $this->group->id,
             'user_id' => $this->user->id,
             'joined_at' => now(),
             'left_at' => null,
-            'role' => 'admin',
+            'role' => 'member',
         ]);
     }
 
-    public function test_admin_can_demote_if_multiple_admins(): void
+    public function test_cannot_approve_non_applicant(): void
     {
         $this->actingAs($this->user);
-        $this->adminGroup($this->user, $this->group);
-
-        $anotheradmin = User::factory()->create();
-        $this->adminGroup($anotheradmin, $this->group);
 
         $service = app(GroupMemberService::class);
 
-        $service->demote($this->group, $this->user);
+        $service->approveApplicant($this->group, $this->user);
 
-        $this->assertDatabaseHas('group_user', [
+        $this->assertDatabaseMissing('group_user', [
+            'group_id' => $this->group->id,
             'user_id' => $this->user->id,
+            'joined_at' => now(),
+            'left_at' => null,
             'role' => 'member',
         ]);
     }

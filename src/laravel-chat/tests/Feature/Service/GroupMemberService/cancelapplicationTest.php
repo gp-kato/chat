@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Service\GroupMemberService;
 
+
 use App\Models\Group;
 use App\Models\User;
 use App\Services\GroupMemberService;
@@ -9,7 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
-class RemoveTest extends TestCase
+class cancelapplicationTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -25,32 +26,70 @@ class RemoveTest extends TestCase
         Carbon::setTestNow('2025-04-15 19:00:00');
     }
 
-    private function adminGroup(User $user, Group $group): void
+    private function applicant(User $user, Group $group): void
     {
         $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-            'role' => 'admin',
+            'role' => 'applicant',
         ]);
     }
 
-    private function joinGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-        ]);
-    }
-
-    public function test_admin_cannot_remove_self(): void
+    public function test_can_cancel_application_when_applicant(): void
     {
         $this->actingAs($this->user);
-        $this->adminGroup($this->user, $this->group);
+        $this->applicant($this->user, $this->group);
+
+        $service = app(GroupMemberService::class);
+
+        $service->cancelApplication($this->group, $this->user);
+
+        $this->assertDatabaseCount('group_user', 0);
+    }
+
+    public function test_cancel_application_does_not_modify_group_user_when_user_is_not_applicant(): void
+    {
+        $this->actingAs($this->user);
+
+        $this->assertDatabaseMissing('group_user', [
+            'group_id' => $this->group->id,
+            'user_id' => $this->user->id,
+        ]);
 
         $service = app(GroupMemberService::class);
 
         try {
-            $service->remove($this->group, $this->user);
+            $service->cancelApplication($this->group, $this->user);
+
+            $this->fail('\DomainException was not thrown.');
+        } catch (\DomainException $e) {
+            // 想定どおり例外が発生
+        }
+
+        $this->assertDatabaseMissing('group_user', [
+            'group_id' => $this->group->id,
+            'user_id' => $this->user->id,
+        ]);
+    }
+
+    public function test_cancel_application_keeps_existing_group_user_record_when_user_is_not_applicant(): void
+    {
+        $this->actingAs($this->user);
+
+        $this->group->users()->attach($this->user->id, [
+            'role' => 'member',
+            'joined_at' => now(),
+            'left_at' => null,
+        ]);
+
+        $this->assertDatabaseHas('group_user', [
+            'group_id' => $this->group->id,
+            'user_id' => $this->user->id,
+            'role' => 'member',
+        ]);
+
+        $service = app(GroupMemberService::class);
+
+        try {
+            $service->cancelApplication($this->group, $this->user);
 
             $this->fail('\DomainException was not thrown.');
         } catch (\DomainException $e) {
@@ -60,54 +99,8 @@ class RemoveTest extends TestCase
         $this->assertDatabaseHas('group_user', [
             'group_id' => $this->group->id,
             'user_id' => $this->user->id,
-            'joined_at' => now(),
+            'role' => 'member',
             'left_at' => null,
-            'role' => 'admin',
-        ]);
-    }
-
-    public function test_admin_can_remove_member(): void
-    {
-        $this->actingAs($this->user);
-        $this->adminGroup($this->user, $this->group);
-
-        $target = User::factory()->create();
-        $this->joinGroup($target, $this->group);
-
-        $service = app(GroupMemberService::class);
-
-        $service->remove($this->group, $target);
-
-        $this->assertDatabaseHas('group_user', [
-            'user_id' => $target->id,
-            'left_at' => now(),
-        ]);
-    }
-
-    public function test_cannot_remove_admin(): void
-    {
-        $this->actingAs($this->user);
-        $this->adminGroup($this->user, $this->group);
-
-        $target = User::factory()->create();
-        $this->adminGroup($target, $this->group);
-
-        $service = app(GroupMemberService::class);
-
-        try {
-            $service->remove($this->group, $this->user);
-
-            $this->fail('\DomainException was not thrown.');
-        } catch (\DomainException $e) {
-            // 想定どおり例外が発生
-        }
-
-        $this->assertDatabaseHas('group_user', [
-            'group_id' => $this->group->id,
-            'user_id' => $this->user->id,
-            'joined_at' => now(),
-            'left_at' => null,
-            'role' => 'admin',
         ]);
     }
 }

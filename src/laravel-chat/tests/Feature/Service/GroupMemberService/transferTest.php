@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Service\GroupMemberService;
 
-use App\Exceptions\Domain\LastAdminException;
 use App\Models\Group;
 use App\Models\User;
 use App\Services\GroupMemberService;
@@ -10,7 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
-class LeaveTest extends TestCase
+class transferTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -34,69 +33,58 @@ class LeaveTest extends TestCase
         ]);
     }
 
-    private function adminGroup(User $user, Group $group): void
+    private function leftGroup(User $user, Group $group): void
     {
         $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-            'role' => 'admin',
+            'joined_at' => '2025-04-07 08:30:17',
+            'left_at' => now(),
         ]);
     }
 
-    public function test_member_can_leave(): void
+    public function test_can_change_member_role_to_admin(): void
     {
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
 
         $service = app(GroupMemberService::class);
 
-        $service->leave($this->group, $this->user);
+        $service->transferAdmin($this->group, $this->user);
 
         $this->assertDatabaseHas('group_user', [
-            'user_id' => $this->user->id,
-            'left_at' => now(),
-        ]);
-    }
-
-    public function test_last_admin_cannot_leave(): void
-    {
-        $this->actingAs($this->user);
-        $this->adminGroup($this->user, $this->group);
-
-        $service = app(GroupMemberService::class);
-
-        try {
-            $service->leave($this->group, $this->user);
-
-            $this->fail('LastAdminException was not thrown.');
-        } catch (LastAdminException $e) {
-            // 想定どおり例外が発生
-        }
-
-        $this->assertDatabaseHas('group_user', [
-            'user_id' => $this->user->id,
             'group_id' => $this->group->id,
-            'joined_at' => now(),
-            'left_at' => null,
+            'user_id' => $this->user->id,
             'role' => 'admin',
         ]);
     }
 
-    public function test_admin_can_leave_if_multiple_admins(): void
+    public function test_cannot_change_left_member_role_to_admin(): void
     {
         $this->actingAs($this->user);
-        $this->adminGroup($this->user, $this->group);
-
-        $anotheradmin = User::factory()->create();
-        $this->adminGroup($anotheradmin, $this->group);
 
         $service = app(GroupMemberService::class);
 
-        $service->leave($this->group, $this->user);
+        $service->transferAdmin($this->group, $this->user);
 
-        $this->assertDatabaseHas('group_user', [
+        $this->assertDatabaseMissing('group_user', [
+            'group_id' => $this->group->id,
             'user_id' => $this->user->id,
-            'left_at' => now(),
+            'role' => 'admin',
+        ]);
+    }
+
+    public function test_cannot_change_non_member_role_to_admin(): void
+    {
+        $this->actingAs($this->user);
+        $this->leftGroup($this->user, $this->group);
+
+        $service = app(GroupMemberService::class);
+
+        $service->transferAdmin($this->group, $this->user);
+
+        $this->assertDatabaseMissing('group_user', [
+            'group_id' => $this->group->id,
+            'user_id' => $this->user->id,
+            'role' => 'admin',
         ]);
     }
 }
