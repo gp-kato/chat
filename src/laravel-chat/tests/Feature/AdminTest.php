@@ -25,32 +25,6 @@ class AdminTest extends TestCase
         Carbon::setTestNow('2025-04-15 19:00:00');
     }
 
-    private function adminGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-            'role' => 'admin',
-        ]);
-    }
-
-    private function joinGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-        ]);
-    }
-
-    private function leftadminGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => '2025-04-07 08:30:17',
-            'left_at' => now(),
-            'role' => 'admin',
-        ]);
-    }
-
     public function test_edit_screen_can_be_rendered_when_admin(): void
     {
         $this->actingAs($this->user);
@@ -331,10 +305,7 @@ class AdminTest extends TestCase
         $this->adminGroup($this->user, $this->group);
 
         $memberUser = User::factory()->create();
-        $this->group->users()->attach($memberUser->id, [
-            'joined_at' => '2025-04-07 08:30:17',
-            'left_at' => null,
-        ]);
+        $this->joinGroup($memberUser, $this->group);
 
         $response = $this->delete(
             route('groups.members.remove', [
@@ -361,10 +332,7 @@ class AdminTest extends TestCase
         $this->actingAs($this->user);
 
         $memberUser = User::factory()->create();
-        $this->group->users()->attach($memberUser->id, [
-            'joined_at' => '2025-04-07 08:30:17',
-            'left_at' => null,
-        ]);
+        $this->joinGroup($memberUser, $this->group);
 
         $response = $this->delete(
             route('groups.members.remove', [
@@ -388,11 +356,7 @@ class AdminTest extends TestCase
         $this->joinGroup($this->user, $this->group);
 
         $memberUser = User::factory()->create();
-
-        $this->group->users()->attach($memberUser->id, [
-            'joined_at' => '2025-04-07 08:30:17',
-            'left_at' => null,
-        ]);
+        $this->joinGroup($memberUser, $this->group);
 
         $response = $this->delete(
             route('groups.members.remove', [
@@ -416,11 +380,7 @@ class AdminTest extends TestCase
         $this->leftadminGroup($this->user, $this->group);
 
         $memberUser = User::factory()->create();
-
-        $this->group->users()->attach($memberUser->id, [
-            'joined_at' => '2025-04-07 08:30:17',
-            'left_at' => null,
-        ]);
+        $this->joinGroup($memberUser, $this->group);
 
         $response = $this->delete(
             route('groups.members.remove', [
@@ -443,13 +403,10 @@ class AdminTest extends TestCase
         $this->actingAs($this->user);
         $this->adminGroup($this->user, $this->group);
 
-        $invitation = Invitation::create([
+        $invitation = Invitation::factory()->create([
             'group_id' => $this->group->id,
             'inviter_id' => $this->user->id,
-            'invitee_email' => 'invitee@example.com',
-            'token' => \Illuminate\Support\Str::uuid(),
-            'created_at' => '2025-04-07 08:30:17',
-            'expires_at' => '2025-05-07 08:30:17',
+            'invitee_email' => $this->user->email,
         ]);
 
         $response = $this->post(
@@ -474,13 +431,10 @@ class AdminTest extends TestCase
         $this->adminGroup($this->user, $otherGroup);
         $this->actingAs($this->user);
 
-        $invitation = Invitation::create([
+        $invitation = Invitation::factory()->create([
             'group_id' => $this->group->id,
             'inviter_id' => $this->user->id,
-            'invitee_email' => 'invitee@example.com',
-            'token' => \Illuminate\Support\Str::uuid(),
-            'created_at' => '2025-04-07 08:30:17',
-            'expires_at' => '2025-05-07 08:30:17',
+            'invitee_email' => $this->user->email,
         ]);
 
         $response = $this->post(
@@ -493,7 +447,7 @@ class AdminTest extends TestCase
         $response->assertForbidden();
 
         $this->assertDatabaseHas('invitations', [
-            'expires_at' => '2025-05-07 08:30:17',
+            'expires_at' => now()->addDays(31),
         ]);
     }
 
@@ -502,13 +456,10 @@ class AdminTest extends TestCase
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
 
-        $invitation = Invitation::create([
+        $invitation = Invitation::factory()->create([
             'group_id' => $this->group->id,
             'inviter_id' => $this->user->id,
-            'invitee_email' => 'invitee@example.com',
-            'token' => \Illuminate\Support\Str::uuid(),
-            'created_at' => '2025-04-07 08:30:17',
-            'expires_at' => '2025-05-07 08:30:17',
+            'invitee_email' => $this->user->email,
         ]);
 
         $response = $this->post(
@@ -521,7 +472,7 @@ class AdminTest extends TestCase
         $response->assertForbidden();
 
         $this->assertDatabaseHas('invitations', [
-            'expires_at' => '2025-05-07 08:30:17',
+            'expires_at' => now()->addDays(31),
         ]);
     }
 
@@ -530,13 +481,10 @@ class AdminTest extends TestCase
         $this->actingAs($this->user);
         $this->leftadminGroup($this->user, $this->group);
 
-        $invitation = Invitation::create([
+        $invitation = Invitation::factory()->create([
             'group_id' => $this->group->id,
             'inviter_id' => $this->user->id,
-            'invitee_email' => 'invitee@example.com',
-            'token' => \Illuminate\Support\Str::uuid(),
-            'created_at' => '2025-04-07 08:30:17',
-            'expires_at' => '2025-05-07 08:30:17',
+            'invitee_email' => $this->user->email,
         ]);
 
         $response = $this->post(
@@ -549,7 +497,7 @@ class AdminTest extends TestCase
         $response->assertForbidden();
 
         $this->assertDatabaseHas('invitations', [
-            'expires_at' => '2025-05-07 08:30:17',
+            'expires_at' => now()->addDays(31),
         ]);
     }
 }

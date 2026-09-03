@@ -25,14 +25,6 @@ class MessageServiceTest extends TestCase
         $this->group = Group::factory()->create(); // 1回だけグループを作成
     }
 
-    private function joinGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-        ]);
-    }
-
     public function test_getRecentMessages(): void
     {
         $this->actingAs($this->user);

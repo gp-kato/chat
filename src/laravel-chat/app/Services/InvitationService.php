@@ -30,12 +30,11 @@ class InvitationService
             return ['success' => false, 'reason' => 'already_invited'];
         }
         $token = Str::random(32);
-        Invitation::create([
+        Invitation::factory()->create([
             'group_id' => $group->id,
             'inviter_id' => Auth::id(),
             'invitee_email' => $user->email,
             'token' => $token,
-            'expires_at' => now()->addDays(31),
         ]);
         $url = route('groups.invitations.join.token', ['token' => $token, 'group' => $group->id]);
         Mail::to($user->email)->send(new GroupInvitation($group, $url));

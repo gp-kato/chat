@@ -26,15 +26,6 @@ class RejoinTest extends TestCase
         Carbon::setTestNow('2025-04-15 19:00:00');
     }
 
-    private function leftadminGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => '2025-04-07 08:30:17',
-            'left_at' => now(),
-            'role' => 'admin',
-        ]);
-    }
-
     public function test_rejoining_role_is_member(): void
     {
         $this->actingAs($this->user);
@@ -42,13 +33,11 @@ class RejoinTest extends TestCase
 
         $inviter = User::factory()->create();
         $token = 'dummyToken123';
-        Invitation::create([
+        Invitation::factory()->create([
             'group_id' => $this->group->id,
             'inviter_id' => $inviter->id,
             'token' => $token,
             'invitee_email' => $this->user->email,
-            'expires_at' => now()->addDay(),
-            'accepted_at' => null,
         ]);
         $response = $this->get(route('groups.invitations.join.token', [
             'token' => $token,

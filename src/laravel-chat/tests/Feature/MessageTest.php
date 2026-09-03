@@ -25,22 +25,6 @@ class MessageTest extends TestCase
         Carbon::setTestNow('2025-04-15 19:00:00');
     }
 
-    private function joinGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-        ]);
-    }
-
-    private function joinGroupAsLeft(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now()->subDays(2),
-            'left_at' => now()->subDay(),
-        ]);
-    }
-
     public function test_chat_screen_can_be_rendered_when_joined_group(): void
     {
         $this->actingAs($this->user);
@@ -308,7 +292,7 @@ class MessageTest extends TestCase
     public function test_chat_screen_cannot_be_rendered_after_leaving_group(): void
     {
         $this->actingAs($this->user);
-        $this->joinGroupAsLeft($this->user, $this->group);
+        $this->leftUser($this->user, $this->group);
 
         $response = $this->get(route('groups.messages.show', $this->group->id));
 
@@ -318,7 +302,7 @@ class MessageTest extends TestCase
     public function test_cannot_write_message_after_leaving_group(): void
     {
         $this->actingAs($this->user);
-        $this->joinGroupAsLeft($this->user, $this->group);
+        $this->leftUser($this->user, $this->group);
 
         $formData = [
             'content' => 'content',
@@ -335,7 +319,7 @@ class MessageTest extends TestCase
     public function test_cannot_fetch_after_leaving_group(): void
     {
         $this->actingAs($this->user);
-        $this->joinGroupAsLeft($this->user, $this->group);
+        $this->leftUser($this->user, $this->group);
 
         $response = $this->getJson(
             route('groups.messages.fetch', $this->group->id)
