@@ -21,7 +21,7 @@ class InvitationFactory extends Factory
         return [
             'group_id' => Group::factory(),
             'inviter_id' => User::factory(),
-            'invitee_email' => User::factory(),
+            'invitee_email' => fake()->unique()->safeEmail(),
             'token' => fake()->unique()->uuid(),
             'accepted_at' => null,
             'expires_at' => now()->addDays(31),
