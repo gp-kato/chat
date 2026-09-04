@@ -283,11 +283,13 @@ class MessageServiceTest extends TestCase
             'user_id' => $this->user->id,
         ]);
 
-        $service->fetch($this->group, null);
+        $result = $service->fetch($this->group, null);
+
+        preg_match_all('/data-id="(\d+)"/', $result['html'], $matches);
 
         $this->assertSame(
             $messages->pluck('id')->sort()->values()->toArray(),
-            $messages->pluck('id')->toArray()
+            array_map('intval', $matches[1])
         );
     }
 
