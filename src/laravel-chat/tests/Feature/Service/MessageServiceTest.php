@@ -32,10 +32,10 @@ class MessageServiceTest extends TestCase
 
         $service = app(MessageService::class);
 
-        $message = Message::factory()->create([
-            'group_id' => $this->group->id,
-            'user_id' => $this->user->id,
-        ]);
+        $message = Message::factory()
+            ->for($this->user)
+            ->for($this->group)
+            ->create();
 
         $messages = $service->getRecentMessages($this->group, 10);
 
@@ -68,9 +68,11 @@ class MessageServiceTest extends TestCase
 
         $service = app(MessageService::class);
 
-        Message::factory()->count(51)->create([
-            'group_id' => $this->group->id,
-        ]);
+        Message::factory()
+            ->for($this->user)
+            ->for($this->group)
+            ->count(51)
+            ->create();
 
         $messages = $service->fetch($this->group, null);
 

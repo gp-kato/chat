@@ -157,9 +157,11 @@ class MessageTest extends TestCase
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
 
-        Message::factory()->count(50)->create([
-            'group_id' => $this->group->id,
-        ]);
+        Message::factory()
+            ->for($this->user)
+            ->for($this->group)
+            ->count(50)
+            ->create();
 
         $response = $this->getJson(
             route('groups.messages.fetch', $this->group->id)
@@ -178,9 +180,11 @@ class MessageTest extends TestCase
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
 
-        Message::factory()->count(51)->create([
-            'group_id' => $this->group->id,
-        ]);
+        Message::factory()
+            ->for($this->user)
+            ->for($this->group)
+            ->count(51)
+            ->create();
 
         $response = $this->getJson(
             route('groups.messages.fetch', $this->group->id)
@@ -200,15 +204,15 @@ class MessageTest extends TestCase
         $this->joinGroup($this->user, $this->group);
 
         $messages = Message::factory()
+            ->for($this->user)
+            ->for($this->group)
             ->count(3)
             ->sequence(
                 ['content' => 'message-1'],
                 ['content' => 'message-2'],
                 ['content' => 'message-3'],
             )
-            ->create([
-                'group_id' => $this->group->id,
-            ]);
+            ->create();
 
         $beforeId = $messages[1]->id;
 
@@ -261,9 +265,11 @@ class MessageTest extends TestCase
 
     public function test_cannot_fetch_without_login(): void
     {
-        Message::factory()->count(50)->create([
-            'group_id' => $this->group->id,
-        ]);
+        Message::factory()
+            ->for($this->user)
+            ->for($this->group)
+            ->count(50)
+            ->create();
 
         $response = $this->getJson(
             route('groups.messages.fetch', $this->group->id)
@@ -334,8 +340,9 @@ class MessageTest extends TestCase
         $this->joinGroup($this->user, $this->group);
 
         $messages = Message::factory()
-            ->count(5)
+            ->for($this->user)
             ->for($this->group)
+            ->count(5)
             ->create();
 
         $response = $this->get(route('groups.messages.show', $this->group));
