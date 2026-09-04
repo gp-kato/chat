@@ -60,6 +60,7 @@ class transferTest extends TestCase
     public function test_cannot_change_left_member_role_to_admin(): void
     {
         $this->actingAs($this->user);
+        $this->leftGroup($this->user, $this->group);
 
         $service = app(GroupMemberService::class);
 
@@ -75,7 +76,6 @@ class transferTest extends TestCase
     public function test_cannot_change_non_member_role_to_admin(): void
     {
         $this->actingAs($this->user);
-        $this->leftGroup($this->user, $this->group);
 
         $service = app(GroupMemberService::class);
 
