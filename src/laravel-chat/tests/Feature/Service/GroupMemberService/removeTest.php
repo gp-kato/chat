@@ -95,7 +95,7 @@ class RemoveTest extends TestCase
         $service = app(GroupMemberService::class);
 
         try {
-            $service->remove($this->group, $this->user);
+            $service->remove($this->group, $target);
 
             $this->fail('\DomainException was not thrown.');
         } catch (\DomainException $e) {
@@ -104,7 +104,7 @@ class RemoveTest extends TestCase
 
         $this->assertDatabaseHas('group_user', [
             'group_id' => $this->group->id,
-            'user_id' => $this->user->id,
+            'user_id' => $target->id,
             'joined_at' => now(),
             'left_at' => null,
             'role' => 'admin',
