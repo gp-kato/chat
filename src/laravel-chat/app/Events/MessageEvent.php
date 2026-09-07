@@ -13,11 +13,11 @@ class MessageEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $message;
+    public Message $message;
 
-    public $user_id;
+    public int $user_id;
 
-    public $groupId;
+    public int $groupId;
 
     /**
      * Create a new event instance.

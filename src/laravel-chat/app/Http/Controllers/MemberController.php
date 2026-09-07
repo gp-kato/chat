@@ -15,9 +15,8 @@ class MemberController extends Controller
 {
     use AuthorizesRequests;
 
-    public function join(int $groupId, string $token, GroupMemberService $service)
+    public function join(Group $group, string $token, GroupMemberService $service)
     {
-        $group = Group::findOrFail($groupId);
         $user = Auth::user();
 
         try {
