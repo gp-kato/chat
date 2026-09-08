@@ -148,19 +148,24 @@ class InvitationServiceTest extends TestCase
         $invitation = Invitation::create([
             'group_id' => $this->group->id,
             'inviter_id' => $this->user->id,
-            'token' => \Illuminate\Support\Str::uuid(),
+            'token' => 'dumyToken123',
             'created_at' => '2025-04-07 08:30:17',
             'invitee_email' => $inviteUser->email,
             'expires_at' => '2025-05-07 08:30:17',
         ]);
 
+        $originalToken = $invitation->token;
+
         $service = app(InvitationService::class);
 
         $service->resend($this->group, $invitation);
 
+        $invitation->refresh();
+
         $invitation = Invitation::where('group_id', $this->group->id)
             ->where('invitee_email', $inviteUser->email)
             ->first();
+        $this->assertSame($originalToken, $invitation->token);
         $this->assertNotNull($invitation);
         $this->assertNotEmpty($invitation->token);
         $this->assertDatabaseHas('invitations', [
