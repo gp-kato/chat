@@ -337,7 +337,7 @@ class GroupServiceTest extends TestCase
 
         $service = app(GroupService::class);
 
-        $result = $service->prepareEditData($this->group, 'searchable');
+        $result = $service->prepareEditData($this->group, null);
 
         $this->assertCount(0, $result['searchResults']);
         $this->assertFalse($result['searchResults']->contains(fn ($user) => $user->id === $this->user->id));
