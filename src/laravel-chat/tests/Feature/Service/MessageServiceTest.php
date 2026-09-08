@@ -223,6 +223,8 @@ class MessageServiceTest extends TestCase
 
         $messages = $service->fetch($this->group, null);
 
+        preg_match_all('/data-id="([^"]+)"/', $messages['html'], $matches);
+
         $this->assertFalse($messages['has_more']);
         $this->assertIsString($messages['html']);
     }
@@ -239,6 +241,8 @@ class MessageServiceTest extends TestCase
         ]);
 
         $messages = $service->fetch($this->group, null);
+
+        preg_match_all('/data-id="([^"]+)"/', $messages['html'], $matches);
 
         $this->assertTrue($messages['has_more']);
         $this->assertIsString($messages['html']);
