@@ -53,6 +53,8 @@ class transferTest extends TestCase
         $this->assertDatabaseHas('group_user', [
             'group_id' => $this->group->id,
             'user_id' => $this->user->id,
+            'joined_at' => now(),
+            'left_at' => null,
             'role' => 'admin',
         ]);
     }
