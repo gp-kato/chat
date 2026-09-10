@@ -192,14 +192,17 @@ class GroupTest extends TestCase
     public function test_cannot_rejoin_chat_group_when_already_joined(): void
     {
         $this->actingAs($this->user);
+        $this->group->users()->attach($this->user->id);
 
         $inviter = User::factory()->create();
         $token = 'dummyToken123';
-        Invitation::factory()->create([
+        Invitation::create([
             'group_id' => $this->group->id,
             'inviter_id' => $inviter->id,
             'token' => $token,
             'invitee_email' => $this->user->email,
+            'expires_at' => now()->addDay(),
+            'accepted_at' => null,
         ]);
         $response = $this->get(route('groups.invitations.join.token', [
             'token' => $token,
