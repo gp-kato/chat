@@ -52,6 +52,7 @@ class GroupUserFactory extends Factory
     public function leftadmin(): static
     {
         return $this->state([
+            'joined_at' => now()->subDays(2),
             'left_at' => now(),
             'role' => 'admin',
         ]);
@@ -60,6 +61,7 @@ class GroupUserFactory extends Factory
     public function leftuser(): static
     {
         return $this->state([
+            'joined_at' => now()->subDays(2),
             'left_at' => now(),
             'role' => 'member',
         ]);
