@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -25,7 +26,7 @@ class Message extends Model
         return $this->belongsTo(Group::class);
     }
 
-    public function scopeLatestForGroup($query, Group $group, int $limit)
+    public function scopeLatestForGroup(Builder $query, Group $group, int $limit)
     {
         return $query
             ->where('group_id', $group->id)

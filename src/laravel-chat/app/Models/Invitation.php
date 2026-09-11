@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Invitation extends Model
@@ -34,7 +35,7 @@ class Invitation extends Model
         return $this->belongsTo(User::class, 'invitee_email', 'email');
     }
 
-    public function scopeActiveForGroup($query, Group $group)
+    public function scopeActiveForGroup(Builder $query, Group $group)
     {
         return $query
             ->where('group_id', $group->id)
