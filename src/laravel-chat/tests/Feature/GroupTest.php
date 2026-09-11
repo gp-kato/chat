@@ -26,14 +26,6 @@ class GroupTest extends TestCase
         Carbon::setTestNow('2025-04-15 19:00:00');
     }
 
-    private function joinGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-        ]);
-    }
-
     public function test_group_screen_can_be_rendered(): void
     {
         $this->actingAs($this->user);
@@ -179,13 +171,11 @@ class GroupTest extends TestCase
         $this->actingAs($this->user);
         $inviter = User::factory()->create();
         $token = 'dummyToken123';
-        Invitation::create([
+        Invitation::factory()->create([
             'group_id' => $this->group->id,
             'inviter_id' => $inviter->id,
             'token' => $token,
             'invitee_email' => $this->user->email,
-            'expires_at' => now()->addDay(),
-            'accepted_at' => null,
         ]);
         $response = $this->get(route('groups.invitations.join.token', [
             'token' => $token,
@@ -202,7 +192,7 @@ class GroupTest extends TestCase
     public function test_cannot_rejoin_chat_group_when_already_joined(): void
     {
         $this->actingAs($this->user);
-        $this->group->users()->attach($this->user->id);
+        $this->joinGroup($this->user, $this->group);
 
         $inviter = User::factory()->create();
         $token = 'dummyToken123';
@@ -219,7 +209,7 @@ class GroupTest extends TestCase
             'group' => $this->group->id,
         ]));
 
-        $response->assertRedirect(route('groups.index', absolute: false));
+        $response->assertRedirect('/');
         $this->assertDatabaseHas('group_user', [
             'user_id' => $this->user->id,
             'group_id' => $this->group->id,
@@ -259,20 +249,17 @@ class GroupTest extends TestCase
     public function test_can_rejoin_chat_group_after_leaving(): void
     {
         $this->actingAs($this->user);
-        $this->group->users()->syncWithoutDetaching($this->user->id, [
-            'joined_at' => '2025-04-07 08:30:17',
-            'left_at' => null,
+        $this->group->users()->syncWithoutDetaching([
+            $this->user->id => ['joined_at' => now(), 'left_at' => now()],
         ]);
 
         $inviter = User::factory()->create();
         $token = 'dummyToken123';
-        Invitation::create([
+        Invitation::factory()->create([
             'group_id' => $this->group->id,
             'inviter_id' => $inviter->id,
             'token' => $token,
             'invitee_email' => $this->user->email,
-            'expires_at' => now()->addDay(),
-            'accepted_at' => null,
         ]);
         $response = $this->get(route('groups.invitations.join.token', [
             'token' => $token,
