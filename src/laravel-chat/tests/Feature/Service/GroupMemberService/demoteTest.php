@@ -26,15 +26,6 @@ class DemoteTest extends TestCase
         Carbon::setTestNow('2025-04-15 19:00:00');
     }
 
-    private function adminGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-            'role' => 'admin',
-        ]);
-    }
-
     public function test_last_admin_cannot_demote(): void
     {
         $this->actingAs($this->user);

@@ -26,13 +26,6 @@ class cancelapplicationTest extends TestCase
         Carbon::setTestNow('2025-04-15 19:00:00');
     }
 
-    private function applicant(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'role' => 'applicant',
-        ]);
-    }
-
     public function test_can_cancel_application_when_applicant(): void
     {
         $this->actingAs($this->user);

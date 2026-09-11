@@ -25,24 +25,7 @@ class RemoveTest extends TestCase
         Carbon::setTestNow('2025-04-15 19:00:00');
     }
 
-    private function adminGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-            'role' => 'admin',
-        ]);
-    }
-
-    private function joinGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-        ]);
-    }
-
-    public function test_admin_cannot_remove_self(): void
+    public function test_last_admin_cannot_remove(): void
     {
         $this->actingAs($this->user);
         $this->adminGroup($this->user, $this->group);

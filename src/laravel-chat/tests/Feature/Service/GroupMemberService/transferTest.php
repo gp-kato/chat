@@ -25,22 +25,6 @@ class transferTest extends TestCase
         Carbon::setTestNow('2025-04-15 19:00:00');
     }
 
-    private function joinGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-        ]);
-    }
-
-    private function leftGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => '2025-04-07 08:30:17',
-            'left_at' => now(),
-        ]);
-    }
-
     public function test_can_change_member_role_to_admin(): void
     {
         $this->actingAs($this->user);
@@ -62,7 +46,7 @@ class transferTest extends TestCase
     public function test_cannot_change_left_member_role_to_admin(): void
     {
         $this->actingAs($this->user);
-        $this->leftGroup($this->user, $this->group);
+        $this->leftUser($this->user, $this->group);
 
         $service = app(GroupMemberService::class);
 

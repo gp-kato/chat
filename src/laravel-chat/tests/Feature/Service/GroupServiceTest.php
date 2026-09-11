@@ -24,31 +24,7 @@ class GroupServiceTest extends TestCase
         $this->group = Group::factory()->create(); // 1回だけグループを作成
     }
 
-    private function joinGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-        ]);
-    }
-
-    private function adminGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-            'role' => 'admin',
-        ]);
-    }
-
-    private function applicant(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'role' => 'applicant',
-        ]);
-    }
-
-    public function test_member_can_view_grouplist_when_no_filter(): void
+    public function test_member_can_view_grouplist(): void
     {
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
@@ -188,30 +164,20 @@ class GroupServiceTest extends TestCase
         $this->adminGroup($this->user, $this->group);
 
         $member = User::factory()->create();
-        $this->group->users()->attach($member->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-            'role' => 'member',
-        ]);
+        $this->joinGroup($member, $this->group);
 
         $applicant = User::factory()->create();
-        $this->group->users()->attach($applicant->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-            'role' => 'applicant',
-        ]);
+        $this->applicant($applicant, $this->group);
 
         $searchableUser = User::factory()->create([
             'name' => 'Searchable User',
             'email' => 'searchable@example.com',
         ]);
 
-        Invitation::create([
+        Invitation::factory()->create([
             'group_id' => $this->group->id,
             'inviter_id' => $this->user->id,
             'invitee_email' => 'invite@example.com',
-            'token' => 'token',
-            'expires_at' => now()->addDay(),
         ]);
 
         $service = app(GroupService::class);

@@ -23,21 +23,6 @@ class rejectTest extends TestCase
         $this->group = Group::factory()->create(); // 1回だけグループを作成
     }
 
-    private function applicant(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'role' => 'applicant',
-        ]);
-    }
-
-    private function joinGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-        ]);
-    }
-
     public function test_can_reject_applicant(): void
     {
         $this->actingAs($this->user);

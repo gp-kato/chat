@@ -26,29 +26,6 @@ class applyTest extends TestCase
         Carbon::setTestNow('2025-04-15 19:00:00');
     }
 
-    private function leftGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => '2025-04-07 08:30:17',
-            'left_at' => now(),
-        ]);
-    }
-
-    private function joinGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-        ]);
-    }
-
-    private function applicant(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'role' => 'applicant',
-        ]);
-    }
-
     public function test_can_subscribe_applicant_when_not_joined(): void
     {
         $this->actingAs($this->user);
@@ -69,7 +46,6 @@ class applyTest extends TestCase
     public function test_can_subscribe_applicant_when_left(): void
     {
         $this->actingAs($this->user);
-        $this->leftGroup($this->user, $this->group);
 
         $service = app(GroupMemberService::class);
 

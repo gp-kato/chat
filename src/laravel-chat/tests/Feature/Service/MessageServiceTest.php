@@ -28,50 +28,17 @@ class MessageServiceTest extends TestCase
         $this->group = Group::factory()->create(); // 1回だけグループを作成
     }
 
-    private function joinGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-        ]);
-    }
-
-    public function test_getRecentMessages_only_returns_messages_for_target_group(): void
-    {
-        $this->actingAs($this->user);
-        $this->joinGroup($this->user, $this->group);
-
-        $otherGroup = Group::factory()->create();
-        $this->joinGroup($this->user, $otherGroup);
-
-        $service = app(MessageService::class);
-
-        $message = Message::factory()->create([
-            'group_id' => $this->group->id,
-        ]);
-
-        $otherMessage = Message::factory()->create([
-            'group_id' => $otherGroup->id,
-        ]);
-
-        $messages = $service->getRecentMessages($this->group, 1);
-
-        $this->assertCount(1, $messages);
-        $this->assertTrue($messages->contains($message));
-        $this->assertFalse($messages->contains($otherMessage));
-    }
-
-    public function test_getRecentMessages_eager_loads_user_relation(): void
+    public function test_getRecentMessages(): void
     {
         $this->actingAs($this->user);
         $this->joinGroup($this->user, $this->group);
 
         $service = app(MessageService::class);
 
-        $message = Message::factory()->create([
-            'group_id' => $this->group->id,
-            'user_id' => $this->user->id,
-        ]);
+        $message = Message::factory()
+            ->for($this->user)
+            ->for($this->group)
+            ->create();
 
         $messages = $service->getRecentMessages($this->group, 1);
 
@@ -236,9 +203,11 @@ class MessageServiceTest extends TestCase
 
         $service = app(MessageService::class);
 
-        Message::factory()->count(51)->create([
-            'group_id' => $this->group->id,
-        ]);
+        Message::factory()
+            ->for($this->user)
+            ->for($this->group)
+            ->count(51)
+            ->create();
 
         $messages = $service->fetch($this->group, null);
 

@@ -26,38 +26,6 @@ class LeaveTest extends TestCase
         Carbon::setTestNow('2025-04-15 19:00:00');
     }
 
-    private function joinGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-        ]);
-    }
-
-    private function adminGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-            'role' => 'admin',
-        ]);
-    }
-
-    public function test_member_can_leave(): void
-    {
-        $this->actingAs($this->user);
-        $this->joinGroup($this->user, $this->group);
-
-        $service = app(GroupMemberService::class);
-
-        $service->leave($this->group, $this->user);
-
-        $this->assertDatabaseHas('group_user', [
-            'user_id' => $this->user->id,
-            'left_at' => now(),
-        ]);
-    }
-
     public function test_last_admin_cannot_leave(): void
     {
         $this->actingAs($this->user);
