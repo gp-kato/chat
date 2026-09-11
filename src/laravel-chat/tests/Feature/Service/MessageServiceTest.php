@@ -194,6 +194,7 @@ class MessageServiceTest extends TestCase
 
         $this->assertFalse($messages['has_more']);
         $this->assertIsString($messages['html']);
+        $this->assertCount(50, $matches[1]);
     }
 
     public function test_fetch_returns_50_messages_and_has_more_true_when_51_messges(): void
@@ -215,6 +216,7 @@ class MessageServiceTest extends TestCase
 
         $this->assertTrue($messages['has_more']);
         $this->assertIsString($messages['html']);
+        $this->assertCount(50, $matches[1]);
     }
 
     public function test_fetch_with_before_id_returns_only_messages_before_that_id(): void
