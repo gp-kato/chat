@@ -25,32 +25,6 @@ class BroadcastTest extends TestCase
         Carbon::setTestNow('2025-04-15 19:00:00');
     }
 
-    private function joinGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-            'role' => 'member',
-        ]);
-    }
-
-    private function leftUser(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now()->subDays(2),
-            'left_at' => now()->subDay(),
-        ]);
-    }
-
-    private function applicant(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => null,
-            'left_at' => null,
-            'role' => 'applicant',
-        ]);
-    }
-
     public function test_user_can_broadcast_to_group_channel()
     {
         $this->actingAs($this->user);
