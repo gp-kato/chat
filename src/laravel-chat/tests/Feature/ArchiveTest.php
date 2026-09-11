@@ -43,7 +43,8 @@ class ArchiveTest extends TestCase
             'id' => $this->group->id,
         ]);
 
-        $this->assertNotNull('groups',
+        $this->assertSame(
+            '2025-04-15 19:00:00',
             DB::table('groups')->where('id', $this->group->id)->value('archived_at')
         );
     }
@@ -105,6 +106,53 @@ class ArchiveTest extends TestCase
         $this->assertDatabaseHas('groups', [
             'id' => $this->group->id,
             'archived_at' => null,
+        ]);
+    }
+
+    public function test_can_archive_target_chat_without_archiving_other_chat()
+    {
+        $this->actingAs($this->user);
+        $this->adminGroup($this->user, $this->group);
+        $otherGroup = Group::factory()->create();
+
+        $response = $this->put(route('groups.archive', $this->group->id));
+
+        $response->assertRedirect(route('groups.index', absolute: false));
+
+        $this->assertDatabaseHas('groups', [
+            'id' => $this->group->id,
+            'archived_at' => '2025-04-15 19:00:00',
+        ]);
+
+        $this->assertDatabaseHas('groups', [
+            'id' => $otherGroup->id,
+            'archived_at' => null,
+        ]);
+    }
+
+    public function test_can_archive_target_chat_only()
+    {
+        $this->actingAs($this->user);
+        $this->adminGroup($this->user, $this->group);
+        $otherGroup = Group::factory()->create([
+            'archived_at' => '2025-04-14 18:00:00',
+        ]);
+
+        $response = $this->put(route('groups.archive', $this->group->id));
+
+        $this->assertAuthenticated();
+        $response->assertSessionHasNoErrors();
+        $response->assertStatus(302);
+        $response->assertRedirect(route('groups.index', absolute: false));
+
+        $this->assertDatabaseHas('groups', [
+            'id' => $this->group->id,
+            'archived_at' => '2025-04-15 19:00:00',
+        ]);
+
+        $this->assertDatabaseHas('groups', [
+            'id' => $otherGroup->id,
+            'archived_at' => '2025-04-14 18:00:00',
         ]);
     }
 }

@@ -94,6 +94,10 @@ class GroupMemberService
 
     public function transferAdmin(Group $group, User $user)
     {
+        if (! $group->isActiveMember($user)) {
+            return;
+        }
+
         $group->users()->updateExistingPivot($user->id, [
             'role' => 'admin',
         ]);

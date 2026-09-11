@@ -33,9 +33,21 @@ class LeaveTest extends TestCase
 
         $service = app(GroupMemberService::class);
 
-        $this->expectException(LastAdminException::class);
+        try {
+            $service->leave($this->group, $this->user);
 
-        $service->leave($this->group, $this->user);
+            $this->fail('LastAdminException was not thrown.');
+        } catch (LastAdminException $e) {
+            // 想定どおり例外が発生
+        }
+
+        $this->assertDatabaseHas('group_user', [
+            'user_id' => $this->user->id,
+            'group_id' => $this->group->id,
+            'joined_at' => now(),
+            'left_at' => null,
+            'role' => 'admin',
+        ]);
     }
 
     public function test_admin_can_leave_if_multiple_admins(): void

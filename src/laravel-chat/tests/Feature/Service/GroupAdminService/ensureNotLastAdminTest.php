@@ -92,4 +92,23 @@ class ensureNotLastAdminTest extends TestCase
             $service->ensureNotLastAdmin($group, $activeadmin);
         });
     }
+
+    public function test_applicant_is_not_counted(): void
+    {
+        $this->actingAs($this->user);
+        $this->applicant($this->user, $this->group);
+
+        $group = $this->group;
+
+        $activeadmin = User::factory()->create();
+        $this->adminGroup($activeadmin, $this->group);
+
+        $service = app(\App\Services\GroupAdminService::class);
+
+        $this->expectException(\App\Exceptions\Domain\LastAdminException::class);
+
+        DB::transaction(function () use ($service, $group, $activeadmin) {
+            $service->ensureNotLastAdmin($group, $activeadmin);
+        });
+    }
 }
