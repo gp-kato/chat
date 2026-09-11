@@ -192,7 +192,7 @@ class GroupTest extends TestCase
     public function test_cannot_rejoin_chat_group_when_already_joined(): void
     {
         $this->actingAs($this->user);
-        $this->group->users()->attach($this->user->id);
+        $this->joinGroup($this->user, $this->group);
 
         $inviter = User::factory()->create();
         $token = 'dummyToken123';
@@ -209,7 +209,7 @@ class GroupTest extends TestCase
             'group' => $this->group->id,
         ]));
 
-        $response->assertRedirect(route('groups.index', absolute: false));
+        $response->assertRedirect('/');
         $this->assertDatabaseHas('group_user', [
             'user_id' => $this->user->id,
             'group_id' => $this->group->id,
