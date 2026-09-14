@@ -46,6 +46,7 @@ class applyTest extends TestCase
     public function test_can_subscribe_applicant_when_left(): void
     {
         $this->actingAs($this->user);
+        $this->leftUser($this->user, $this->group);
 
         $service = app(GroupMemberService::class);
 
