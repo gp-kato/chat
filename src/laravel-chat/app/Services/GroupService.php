@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\Group;
 use App\Models\User;
 use App\Models\Invitation;
-use Illuminate\Support\Facades\Auth;
 
 class GroupService
 {

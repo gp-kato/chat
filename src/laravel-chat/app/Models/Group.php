@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class Group extends Model
 {
@@ -62,7 +63,7 @@ class Group extends Model
         return $this->activeUsersQuery()->get();
     }
 
-    public function removableUsers($activeUsers)
+    public function removableUsers(Collection $activeUsers)
     {
         return $activeUsers->filter(
             fn ($user) => $user->pivot->role === 'member'

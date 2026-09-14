@@ -24,39 +24,6 @@ class ApplicationTest extends TestCase
         Carbon::setTestNow('2025-04-15 19:00:00');
     }
 
-    private function applicant(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'role' => 'applicant',
-        ]);
-    }
-
-    private function leftadminGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => '2025-04-07 08:30:17',
-            'left_at' => now(),
-            'role' => 'admin',
-        ]);
-    }
-
-    private function joinGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-        ]);
-    }
-
-    private function adminGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-            'role' => 'admin',
-        ]);
-    }
-
     public function test_application_to_the_join_group(): void
     {
         $this->actingAs($this->user);
@@ -148,10 +115,7 @@ class ApplicationTest extends TestCase
         $inviteUser = User::factory()->create([
             'email' => 'invitee@example.com',
         ]);
-
-        $this->group->users()->attach($inviteUser->id, [
-            'role' => 'applicant',
-        ]);
+        $this->applicant($inviteUser, $this->group);
 
         $response = $this->post(
             route('groups.invitations.invite', $this->group),

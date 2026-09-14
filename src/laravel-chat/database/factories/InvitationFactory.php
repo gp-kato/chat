@@ -7,12 +7,10 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Message>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Invitation>
  */
-class MessageFactory extends Factory
+class InvitationFactory extends Factory
 {
-    protected $model = \App\Models\Message::class;
-
     /**
      * Define the model's default state.
      *
@@ -21,9 +19,12 @@ class MessageFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(),
             'group_id' => Group::factory(),
-            'content' => fake()->sentence(),
+            'inviter_id' => User::factory(),
+            'invitee_email' => fake()->unique()->safeEmail(),
+            'token' => fake()->unique()->uuid(),
+            'accepted_at' => null,
+            'expires_at' => now()->addDays(31),
         ];
     }
 }

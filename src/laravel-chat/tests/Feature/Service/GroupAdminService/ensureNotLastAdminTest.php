@@ -25,32 +25,6 @@ class ensureNotLastAdminTest extends TestCase
         Carbon::setTestNow('2025-04-15 19:00:00');
     }
 
-    private function adminGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-            'role' => 'admin',
-        ]);
-    }
-
-    private function joinGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => now(),
-            'left_at' => null,
-        ]);
-    }
-
-    private function leftadminGroup(User $user, Group $group): void
-    {
-        $group->users()->attach($user->id, [
-            'joined_at' => '2025-04-07 08:30:17',
-            'left_at' => now(),
-            'role' => 'admin',
-        ]);
-    }
-
     public function test_non_admin_is_ignored(): void
     {
         $this->actingAs($this->user);
@@ -104,6 +78,25 @@ class ensureNotLastAdminTest extends TestCase
     {
         $this->actingAs($this->user);
         $this->leftadminGroup($this->user, $this->group);
+
+        $group = $this->group;
+
+        $activeadmin = User::factory()->create();
+        $this->adminGroup($activeadmin, $this->group);
+
+        $service = app(\App\Services\GroupAdminService::class);
+
+        $this->expectException(\App\Exceptions\Domain\LastAdminException::class);
+
+        DB::transaction(function () use ($service, $group, $activeadmin) {
+            $service->ensureNotLastAdmin($group, $activeadmin);
+        });
+    }
+
+    public function test_applicant_is_not_counted(): void
+    {
+        $this->actingAs($this->user);
+        $this->applicant($this->user, $this->group);
 
         $group = $this->group;
 

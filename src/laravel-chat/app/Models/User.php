@@ -3,7 +3,9 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Collection;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -58,7 +60,7 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
-    public function scopeSearchNotJoined($query, string $keyword, $excludedIds)
+    public function scopeSearchNotJoined(Builder $query, string $keyword, array|Collection $excludedIds)
     {
         $escaped = addcslashes($keyword, '%_\\');
 
