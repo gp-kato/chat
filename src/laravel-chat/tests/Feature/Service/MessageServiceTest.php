@@ -28,6 +28,31 @@ class MessageServiceTest extends TestCase
         $this->group = Group::factory()->create(); // 1回だけグループを作成
     }
 
+    public function test_getRecentMessages_only_returns_messages_for_target_group(): void
+    {
+        $this->actingAs($this->user);
+        $this->joinGroup($this->user, $this->group);
+
+        $otherGroup = Group::factory()->create();
+        $this->joinGroup($this->user, $otherGroup);
+
+        $service = app(MessageService::class);
+
+        $message = Message::factory()->create([
+            'group_id' => $this->group->id,
+        ]);
+
+        $otherMessage = Message::factory()->create([
+            'group_id' => $otherGroup->id,
+        ]);
+
+        $messages = $service->getRecentMessages($this->group, 1);
+
+        $this->assertCount(1, $messages);
+        $this->assertTrue($messages->contains($message));
+        $this->assertFalse($messages->contains($otherMessage));
+    }
+
     public function test_getRecentMessages(): void
     {
         $this->actingAs($this->user);
