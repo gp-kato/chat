@@ -217,11 +217,11 @@
 
         document.getElementById("send").addEventListener("click", function (e) {
             const sendButton = e.currentTarget;
+            const message = document.getElementById("message").value;
+            if (message.trim() === "") return;
+
             sendButton.disabled = true;
             sendButton.textContent = "送信中...";
-
-            const message = document.getElementById("message").value;
-            if (message === "") return;
 
             function showToast(message) {
                 const toast = document.getElementById('toast');
