@@ -305,6 +305,18 @@ class MessageTest extends TestCase
         $response->assertForbidden();
     }
 
+    public function test_chat_screen_cannot_be_rendered_for_archived_group(): void
+    {
+        $this->actingAs($this->user);
+        $this->joinGroup($this->user, $this->group);
+        $this->group->archived_at = now();
+        $this->group->save();
+
+        $response = $this->get(route('groups.messages.show', $this->group->id));
+
+        $response->assertForbidden();
+    }
+
     public function test_cannot_write_message_after_leaving_group(): void
     {
         $this->actingAs($this->user);
@@ -322,6 +334,21 @@ class MessageTest extends TestCase
         $this->assertDatabaseMissing('messages', $formData);
     }
 
+    public function test_cannot_write_message_to_archived_group(): void
+    {
+        $this->actingAs($this->user);
+        $this->joinGroup($this->user, $this->group);
+        $this->group->archived_at = now();
+        $this->group->save();
+
+        $response = $this->post(route('groups.messages.store', $this->group->id), [
+            'content' => 'content',
+        ]);
+
+        $response->assertRedirect(route('groups.index', absolute: false));
+        $this->assertDatabaseMissing('messages', ['content' => 'content']);
+    }
+
     public function test_cannot_fetch_after_leaving_group(): void
     {
         $this->actingAs($this->user);
@@ -330,6 +357,18 @@ class MessageTest extends TestCase
         $response = $this->getJson(
             route('groups.messages.fetch', $this->group->id)
         );
+
+        $response->assertStatus(403);
+    }
+
+    public function test_cannot_fetch_messages_from_archived_group(): void
+    {
+        $this->actingAs($this->user);
+        $this->joinGroup($this->user, $this->group);
+        $this->group->archived_at = now();
+        $this->group->save();
+
+        $response = $this->getJson(route('groups.messages.fetch', $this->group->id));
 
         $response->assertStatus(403);
     }

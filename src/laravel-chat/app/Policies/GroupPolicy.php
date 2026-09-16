@@ -20,7 +20,7 @@ class GroupPolicy
      */
     public function view(User $user, Group $group): bool
     {
-        return $group->isActiveMember($user);
+        return ! $group->isArchived() && $group->isActiveMember($user);
     }
 
     public function admin(User $user, Group $group): bool

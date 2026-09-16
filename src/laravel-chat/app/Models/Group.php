@@ -51,6 +51,11 @@ class Group extends Model
         return $this->activeMemberQuery($user)->exists();
     }
 
+    public function isArchived(): bool
+    {
+        return $this->archived_at !== null;
+    }
+
     public function isAdmin(User $user)
     {
         return $this->activeMemberQuery($user)
