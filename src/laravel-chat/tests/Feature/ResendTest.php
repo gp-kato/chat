@@ -139,4 +139,38 @@ class ResendTest extends TestCase
             'expires_at' => '2025-05-07 08:30:17',
         ]);
     }
+
+    public function test_cannot_resend_after_accepting(): void
+    {
+        $this->actingAs($this->user);
+        $this->adminGroup($this->user, $this->group);
+
+        $invitation = Invitation::create([
+            'group_id' => $this->group->id,
+            'inviter_id' => $this->user->id,
+            'invitee_email' => 'invitee@example.com',
+            'token' => \Illuminate\Support\Str::uuid(),
+            'accepted_at' => now(),
+            'created_at' => '2025-04-07 08:30:17',
+            'expires_at' => '2025-05-07 08:30:17',
+        ]);
+
+        $response = $this->post(
+            route('groups.invitations.resend', [
+                'group' => $this->group->id,
+                'invitation' => $invitation->id,
+            ])
+        );
+
+        $this->assertAuthenticated();
+        $response->assertRedirect();
+        $response->assertSessionHas(
+            'error',
+            'この招待は既に受け入れられています'
+        );
+
+        $this->assertDatabaseHas('invitations', [
+            'expires_at' => '2025-05-07 08:30:17',
+        ]);
+    }
 }
