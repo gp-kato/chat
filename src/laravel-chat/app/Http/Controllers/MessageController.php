@@ -30,7 +30,7 @@ class MessageController extends Controller
     {
         $user = Auth::user();
 
-        if (! $group->isActiveMember($user)) {
+        if ($group->isArchived() || ! $group->isActiveMember($user)) {
             return redirect()->route('groups.index')->with('error', 'このグループに参加していません');
         }
 
@@ -51,7 +51,7 @@ class MessageController extends Controller
 
         $beforeId = $validated['before_id'] ?? null;
 
-        if (! $group->isActiveMember($user)) {
+        if ($group->isArchived() || ! $group->isActiveMember($user)) {
             abort(403, 'You are not a member of this group.');
         }
 
