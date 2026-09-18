@@ -53,6 +53,9 @@ class InvitationController extends Controller
         if ($invitation->expires_at < now()) {
             return back()->with('error', 'この招待は期限切れです');
         }
+        if ($invitation->accepted_at !== null) {
+            return back()->with('error', 'この招待は既に受け入れられています');
+        }
         try {
             DB::transaction(function () use ($group, $invitation, $service) {
                 $service->resend($group, $invitation);
