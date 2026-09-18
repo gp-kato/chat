@@ -15,6 +15,11 @@ class MemberController extends Controller
 {
     use AuthorizesRequests;
 
+    public function joinForm(Group $group, string $token)
+    {
+        return view('invitations.join', compact('group', 'token'));
+    }
+
     public function join(Group $group, string $token, GroupMemberService $service)
     {
         $user = Auth::user();
