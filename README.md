@@ -163,6 +163,13 @@ docker compose exec php sh -c "cd laravel-chat && php artisan migrate"
 docker compose exec php sh -c "cd laravel-chat && php artisan db:seed"
 ```
 
+シーダーでは、招待フロー確認用の固定アカウントを作成します。
+
+- 管理者: `admin@example.com` / `password`
+- 招待先ユーザー: `invitee@example.com` / `password`
+
+招待リンクの確認時は、管理者用アカウントとは別のブラウザやシークレットモードで `invitee@example.com` にログインして参加してください。
+
 ## 8. Node.jsの依存パッケージをインストール
 
 ```bash
@@ -241,7 +248,9 @@ docker compose exec php sh -c "cd laravel-chat && php artisan test"
 
 ### ① ユーザー登録・ログイン
 
-ユーザーを作成してログインします。
+初期データでは `admin@example.com` / `password` の管理者アカウントと、`invitee@example.com` / `password` の招待先アカウントが用意されています。
+
+まず管理者側で `admin@example.com` にログインし、グループを作成します。
 
 ↓
 
@@ -253,7 +262,7 @@ docker compose exec php sh -c "cd laravel-chat && php artisan test"
 
 ### ③ メンバーを招待
 
-管理者からユーザーを招待します。
+管理者からユーザーを招待します。招待対象は、事前に用意されている `invitee@example.com` を使ってください。
 
 送信されたメールは以下から確認できます。
 
@@ -265,7 +274,9 @@ http://localhost:8025
 
 ### ④ 招待リンクから参加
 
-メールに記載された専用リンクからグループへ参加します。
+メールに記載された専用リンクを開き、招待ユーザー用アカウント `invitee@example.com` でログインしてから参加します。
+
+管理者ログインのまま招待リンクを開くと、招待先メールアドレスとログイン中ユーザーのメールアドレスが一致しないため参加できません。
 
 ↓
 
