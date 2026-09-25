@@ -39,7 +39,7 @@ class RejoinTest extends TestCase
             'token' => $token,
             'invitee_email' => $this->user->email,
         ]);
-        $response = $this->get(route('groups.invitations.join.token', [
+        $response = $this->post(route('groups.invitations.join', [
             'token' => $token,
             'group' => $this->group->id,
         ]));
