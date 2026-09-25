@@ -15,6 +15,11 @@ class MemberController extends Controller
 {
     use AuthorizesRequests;
 
+    public function joinForm(Group $group, string $token)
+    {
+        return view('invitations.join', compact('group', 'token'));
+    }
+
     public function join(Group $group, string $token, GroupMemberService $service)
     {
         $user = Auth::user();
@@ -26,7 +31,7 @@ class MemberController extends Controller
         } catch (InvalidInvitationException $e) {
             return redirect()->route('groups.index')->with('error', $e->getMessage());
         } catch (AlreadyMemberException $e) {
-            return redirect()->back()->with('info', $e->getMessage());
+            return redirect()->route('groups.index')->with('info', $e->getMessage());
         } catch (\Throwable $e) {
             return redirect()->route('groups.index')->with('error', '参加処理中にエラーが発生しました');
         }

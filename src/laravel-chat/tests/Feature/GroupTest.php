@@ -177,7 +177,7 @@ class GroupTest extends TestCase
             'token' => $token,
             'invitee_email' => $this->user->email,
         ]);
-        $response = $this->get(route('groups.invitations.join.token', [
+        $response = $this->post(route('groups.invitations.join', [
             'token' => $token,
             'group' => $this->group->id,
         ]));
@@ -186,6 +186,34 @@ class GroupTest extends TestCase
         $this->assertDatabaseHas('group_user', [
             'user_id' => $this->user->id,
             'group_id' => $this->group->id,
+        ]);
+    }
+
+    public function test_opening_invitation_link_does_not_join_group(): void
+    {
+        $this->actingAs($this->user);
+        $inviter = User::factory()->create();
+        $token = 'dummyToken123';
+        $invitation = Invitation::factory()->create([
+            'group_id' => $this->group->id,
+            'inviter_id' => $inviter->id,
+            'token' => $token,
+            'invitee_email' => $this->user->email,
+        ]);
+
+        $response = $this->get(route('groups.invitations.join.token', [
+            'token' => $token,
+            'group' => $this->group->id,
+        ]));
+
+        $response->assertOk();
+        $this->assertDatabaseMissing('group_user', [
+            'user_id' => $this->user->id,
+            'group_id' => $this->group->id,
+        ]);
+        $this->assertDatabaseHas('invitations', [
+            'id' => $invitation->id,
+            'accepted_at' => null,
         ]);
     }
 
@@ -204,12 +232,13 @@ class GroupTest extends TestCase
             'expires_at' => now()->addDay(),
             'accepted_at' => null,
         ]);
-        $response = $this->get(route('groups.invitations.join.token', [
+        $response = $this->post(route('groups.invitations.join', [
             'token' => $token,
             'group' => $this->group->id,
         ]));
 
-        $response->assertRedirect('/');
+        $response->assertRedirect(route('groups.index', absolute: false));
+        $response->assertSessionHas('info', '既にグループに参加しています');
         $this->assertDatabaseHas('group_user', [
             'user_id' => $this->user->id,
             'group_id' => $this->group->id,
@@ -261,7 +290,7 @@ class GroupTest extends TestCase
             'token' => $token,
             'invitee_email' => $this->user->email,
         ]);
-        $response = $this->get(route('groups.invitations.join.token', [
+        $response = $this->post(route('groups.invitations.join', [
             'token' => $token,
             'group' => $this->group->id,
         ]));

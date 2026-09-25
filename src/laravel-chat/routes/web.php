@@ -43,7 +43,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             // 招待管理
             Route::prefix('invitations')->name('invitations.')->group(function () {
                 Route::post('/', [InvitationController::class, 'invite'])->name('invite');
-                Route::get('/{token}/join', [MemberController::class, 'join'])->name('join.token');
+                Route::get('/{token}/join', [MemberController::class, 'joinForm'])->name('join.token');
+                Route::post('/{token}/join', [MemberController::class, 'join'])->name('join');
                 Route::post('/{invitation}/resend', [InvitationController::class, 'resend'])->name('resend');
             });
         });
