@@ -237,7 +237,8 @@ class GroupTest extends TestCase
             'group' => $this->group->id,
         ]));
 
-        $response->assertRedirect('/');
+        $response->assertRedirect(route('groups.index', absolute: false));
+        $response->assertSessionHas('info', '既にグループに参加しています');
         $this->assertDatabaseHas('group_user', [
             'user_id' => $this->user->id,
             'group_id' => $this->group->id,
