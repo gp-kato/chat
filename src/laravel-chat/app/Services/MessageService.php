@@ -16,7 +16,10 @@ class MessageService
     {
         $messages = Message::latestForGroup($group, $limit)
             ->get()
-            ->sortBy('id')
+            ->sortBy([
+                ['created_at', 'asc'],
+                ['id', 'asc'],
+            ])
             ->values();
 
             return $messages;
@@ -42,11 +45,24 @@ class MessageService
     {
         $query = $group->messages()
             ->with('user')
+            ->orderBy('created_at', 'desc')
             ->orderBy('id', 'desc')
             ->limit(self::FETCH_LIMIT + 1);
 
         if ($beforeId) {
-            $query->where('id', '<', $beforeId);
+            $cursor = $group->messages()->select(['id', 'created_at'])->find($beforeId);
+
+            if ($cursor) {
+                $query->where(function ($query) use ($cursor) {
+                    $query->where('created_at', '<', $cursor->created_at)
+                        ->orWhere(function ($query) use ($cursor) {
+                            $query->where('created_at', $cursor->created_at)
+                                ->where('id', '<', $cursor->id);
+                        });
+                });
+            } else {
+                $query->where('id', '<', $beforeId);
+            }
         }
 
         $messages = $query->get();
@@ -58,7 +74,10 @@ class MessageService
             $messages = $messages->slice(0, self::FETCH_LIMIT);
         }
 
-        $messages = $messages->sortBy('id')->values();
+        $messages = $messages->sortBy([
+            ['created_at', 'asc'],
+            ['id', 'asc'],
+        ])->values();
 
         $html = '';
 

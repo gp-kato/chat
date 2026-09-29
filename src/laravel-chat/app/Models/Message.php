@@ -31,6 +31,7 @@ class Message extends Model
         return $query
             ->where('group_id', $group->id)
             ->with('user')
+            ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->limit($limit);
     }

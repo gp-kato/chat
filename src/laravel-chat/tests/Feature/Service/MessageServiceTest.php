@@ -293,6 +293,50 @@ class MessageServiceTest extends TestCase
         );
     }
 
+    public function test_recent_messages_are_ordered_by_created_at_then_id(): void
+    {
+        $messages = collect([
+            Message::factory()->for($this->user)->for($this->group)->create([
+                'created_at' => now()->subMinutes(2),
+            ]),
+            Message::factory()->for($this->user)->for($this->group)->create([
+                'created_at' => now()->subMinute(),
+            ]),
+            Message::factory()->for($this->user)->for($this->group)->create([
+                'created_at' => now()->subMinutes(3),
+            ]),
+        ]);
+
+        $result = app(MessageService::class)->getRecentMessages($this->group);
+
+        $this->assertSame(
+            [$messages[2]->id, $messages[0]->id, $messages[1]->id],
+            $result->pluck('id')->all()
+        );
+    }
+
+    public function test_fetch_uses_created_at_cursor_even_when_ids_are_out_of_time_order(): void
+    {
+        $older = Message::factory()->for($this->user)->for($this->group)->create([
+            'content' => 'older',
+            'created_at' => now()->subMinutes(3),
+        ]);
+        Message::factory()->for($this->user)->for($this->group)->create([
+            'content' => 'newer with higher id',
+            'created_at' => now()->subMinute(),
+        ]);
+        $cursor = Message::factory()->for($this->user)->for($this->group)->create([
+            'content' => 'cursor',
+            'created_at' => now()->subMinutes(2),
+        ]);
+
+        $result = app(MessageService::class)->fetch($this->group, $cursor->id);
+
+        $this->assertStringContainsString('older', $result['html']);
+        $this->assertStringNotContainsString('newer with higher id', $result['html']);
+        $this->assertStringNotContainsString('cursor', $result['html']);
+    }
+
     public function test_fetch_should_not_include_messages_from_other_groups(): void
     {
         $this->actingAs($this->user);
